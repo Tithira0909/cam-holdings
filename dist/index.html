@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAM Holdings (PVT) LTD</title>
+
+    <!-- Optional: improve font rendering -->
+    <meta name="theme-color" content="#070708" />
+    <meta name="color-scheme" content="dark" />
+
+    <script type="module" crossorigin src="/assets/index-hrgfusk8.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BiPikRVV.css">
+  </head>
+
+  <body>
+    <!-- =========================
+         LUX LOADER
+    ========================== -->
+    <div id="lux-loader" aria-hidden="false">
+      <canvas id="lux-particles"></canvas>
+      <div class="lux-vignette"></div>
+
+      <div class="lux-center">
+        <div class="lux-logo-split" aria-label="CAM Holdings Loader Logo">
+          <img src="/cam-logo.png" class="lux-logo" alt="CAM Holdings Logo" />
+          <div class="lux-slice lux-left"></div>
+          <div class="lux-slice lux-right"></div>
+        </div>
+
+        <div class="lux-tagline">Design. Build. Elevate.</div>
+
+        <div class="lux-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="lux-bar"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         APP WRAP
+    ========================== -->
+    <div id="app" style="opacity:0;">
+      <!-- NAV -->
+      <nav class="nav" aria-label="Primary">
+        <div class="nav-left">
+          <a class="nav-link" href="/index.html">Home</a>
+          <a class="nav-link mega-trigger" href="/services.html" aria-haspopup="true" aria-expanded="false">Services</a>
+
+          <!-- If you want this to scroll on same page, change href to #projects -->
+          <a class="nav-link" href="/projects.html">Projects</a>
+
+          <a class="nav-link" href="/blogs.html">Blogs</a>
+          <a class="nav-link" href="/contact.html">Contact</a>
+        </div>
+
+        <a class="brand" href="/index.html" aria-label="CAM Holdings Home">
+          <img class="brand-mark" src="/cam-logo.png" alt="CAM Holdings Logo" />
+          <span class="brand-text">CAM <em>Holdings</em></span>
+        </a>
+
+        <div class="nav-right">
+          <a class="pill" href="/why-cam.html">Why CAM</a>
+          <a class="pill pill-gold" href="#book">Get a Quote</a>
+
+          <button class="hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-drawer">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+
+        <!-- MEGA MENU -->
+        <div class="mega" aria-hidden="true">
+          <div class="mega-inner">
+            <div class="mega-col">
+              <h4 data-step="01" data-title="Real Estate & Development" data-img="/assets/mega/realestate.jpg">
+                Real Estate & Property Development
+              </h4>
+              <a data-step="01" data-title="Land Projects / Gated Communities" data-img="/assets/mega/realestate.jpg" href="/services.html">
+                Land Projects / Gated Communities
+              </a>
+              <a data-step="02" data-title="Signature Residences" data-img="/assets/mega/realestate.jpg" href="/services.html">
+                Signature Residences
+              </a>
+              <a data-step="03" data-title="Payment & Investment Plans" data-img="/assets/mega/realestate.jpg" href="#packages">
+                Payment & Investment Plans
+              </a>
+              <a data-step="04" data-title="Advertising & Legal Support" data-img="/assets/mega/realestate.jpg" href="/contact.html">
+                Property Advertising & Legal Support
+              </a>
+            </div>
+
+            <div class="mega-col">
+              <h4 data-step="01" data-title="Design & Architecture" data-img="/assets/mega/design.jpg">Design & Architecture</h4>
+              <a data-step="02" data-title="Design Packages" data-img="/assets/mega/design.jpg" href="#packages">
+                Design Packages (Basic / Premium / Luxury)
+              </a>
+              <a data-step="03" data-title="3D Visualization & Green Design" data-img="/assets/mega/design.jpg" href="#projects">
+                3D Visualization & Green Design
+              </a>
+            </div>
+
+            <div class="mega-col">
+              <h4 data-step="01" data-title="Construction & Management" data-img="/assets/mega/construction.jpg">
+                Construction & Project Management
+              </h4>
+              <a data-step="02" data-title="Full Build Services" data-img="/assets/mega/fullbuild.jpg" href="/services.html">
+                Full Build Services
+              </a>
+              <a data-step="03" data-title="Renovation / Remodeling" data-img="/assets/mega/reno.jpg" href="/services.html">
+                Renovation / Remodeling
+              </a>
+              <a data-step="04" data-title="Quality & Warranty" data-img="/assets/mega/quality.jpg" href="/why-cam.html">
+                Quality & Warranty Commitments
+              </a>
+            </div>
+
+            <div class="mega-col">
+              <h4 data-step="01" data-title="Interiors & Finishing" data-img="/assets/mega/interiors.jpg">Interiors & Finishing</h4>
+              <a data-step="02" data-title="Full Interior Packages" data-img="/assets/mega/interiorpack.jpg" href="#packages">
+                Full Interior Packages
+              </a>
+              <a data-step="03" data-title="Custom Furniture / Showroom" data-img="/assets/mega/furniture.jpg" href="#projects">
+                Custom Furniture / Styles Showroom
+              </a>
+            </div>
+
+            <div class="mega-preview" aria-label="Mega preview">
+              <div class="mega-step">
+                <div class="mega-step-badge" id="megaStepBadge">01</div>
+                <div>
+                  <div class="mega-step-kicker">Preview</div>
+                  <div class="mega-step-title" id="megaStepTitle">Real Estate & Development</div>
+                  <div class="mega-step-dots" id="megaDots">
+                    <span class="mdot active"></span>
+                    <span class="mdot"></span>
+                    <span class="mdot"></span>
+                    <span class="mdot"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mega-preview-media">
+                <img id="megaPreviewImg" src="/assets/mega/realestate.jpg" alt="Preview" />
+              </div>
+
+              <div class="mega-preview-cta">
+                <a class="btn ghost" href="#projects">View Projects</a>
+                <a class="btn primary" href="#book">Request Proposal</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOBILE DRAWER -->
+        <div class="drawer" id="mobile-drawer" aria-hidden="true">
+          <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Mobile menu">
+            <div class="drawer-top">
+              <div class="drawer-brand">
+                <img src="/cam-logo.png" alt="" />
+                <div>
+                  <strong>CAM Holdings</strong>
+                  <span>(PVT) LTD</span>
+                </div>
+              </div>
+              <button class="drawer-close" type="button" aria-label="Close menu">✕</button>
+            </div>
+
+            <div class="drawer-links">
+              <a class="nav-link" href="/index.html">Home</a>
+              <a href="/services.html">Services</a>
+              <a href="/projects.html">Projects</a>
+              <a href="#packages">Packages</a>
+              <a href="/why-cam.html">Why CAM</a>
+              <a href="#book" class="drawer-cta">Get a Quote</a>
+            </div>
+
+            <p class="drawer-foot muted">Luxury builds • trusted delivery • investor-friendly planning</p>
+          </div>
+        </div>
+      </nav>
+
+      <main>
+        <!-- HERO -->
+        <section class="hero" id="hero">
+          <canvas></canvas>
+          <div class="hero-overlay"></div>
+
+          <div class="hero-content">
+            <div class="hero-header hero-contrast" data-stagger>
+              <h1 class="hero-h" data-stagger-item>
+                <span class="hero-line">Build premium spaces with</span>
+                <span class="hero-line"><em>CAM Holdings (PVT) LTD</em></span>
+              </h1>
+
+              <p class="hero-sub" data-stagger-item>
+                End-to-end property development, architectural design, construction management, and luxury interiors —
+                delivered with trust, quality, and signature finishing.
+              </p>
+
+              <div class="hero-actions" data-stagger-item>
+                <a class="btn primary" href="#book">Request a Proposal</a>
+                <a class="btn ghost" href="#projects">Explore Projects</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-stats" data-stagger>
+            <div class="stat" data-stagger-item>
+              <div class="stat-num">Premium</div>
+              <div class="stat-lbl">Finish Levels</div>
+            </div>
+            <div class="stat" data-stagger-item>
+              <div class="stat-num">On-Time</div>
+              <div class="stat-lbl">Delivery Focus</div>
+            </div>
+            <div class="stat" data-stagger-item>
+              <div class="stat-num">End-to-End</div>
+              <div class="stat-lbl">One Partner</div>
+            </div>
+          </div>
+
+          <div class="scroll-hint" aria-hidden="true">
+            <span></span>
+            <small>Scroll</small>
+          </div>
+        </section>
+
+        <!-- ITERATE -->
+        <section class="iterate" id="iterate">
+          <div class="iterate-bg" aria-hidden="true">
+            <div class="it-vignette"></div>
+            <div class="it-goldwash"></div>
+            <div class="it-grid"></div>
+            <div class="it-grain"></div>
+          </div>
+
+          <div class="iterate-bar">
+            <div class="iterate-left">
+              <div class="iterate-badge" id="itBadge">01</div>
+              <div class="iterate-meta">
+                <div class="iterate-title" id="itTitle">ITERATE</div>
+                <div class="iterate-progress">
+                  <span><span id="itNow">1</span>/<span id="itTotal">4</span></span>
+                  <div class="iterate-dots" id="itDots">
+                    <span class="idot active"></span>
+                    <span class="idot"></span>
+                    <span class="idot"></span>
+                    <span class="idot"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="iterate-tabs" role="tablist" aria-label="Iterate steps">
+              <button class="itab active" type="button" data-step="0">PLAN</button>
+              <button class="itab" type="button" data-step="1">DESIGN</button>
+              <button class="itab" type="button" data-step="2">BUILD</button>
+              <button class="itab" type="button" data-step="3">FINISH</button>
+            </div>
+          </div>
+
+          <div class="iterate-wrap">
+            <div class="iterate-content">
+              <p class="kicker" id="itMiniKicker"><span class="dot"></span> End-to-End Delivery</p>
+              <h2 class="iterate-h" id="itHeading">Plan and align your project from day one.</h2>
+              <p class="iterate-p" id="itBody">
+                Define scope, budget, timeline, approvals, and investor-friendly milestones. We keep every decision traceable
+                so delivery stays predictable.
+              </p>
+
+             
+
+              <div class="iterate-mini">
+                <div class="mini">
+                  <div class="mini-title" id="ipFootA">Phased delivery</div>
+                  <div class="mini-sub">TIMELINE</div>
+                </div>
+                <div class="mini">
+                  <div class="mini-title" id="ipFootB">Spec compliance</div>
+                  <div class="mini-sub">QUALITY</div>
+                </div>
+                <div class="mini">
+                  <div class="mini-title" id="ipFootC">Weekly reporting</div>
+                  <div class="mini-sub">CONTROL</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="iterate-preview" aria-label="Step preview">
+              <div class="iterate-glow" id="itGlow"></div>
+
+              <div class="preview-head">
+                <div class="preview-chip" id="ipChip">01 • PLAN</div>
+                <div class="preview-sub" id="ipSub">Blueprint clarity</div>
+              </div>
+
+              <div class="stack" id="ipStack" aria-hidden="true">
+                <div class="stack-card" data-i="0"></div>
+                <div class="stack-card" data-i="1"></div>
+                <div class="stack-card" data-i="2"></div>
+                <div class="stack-card" data-i="3"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="iterate-panels" aria-hidden="true">
+            <div class="iterate-panel"></div>
+            <div class="iterate-panel"></div>
+            <div class="iterate-panel"></div>
+            <div class="iterate-panel"></div>
+          </div>
+        </section>
+
+        <!-- PROJECTS -->
+        <section class="section section-dark" id="projects">
+          <div class="wrap">
+            <div class="section-head" data-stagger>
+              <p class="kicker" data-stagger-item><span class="dot"></span> Selected Work</p>
+              <h2 class="h2" data-stagger-item>Projects that reflect luxury, precision, and trust.</h2>
+              <p data-stagger-item>
+                From signature residences to interior transformations — each project is managed end-to-end with clear milestones
+                and premium finishing.
+              </p>
+            </div>
+
+            
+
+            <div class="projects-grid" data-stagger>
+              <a class="project-card" href="/projects.html" data-stagger-item>
+                <div class="pc-media" style="background-image:url('/assets/projects/p1.jpg')" data-parallax="0.06"></div>
+                <div class="pc-body">
+                  <div class="pc-k">Signature Residence</div>
+                  <div class="pc-t">Modern Luxury Villa</div>
+                  <div class="pc-m">Architecture + build management + interiors.</div>
+                </div>
+              </a>
+
+              <a class="project-card" href="/projects.html" data-stagger-item>
+                <div class="pc-media" style="background-image:url('/assets/projects/p2.jpg')" data-parallax="0.06"></div>
+                <div class="pc-body">
+                  <div class="pc-k">Interiors</div>
+                  <div class="pc-t">Premium Finishing Suite</div>
+                  <div class="pc-m">Materials, lighting, custom detailing.</div>
+                </div>
+              </a>
+
+              <a class="project-card" href="/projects.html" data-stagger-item>
+                <div class="pc-media" style="background-image:url('/assets/projects/p3.jpg')" data-parallax="0.06"></div>
+                <div class="pc-body">
+                  <div class="pc-k">Development</div>
+                  <div class="pc-t">Gated Community Plot</div>
+                  <div class="pc-m">Planning, approvals, investor-friendly delivery.</div>
+                </div>
+              </a>
+            </div>
+
+           
+        </section>
+
+        <!-- PACKAGES -->
+        <section class="section" id="packages">
+          <div class="wrap">
+            <div class="section-head" data-stagger>
+              <p class="kicker" data-stagger-item><span class="dot"></span> Packages</p>
+              <h2 class="h2" data-stagger-item>Choose a finish level that matches your vision.</h2>
+              <p data-stagger-item>Clear tiers, premium materials, and a process that protects quality from concept to handover.</p>
+            </div>
+
+            <div class="packages-grid" data-stagger>
+              <article class="pkg" data-stagger-item>
+                <div class="pkg-top">
+                  <div class="pkg-name">Basic</div>
+                  <div class="pkg-tag">Starter</div>
+                </div>
+                <ul class="pkg-list">
+                  <li>Planning + scope alignment</li>
+                  <li>Essential design direction</li>
+                  <li>Standard material guidance</li>
+                  <li>Milestone-based tracking</li>
+                </ul>
+                <div class="pkg-actions">
+                  <a class="btn ghost" href="/services.html">View Details</a>
+                  <a class="btn primary" href="#book">Get Quote</a>
+                </div>
+              </article>
+
+              <article class="pkg pkg-feature" data-stagger-item>
+                <div class="pkg-top">
+                  <div class="pkg-name">Premium</div>
+                  <div class="pkg-tag gold">Most Popular</div>
+                </div>
+                <ul class="pkg-list">
+                  <li>3D visualization support</li>
+                  <li>Upgraded finishes + lighting plan</li>
+                  <li>Quality checks & reporting</li>
+                  <li>Improved handover readiness</li>
+                </ul>
+                <div class="pkg-actions">
+                  <a class="btn ghost" href="/services.html">View Details</a>
+                  <a class="btn primary" href="#book">Get Quote</a>
+                </div>
+              </article>
+
+              <article class="pkg" data-stagger-item>
+                <div class="pkg-top">
+                  <div class="pkg-name">Luxury</div>
+                  <div class="pkg-tag">Signature</div>
+                </div>
+                <ul class="pkg-list">
+                  <li>High-end materials & detailing</li>
+                  <li>Custom joinery + feature lighting</li>
+                  <li>Strict site control & inspections</li>
+                  <li>Signature styling & finishing</li>
+                </ul>
+                <div class="pkg-actions">
+                  <a class="btn ghost" href="/services.html">View Details</a>
+                  <a class="btn primary" href="#book">Get Quote</a>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- BOOK -->
+<section class="section section-dark" id="book">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker"><span class="dot"></span> Book an Appointment</p>
+      <h2 class="h2">Let’s align the scope, timeline, and budget.</h2>
+      <p>Pick a preferred service pillar and schedule a consultation. We’ll respond with a plan and next steps.</p>
+    </div>
+
+    <div class="book-grid">
+      <form class="book-form">
+        <div class="bc-row">
+          <label>
+            <span>Full Name</span>
+            <input name="name" placeholder="Your name" required />
+          </label>
+          <label>
+            <span>Phone</span>
+            <input name="phone" placeholder="+94 ..." required />
+          </label>
+        </div>
+
+        <label>
+          <span>Email</span>
+          <input name="email" type="email" placeholder="you@email.com" required />
+        </label>
+
+        <div class="bc-row">
+          <label>
+            <span>Pillar</span>
+            <select name="pillar">
+              <option>Real Estate & Development</option>
+              <option>Design & Architecture</option>
+              <option>Construction & Management</option>
+              <option>Interiors & Finishing</option>
+            </select>
+          </label>
+          <label>
+            <span>Preferred Date</span>
+            <input name="date" type="date" />
+          </label>
+        </div>
+
+        <label>
+          <span>Message</span>
+          <textarea name="message" rows="4" placeholder="Briefly describe your requirement..."></textarea>
+        </label>
+
+        <div class="bc-actions">
+          <button class="btn primary" type="submit">Book Now</button>
+          <a class="btn ghost" href="/contact.html">Contact Page</a>
+        </div>
+
+        <p class="muted small" style="margin-top:10px">
+          By submitting, you agree to be contacted by CAM Holdings (PVT) LTD.
+        </p>
+      </form>
+
+      <div class="book-benefits">
+        <div class="benefit">
+          <h4>Investor-friendly milestones</h4>
+          <p>Clear phases, approvals, and progress reporting.</p>
+        </div>
+
+        <div class="benefit">
+          <h4>Transparent estimates</h4>
+          <p>Scope-driven costing and material specification clarity.</p>
+        </div>
+
+        <div class="benefit">
+          <h4>One partner end-to-end</h4>
+          <p>Design → build → interiors → finishing, coordinated.</p>
+        </div>
+      </div>
+    </div> <!-- ✅ book-grid -->
+  </div>   <!-- ✅ wrap -->
+</section>
+
+
+        <!-- REVIEWS -->
+        
+      <section id="reviews" class="section section-dark">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker"><span class="dot"></span> CLIENT REVIEWS</span>
+      <h2 class="h2">Confidence built on delivery.</h2>
+      <p>Clients trust our process — from planning clarity to premium finishing.</p>
+    </div>
+
+    <div class="reviews-grid">
+      <!-- Card 1 -->
+      <article class="review-card">
+        <div class="review-top">
+          <div class="stars" aria-label="5 star rating">
+            ★★★★★
+          </div>
+          <span class="review-pill">Planning</span>
+        </div>
+
+        <p class="review-text">
+          Clear milestone plan and consistent updates. Delivery stayed predictable.
+        </p>
+
+        <div class="review-footer">
+          <span class="review-name">Client</span>
+          <span class="review-loc">Colombo</span>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="review-card">
+        <div class="review-top">
+          <div class="stars" aria-label="5 star rating">★★★★★</div>
+          <span class="review-pill">Design</span>
+        </div>
+
+        <p class="review-text">
+          The luxury interior detailing and materials guidance was excellent.
+        </p>
+
+        <div class="review-footer">
+          <span class="review-name">Client</span>
+          <span class="review-loc">Kandy</span>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="review-card">
+        <div class="review-top">
+          <div class="stars" aria-label="5 star rating">★★★★★</div>
+          <span class="review-pill">Build</span>
+        </div>
+
+        <p class="review-text">
+          Strong site control and quality checks. The finishing was premium.
+        </p>
+
+        <div class="review-footer">
+          <span class="review-name">Client</span>
+          <span class="review-loc">Galle</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+        <!-- FOOTER -->
+   <footer class="adaline-footer">
+  <div class="footer-bg" aria-hidden="true"></div>
+  <div class="footer-overlay" aria-hidden="true"></div>
+
+  <div class="footer-wrap">
+    <!-- Left brand -->
+    <div class="footer-brand">
+      <a class="footer-logo" href="/">
+        <span class="logo-mark"></span>
+        <span class="logo-text">CAM HOLDINGS</span>
+      </a>
+
+      <p class="footer-copy">© 2025 CAM Holdings. All rights reserved.</p>
+    </div>
+
+    <!-- Columns -->
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4 class="footer-title">PILLARS</h4>
+        <a class="footer-link" href="#iterate">Iterate</a>
+        <a class="footer-link" href="#evaluate">Evaluate</a>
+        <a class="footer-link" href="#deploy">Deploy</a>
+        <a class="footer-link" href="#monitor">Monitor</a>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-title">PRODUCTS</h4>
+        <a class="footer-link" href="#editor">Editor</a>
+        <a class="footer-link" href="#playground">Playground</a>
+        <a class="footer-link" href="#datasets">Datasets</a>
+        <a class="footer-link" href="#analytics">Analytics</a>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-title">COMPANY</h4>
+        <a class="footer-link" href="#labs">Labs</a>
+        <a class="footer-link" href="#pricing">Pricing</a>
+        <a class="footer-link" href="#careers">Careers</a>
+        <a class="footer-link" href="#demo">Book a Demo</a>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-title">RESOURCES</h4>
+        <a class="footer-link" href="#docs">Documentation</a>
+        <a class="footer-link" href="#api">API Reference</a>
+        <a class="footer-link" href="#privacy">Privacy Policy</a>
+        <a class="footer-link" href="#terms">Terms of Service</a>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-title">CONNECT</h4>
+        <a class="footer-link" href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
+        <a class="footer-link" href="https://twitter.com/" target="_blank" rel="noreferrer">X (Twitter)</a>
+        <a class="footer-link" href="https://linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a class="footer-link" href="https://youtube.com/" target="_blank" rel="noreferrer">YouTube</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+      </main>
+    </div>
+
+    <!-- =========================
+         Main site script (GSAP/Lenis)
+    ========================== -->
+
+    <!-- =========================
+         Loader animation script
+    ========================== -->
+    <script>
+      (() => {
+        const loader = document.getElementById("lux-loader");
+        const app = document.getElementById("app");
+        const bar = loader?.querySelector(".lux-bar");
+        const prog = loader?.querySelector(".lux-progress");
+        const canvas = document.getElementById("lux-particles");
+        if (!loader || !app || !bar || !prog || !canvas) return;
+
+        const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+        const prefersReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        let mx = window.innerWidth * 0.5,
+          my = window.innerHeight * 0.45;
+
+        const onMove = (e) => {
+          mx = e.clientX;
+          my = e.clientY;
+          loader.style.setProperty("--mx", mx + "px");
+          loader.style.setProperty("--my", my + "px");
+          loader.classList.add("magnet");
+        };
+
+        window.addEventListener("mousemove", onMove, { passive: true });
+        window.addEventListener("mouseleave", () => loader.classList.remove("magnet"));
+
+        const center = loader.querySelector(".lux-center");
+        let tx = 0,
+          ty = 0;
+
+        const floatMove = (e) => {
+          if (!center || prefersReduce) return;
+          const cx = window.innerWidth / 2;
+          const cy = window.innerHeight / 2;
+          const dx = (e.clientX - cx) / cx;
+          const dy = (e.clientY - cy) / cy;
+          ty = dx * 4;
+          tx = -dy * 3;
+        };
+
+        window.addEventListener("mousemove", floatMove, { passive: true });
+
+        const ctx = canvas.getContext("2d");
+        const resize = () => {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          canvas.width = Math.floor(window.innerWidth * dpr);
+          canvas.height = Math.floor(window.innerHeight * dpr);
+          canvas.style.width = window.innerWidth + "px";
+          canvas.style.height = window.innerHeight + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        };
+
+        resize();
+        window.addEventListener("resize", resize);
+
+        const dots = [];
+        const DOTS = prefersReduce ? 0 : Math.min(160, Math.floor((window.innerWidth * window.innerHeight) / 14000));
+        for (let i = 0; i < DOTS; i++) {
+          dots.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: 0.6 + Math.random() * 1.4,
+            vx: -0.12 + Math.random() * 0.24,
+            vy: -0.08 + Math.random() * 0.16,
+            a: 0.12 + Math.random() * 0.22,
+          });
+        }
+
+        function drawParticles() {
+          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+          const g = ctx.createRadialGradient(
+            window.innerWidth * 0.5,
+            window.innerHeight * 0.35,
+            50,
+            window.innerWidth * 0.5,
+            window.innerHeight * 0.35,
+            window.innerWidth * 0.75
+          );
+          g.addColorStop(0, "rgba(214,178,94,0.10)");
+          g.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+          for (const p of dots) {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < -10) p.x = window.innerWidth + 10;
+            if (p.x > window.innerWidth + 10) p.x = -10;
+            if (p.y < -10) p.y = window.innerHeight + 10;
+            if (p.y > window.innerHeight + 10) p.y = -10;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(214,178,94,${p.a})`;
+            ctx.fill();
+          }
+
+          if (loader.classList.contains("magnet")) {
+            const mg = ctx.createRadialGradient(mx, my, 0, mx, my, 260);
+            mg.addColorStop(0, "rgba(243,222,155,0.10)");
+            mg.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = mg;
+            ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+          }
+        }
+
+        let fake = 0;
+        let rafId = null;
+
+        function tick() {
+          fake += 0.35;
+          const target = clamp(fake, 0, 92);
+          bar.style.width = target + "%";
+          prog.setAttribute("aria-valuenow", String(Math.floor(target)));
+
+          if (center && !prefersReduce) {
+            center.style.transform = `perspective(900px) rotateX(${tx}deg) rotateY(${ty}deg) translateZ(0)`;
+          }
+
+          if (!prefersReduce) drawParticles();
+
+          rafId = requestAnimationFrame(tick);
+        }
+
+        rafId = requestAnimationFrame(tick);
+
+        setTimeout(() => loader.classList.add("pulse"), 900);
+        setTimeout(() => loader.classList.add("ready"), 300);
+
+        window.addEventListener("load", () => {
+          fake = Math.max(fake, 92);
+
+          const finish = () => {
+            bar.style.transition = "width 520ms ease";
+            bar.style.width = "100%";
+            prog.setAttribute("aria-valuenow", "100");
+
+            setTimeout(() => {
+              loader.classList.add("hide");
+              app.style.transition = "opacity 900ms ease";
+              app.style.opacity = 1;
+
+              setTimeout(() => {
+                cancelAnimationFrame(rafId);
+                loader.remove();
+                window.removeEventListener("mousemove", onMove);
+              }, 1000);
+            }, 650);
+          };
+
+          setTimeout(finish, 800);
+        });
+      })();
+    </script>
+  </body>
+</html>
