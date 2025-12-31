@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CAM Holdings</title>
+    <meta name="theme-color" content="#070708">
+    <meta name="color-scheme" content="dark">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .dashboard-wrap {
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+        .dashboard-content {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 8px;
+        }
+        .data-row {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .label {
+            color: #d6b25e;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body class="section-dark">
+    <div class="dashboard-wrap">
+        <header class="dashboard-header">
+            <h1 class="h2">Admin Dashboard</h1>
+            <button id="logoutBtn" class="btn ghost">Logout</button>
+        </header>
+
+        <main class="dashboard-content" id="content">
+            <p>Loading...</p>
+        </main>
+
+        <div style="margin-top: 30px;">
+            <a href="/" class="btn ghost">Back to Home Website</a>
+        </div>
+    </div>
+
+    <script>
+        // Check Auth
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        const contentDiv = document.getElementById('content');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Logout Logic
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('accessToken');
+            window.location.href = '/index.html';
+        });
+
+        // Fetch Admin Data
+        async function fetchAdminData() {
+            try {
+                const response = await fetch('http://localhost:5000/api/admin', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('accessToken');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                contentDiv.innerHTML = `
+                    <div class="data-row"><span class="label">Message:</span> ${data.message}</div>
+                    <div class="data-row"><span class="label">User:</span> ${data.user.username}</div>
+                    <div class="data-row"><span class="label">Role:</span> ${data.user.role}</div>
+                    <div class="data-row"><span class="label">Session Exp:</span> ${new Date(data.user.exp * 1000).toLocaleString()}</div>
+                `;
+
+            } catch (error) {
+                console.error('Error:', error);
+                contentDiv.innerHTML = '<p style="color:red">Error fetching data. Ensure backend is running.</p>';
+            }
+        }
+
+        fetchAdminData();
+    </script>
+</body>
+</html>
