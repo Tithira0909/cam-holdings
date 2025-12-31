@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const db = require('./db');
 require('dotenv').config();
 
 const app = express();
@@ -9,26 +10,6 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-
-// Mock Admin Credentials (in real app, use DB)
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD_PLAIN = process.env.ADMIN_PASSWORD;
-
-// Generate Hash for verification (Usually stored in DB)
-// For this simple example, we compare with plain text or we can hash it on startup.
-// Let's assume we store the hash.
-let ADMIN_PASSWORD_HASH;
-
-(async () => {
-    ADMIN_PASSWORD_HASH = await bcrypt.hash(ADMIN_PASSWORD_PLAIN, 10);
-})();
-
-// Mock Users Data
-const users = [
-    { id: 1, firstName: 'RDK', lastName: 'Admin', email: 'noreply.rdk@gmail.com', phone: '0112654987', status: 'Active', role: 'Admin' },
-    { id: 2, firstName: 'research', lastName: 'fastranking', email: 'research@fastranking.co.uk', phone: '0112654987', status: 'Active', role: 'Admin' },
-    { id: 3, firstName: 'seo', lastName: 'fastranking', email: 'seo@fastranking.co.uk', phone: '0112654987', status: 'Active', role: 'Admin' }
-];
 
 // Middleware to verify Token
 const authenticateToken = (req, res, next) => {
@@ -46,21 +27,79 @@ const authenticateToken = (req, res, next) => {
 
 // Login Route
 app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password } = req.body; // Expecting 'username' to be email for DB login, or generic username
 
     if (!username || !password) {
         return res.status(400).json({ message: 'Username and password are required' });
     }
 
-    if (username === ADMIN_USERNAME) {
-        const match = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
-        if (match) {
-            const accessToken = jwt.sign({ username: username, role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    try {
+        // Try DB Login (assuming username is email)
+        const [rows] = await db.query('SELECT * FROM admins WHERE email = ?', [username]);
+
+        if (rows.length > 0) {
+            const admin = rows[0];
+            const match = await bcrypt.compare(password, admin.password_hash);
+            if (match) {
+                const accessToken = jwt.sign(
+                    { id: admin.id, username: admin.email, role: admin.role },
+                    process.env.JWT_SECRET,
+                    { expiresIn: '1h' }
+                );
+                return res.json({ accessToken });
+            }
+        }
+        // Fallback for initial setup (if .env user matches and DB is empty or fails)
+        else if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+             const accessToken = jwt.sign(
+                { username: username, role: 'SuperAdmin' },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
             return res.json({ accessToken });
         }
+
+        res.status(401).json({ message: 'Invalid credentials' });
+    } catch (err) {
+        console.error(err);
+        // Fallback if DB fails
+        if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+             const accessToken = jwt.sign(
+                { username: username, role: 'SuperAdmin' },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
+            return res.json({ accessToken });
+        }
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Admin Registration Route
+app.post('/api/register-admin', authenticateToken, async (req, res) => {
+    const { firstName, lastName, email, phone, password, role } = req.body;
+
+    if (!firstName || !lastName || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required' });
     }
 
-    res.status(401).json({ message: 'Invalid credentials' });
+    try {
+        const passwordHash = await bcrypt.hash(password, 10);
+        const userRole = role || 'Admin';
+
+        const [result] = await db.query(
+            'INSERT INTO admins (first_name, last_name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)',
+            [firstName, lastName, email, phone, passwordHash, userRole]
+        );
+
+        res.status(201).json({ message: 'Admin registered successfully', adminId: result.insertId });
+    } catch (err) {
+        console.error(err);
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({ message: 'Email already exists' });
+        }
+        res.status(500).json({ message: 'Database error' });
+    }
 });
 
 // Admin Protected Route
@@ -69,8 +108,19 @@ app.get('/api/admin', authenticateToken, (req, res) => {
 });
 
 // Get Users Route
-app.get('/api/users', authenticateToken, (req, res) => {
-    res.json(users);
+app.get('/api/users', authenticateToken, async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, first_name AS firstName, last_name AS lastName, email, phone, status, role FROM admins');
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        // Return mock data if DB fails or empty (for demonstration/fallback)
+        const mockUsers = [
+            { id: 1, firstName: 'RDK', lastName: 'Admin', email: 'noreply.rdk@gmail.com', phone: '0112654987', status: 'Active', role: 'Admin' },
+            { id: 2, firstName: 'research', lastName: 'fastranking', email: 'research@fastranking.co.uk', phone: '0112654987', status: 'Active', role: 'Admin' }
+        ];
+        res.json(mockUsers);
+    }
 });
 
 app.listen(PORT, () => {
