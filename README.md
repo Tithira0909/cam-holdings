@@ -1,6 +1,6 @@
-# Backend Setup
+# Backend Setup with Admin Dashboard
 
-This project contains a Node.js/Express backend with Admin authentication.
+This project contains a Node.js/Express backend with Admin authentication and a Users management dashboard.
 
 ## Prerequisites
 
@@ -34,7 +34,6 @@ Or for development with auto-restart:
 ```bash
 npm run dev
 ```
-(Note: You need to add `"dev": "nodemon index.js"` to scripts in `package.json` manually if you want `npm run dev` to work, or just run `npx nodemon index.js`)
 
 The server runs on `http://localhost:5000` by default.
 
@@ -51,25 +50,23 @@ Logs in the admin user.
       "password": "secret"
     }
     ```
--   **Response**: JSON
-    ```json
-    {
-      "accessToken": "eyJhbGci..."
-    }
-    ```
+-   **Response**: JSON `{"accessToken": "..."}`
 
 ### GET /api/admin
 
-Protected route. Requires JWT token in Authorization header.
+Protected route. Verifies token.
 
--   **Headers**:
-    ```
-    Authorization: Bearer <your_access_token>
-    ```
--   **Response**: JSON
-    ```json
-    {
-      "message": "Welcome Admin",
-      "user": { ... }
-    }
-    ```
+### GET /api/users
+
+Protected route. Returns a list of registered admins/users.
+
+-   **Headers**: `Authorization: Bearer <token>`
+-   **Response**: JSON Array of User objects.
+
+## Admin Dashboard
+
+Access the dashboard via the frontend at `admin-dashboard.html` (or through the "Admin" link on the home page). You must log in first.
+The dashboard features:
+- Sidebar navigation.
+- Registered Admins list.
+- Search functionality.

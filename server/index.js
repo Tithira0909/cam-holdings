@@ -23,6 +23,13 @@ let ADMIN_PASSWORD_HASH;
     ADMIN_PASSWORD_HASH = await bcrypt.hash(ADMIN_PASSWORD_PLAIN, 10);
 })();
 
+// Mock Users Data
+const users = [
+    { id: 1, firstName: 'RDK', lastName: 'Admin', email: 'noreply.rdk@gmail.com', phone: '0112654987', status: 'Active', role: 'Admin' },
+    { id: 2, firstName: 'research', lastName: 'fastranking', email: 'research@fastranking.co.uk', phone: '0112654987', status: 'Active', role: 'Admin' },
+    { id: 3, firstName: 'seo', lastName: 'fastranking', email: 'seo@fastranking.co.uk', phone: '0112654987', status: 'Active', role: 'Admin' }
+];
+
 // Middleware to verify Token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -59,6 +66,11 @@ app.post('/api/login', async (req, res) => {
 // Admin Protected Route
 app.get('/api/admin', authenticateToken, (req, res) => {
     res.json({ message: 'Welcome Admin', user: req.user });
+});
+
+// Get Users Route
+app.get('/api/users', authenticateToken, (req, res) => {
+    res.json(users);
 });
 
 app.listen(PORT, () => {
