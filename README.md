@@ -1,11 +1,10 @@
-# CAM Holdings - Admin Dashboard Backend
+# CAM Holdings - Admin Dashboard
 
 This repository contains the backend and frontend setup for the CAM Holdings Admin Dashboard.
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) (v14 or higher)
-- [MySQL](https://www.mysql.com/)
 
 ## Installation
 
@@ -19,13 +18,9 @@ This repository contains the backend and frontend setup for the CAM Holdings Adm
     npm install
     ```
 
-## Database Setup
+## Database
 
-1.  Create the database and table using the provided schema:
-    ```bash
-    mysql -u root -p < schema.sql
-    ```
-    (Or copy the contents of `schema.sql` and run them in your preferred SQL client).
+The project uses a zero-configuration SQLite database (`server/cam.db`). The database file will be created automatically when you start the server for the first time. No manual SQL setup is required.
 
 ## Configuration
 
@@ -38,38 +33,33 @@ This repository contains the backend and frontend setup for the CAM Holdings Adm
 
     ```env
     PORT=5000
-
-    # Database Configuration
-    DB_HOST=localhost
-    DB_USER=root
-    DB_PASSWORD=your_password
-    DB_NAME=cam_holdings
-
-    # JWT Secret
     JWT_SECRET=your_super_secret_key_change_this
 
-    # Fallback Admin Credentials (used if DB connection fails)
+    # Fallback/Default Super Admin (used if DB is empty or fails)
     ADMIN_USERNAME=admin@camholdings.com
     ADMIN_PASSWORD=admin
     ```
 
 ## Running the Application
 
-1.  Start the server:
+1.  Start the backend server:
     ```bash
+    cd server
     npm start
     ```
     The server will run on `http://localhost:5000`.
 
 2.  Serve the frontend:
-    You can use any static file server to serve the root directory. For example, using `serve`:
+    Open `login.html` in your browser. (Note: For best results with API calls, serve the root directory using a static server).
     ```bash
     npx serve .
     ```
-    Or simply open `login.html` in your browser (though API calls might need CORS adjustment if not on the same origin/port, currently backend handles CORS).
 
 ## Usage
 
-1.  Go to `login.html`.
-2.  Login with the credentials created in the database or the fallback credentials from `.env`.
-3.  Access the dashboard at `admin-dashboard.html`.
+1.  Go to `login.html` (e.g., `http://localhost:3000/login.html`).
+2.  Login with:
+    - **Username:** `admin@camholdings.com`
+    - **Password:** `admin`
+3.  Navigate to **Users > Admin Registration** to add new admins.
+4.  Navigate to **Users > Registered Admins** to view the list.

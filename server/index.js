@@ -96,7 +96,8 @@ app.post('/api/register-admin', authenticateToken, async (req, res) => {
         res.status(201).json({ message: 'Admin registered successfully', adminId: result.insertId });
     } catch (err) {
         console.error(err);
-        if (err.code === 'ER_DUP_ENTRY') {
+        // SQLite constraint error for unique fields
+        if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('UNIQUE')) {
             return res.status(400).json({ message: 'Email already exists' });
         }
         res.status(500).json({ message: 'Database error' });
