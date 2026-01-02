@@ -1,6 +1,6 @@
-# CAM Holdings Backend
+# CAM Holdings Server
 
-This is the backend for the CAM Holdings application, built with Node.js, Express, and MySQL.
+This is the backend server for the CAM Holdings application, built with Node.js, Express, and MySQL.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ This is the backend for the CAM Holdings application, built with Node.js, Expres
 
 ## Setup
 
-1.  **Clone the repository** and navigate to the `backend` directory.
+1.  **Clone the repository** and navigate to the `server` directory.
 
 2.  **Install dependencies**:
     ```bash
