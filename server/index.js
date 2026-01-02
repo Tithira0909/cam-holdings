@@ -49,8 +49,9 @@ app.post('/api/login', async (req, res) => {
                 return res.json({ accessToken });
             }
         }
-        // Fallback for initial setup (if .env user matches and DB is empty or fails)
-        else if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+
+        // If DB query returns no rows, check env fallback
+        if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
              const accessToken = jwt.sign(
                 { username: username, role: 'SuperAdmin' },
                 process.env.JWT_SECRET,
@@ -61,8 +62,8 @@ app.post('/api/login', async (req, res) => {
 
         res.status(401).json({ message: 'Invalid credentials' });
     } catch (err) {
-        console.error(err);
-        // Fallback if DB fails
+        // Fallback if DB fails (e.g. connection refused)
+        console.error('Database error during login, attempting fallback:', err.message);
         if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
              const accessToken = jwt.sign(
                 { username: username, role: 'SuperAdmin' },
@@ -116,8 +117,8 @@ app.get('/api/users', authenticateToken, async (req, res) => {
         console.error(err);
         // Return mock data if DB fails or empty (for demonstration/fallback)
         const mockUsers = [
-            { id: 1, firstName: 'RDK', lastName: 'Admin', email: 'noreply.rdk@gmail.com', phone: '0112654987', status: 'Active', role: 'Admin' },
-            { id: 2, firstName: 'research', lastName: 'fastranking', email: 'research@fastranking.co.uk', phone: '0112654987', status: 'Active', role: 'Admin' }
+            { id: 1, firstName: 'CAM', lastName: 'Admin', email: 'admin@camholdings.com', phone: '0112000000', status: 'Active', role: 'SuperAdmin' },
+            { id: 2, firstName: 'Staff', lastName: 'Member', email: 'staff@camholdings.com', phone: '0112000001', status: 'Active', role: 'Admin' }
         ];
         res.json(mockUsers);
     }
