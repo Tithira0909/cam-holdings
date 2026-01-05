@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #070708;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 1rem;
+        }
+        h1 {
+            color: #D6B25E;
+            margin: 0;
+        }
+        button.logout-btn {
+            background-color: transparent;
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button.logout-btn:hover {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        .add-project-form {
+            background-color: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .add-project-form h2 {
+            margin-top: 0;
+            color: #D6B25E;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #333;
+            color: white;
+            box-sizing: border-box;
+        }
+        button.add-btn {
+            background-color: #D6B25E;
+            color: black;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button.add-btn:hover {
+            background-color: #c4a04e;
+        }
+        .projects-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .project-card {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .project-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #333;
+        }
+        .project-content {
+            padding: 1rem;
+        }
+        .project-title {
+            margin-top: 0;
+            color: #D6B25E;
+        }
+        .delete-btn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1rem;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Project Dashboard</h1>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </header>
+
+        <section class="add-project-form">
+            <h2>Add New Project</h2>
+            <form id="addProjectForm">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="imageUrl">Image URL</label>
+                    <input type="text" id="imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg">
+                </div>
+                <button type="submit" class="add-btn">Add Project</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Existing Projects</h2>
+            <div id="projectsList" class="projects-list">
+                <!-- Projects will be loaded here -->
+                <p>Loading projects...</p>
+            </div>
+        </section>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+</html>
