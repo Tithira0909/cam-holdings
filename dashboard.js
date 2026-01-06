@@ -129,16 +129,29 @@ async function loadClients(query = '') {
     const tbody = document.getElementById('clientsTableBody');
     if (!tbody) return;
 
-    // Show Loading
-    // tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
-    // Commented out to prevent flickering on typing
-
     try {
         const url = query ? `/api/admin/clients?search=${encodeURIComponent(query)}` : '/api/admin/clients';
         const response = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (!response.ok) {
+            let errorMsg = `Server error: ${response.status}`;
+            try {
+                const errData = await response.json();
+                errorMsg = errData.message || errorMsg;
+            } catch (e) {
+                const text = await response.text();
+                if (text) errorMsg += ` - ${text}`;
+            }
+            throw new Error(errorMsg);
+        }
+
         const clients = await response.json();
+
+        if (!Array.isArray(clients)) {
+             throw new Error("Invalid data format received from server");
+        }
 
         tbody.innerHTML = '';
         if (clients.length === 0) {
@@ -147,18 +160,26 @@ async function loadClients(query = '') {
         }
 
         clients.forEach(client => {
-            const createdDate = new Date(client.created_at).toISOString().split('T')[0];
+            let createdDate = '-';
+            try {
+                if (client.created_at) {
+                    createdDate = new Date(client.created_at).toISOString().split('T')[0];
+                }
+            } catch (e) {
+                console.warn('Invalid date:', client.created_at);
+            }
+
             const isApproved = client.is_approved || client.is_approved === 1; // MySQL boolean is 1/0
             const status = client.status || 'Active';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="client-name-cell">
-                    ${client.first_name}
+                    ${client.first_name || '-'}
                     <div><span class="badge badge-reg">Registered On - ${createdDate}</span></div>
                 </td>
-                <td>${client.last_name}</td>
-                <td>${client.email}</td>
+                <td>${client.last_name || '-'}</td>
+                <td>${client.email || '-'}</td>
                 <td>${client.contact_number || '-'}</td>
                 <td>
                     <span class="badge ${status === 'Active' ? 'badge-active' : 'badge-inactive'}">${status}</span>
@@ -178,7 +199,7 @@ async function loadClients(query = '') {
         });
     } catch (error) {
         console.error('Error loading clients:', error);
-        tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Error loading data</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
     }
 }
 

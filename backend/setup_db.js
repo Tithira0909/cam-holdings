@@ -94,7 +94,12 @@ async function setupDatabase() {
     const clientMigrationQueries = [
         "ALTER TABLE clients ADD COLUMN status VARCHAR(20) DEFAULT 'Active'",
         "ALTER TABLE clients ADD COLUMN is_approved BOOLEAN DEFAULT FALSE",
-        "ALTER TABLE clients ADD COLUMN role VARCHAR(20) DEFAULT 'User'"
+        "ALTER TABLE clients ADD COLUMN role VARCHAR(20) DEFAULT 'User'",
+        // Ensure all columns are present (robustness fix)
+        "ALTER TABLE clients ADD COLUMN postal_code VARCHAR(20)",
+        "ALTER TABLE clients ADD COLUMN site_address TEXT",
+        "ALTER TABLE clients ADD COLUMN correspondence_address TEXT",
+        "ALTER TABLE clients ADD COLUMN contact_number VARCHAR(20)"
     ];
 
     for (const query of clientMigrationQueries) {
