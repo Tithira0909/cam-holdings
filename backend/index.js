@@ -10,8 +10,12 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const inquiriesRoutes = require('./routes/inquiries');
+
 app.use(cors());
 app.use(bodyParser.json());
+
+app.use('/api/admin/inquiries', inquiriesRoutes);
 
 // Login Endpoint
 app.post('/api/login', async (req, res) => {
@@ -47,7 +51,7 @@ app.post('/api/login', async (req, res) => {
       maxAge: 3600000 // 1 hour
     });
 
-    res.status(200).json({ message: 'Login successful', role: user.role });
+    res.status(200).json({ message: 'Login successful', role: user.role, token });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Internal server error' });
