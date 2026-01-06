@@ -6,6 +6,7 @@ if (!token) {
 
 // --- STATE ---
 let editingClientId = null;
+let editingServiceTypeId = null;
 
 // --- NAVIGATION ---
 const navBtns = document.querySelectorAll('.nav-btn');
@@ -30,6 +31,7 @@ navBtns.forEach(btn => {
         if (btn.dataset.view === 'projects') loadProjects();
         if (btn.dataset.view === 'clients') loadClients();
         if (btn.dataset.view === 'admins') loadAdmins();
+        if (btn.dataset.view === 'service-types') loadServiceTypes();
     });
 });
 
@@ -318,6 +320,154 @@ window.changePermissions = async (id) => {
 window.editAdmin = (id) => {
     alert('Edit Admin functionality coming soon (requires new form)');
 };
+
+// --- SERVICE TYPES LOGIC ---
+async function loadServiceTypes() {
+    const listContainer = document.getElementById('serviceTypesList');
+    if (!listContainer) return;
+
+    try {
+        const response = await fetch('/api/admin/service-types', { headers: { 'Authorization': `Bearer ${token}` } });
+        const types = await response.json();
+
+        listContainer.innerHTML = '';
+        if (types.length === 0) {
+            listContainer.innerHTML = '<p>No service types found.</p>';
+            return;
+        }
+
+        types.forEach(type => {
+            const thumbUrl = type.thumbnail ? `/uploads/${type.thumbnail.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
+
+            const item = document.createElement('div');
+            item.className = 'service-type-item';
+            item.innerHTML = `
+                <div class="service-type-info">
+                    <img src="${thumbUrl}" alt="Thumb" class="service-thumb">
+                    <div>
+                        <strong>${type.name}</strong>
+                        <div style="font-size: 0.8rem; color: #666;">/${type.slug}</div>
+                        <div style="font-size: 0.8rem; color: #888; margin-top: 4px;">${type.description || ''}</div>
+                    </div>
+                </div>
+                <div>
+                     <span class="badge ${type.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${type.status}</span>
+                </div>
+                <div>
+                    <button class="btn-sm btn-edit" onclick="editServiceType(${type.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteServiceType(${type.id})">Delete</button>
+                </div>
+            `;
+            listContainer.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error('Error loading service types:', error);
+        listContainer.innerHTML = '<p style="color:red">Error loading service types</p>';
+    }
+}
+
+// Modal Logic
+const modal = document.getElementById('serviceTypeModal');
+const openModalBtn = document.getElementById('openServiceTypeModalBtn');
+const closeModalBtn = document.getElementById('closeServiceTypeModal');
+const cancelModalBtn = document.getElementById('cancelServiceTypeBtn');
+
+function openModal() {
+    modal.classList.add('active');
+}
+
+function closeModal() {
+    modal.classList.remove('active');
+    document.getElementById('serviceTypeForm').reset();
+    editingServiceTypeId = null;
+    document.querySelector('#serviceTypeModal h2').textContent = 'New Service Type';
+    document.querySelector('#serviceTypeModal button[type="submit"]').textContent = 'Create Service Type';
+}
+
+if(openModalBtn) openModalBtn.addEventListener('click', openModal);
+if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+if(cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
+window.editServiceType = async (id) => {
+    try {
+        // Fetch specific service type details
+        const response = await fetch(`/api/admin/service-types/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!response.ok) throw new Error('Failed to fetch details');
+
+        const type = await response.json();
+
+        // Populate form
+        const form = document.getElementById('serviceTypeForm');
+        form.querySelector('#st_name').value = type.name;
+        form.querySelector('#st_slug').value = type.slug;
+        form.querySelector('#st_desc').value = type.description;
+        form.querySelector('#st_status').value = type.status;
+
+        // Switch state to editing
+        editingServiceTypeId = id;
+        document.querySelector('#serviceTypeModal h2').textContent = 'Edit Service Type';
+        document.querySelector('#serviceTypeModal button[type="submit"]').textContent = 'Update Service Type';
+
+        openModal();
+    } catch (error) {
+        console.error(error);
+        alert('Error fetching service type details');
+    }
+};
+
+
+// Form Submission
+document.getElementById('serviceTypeForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    try {
+        let url = '/api/admin/service-types';
+        let method = 'POST';
+
+        if (editingServiceTypeId) {
+            url = `/api/admin/service-types/${editingServiceTypeId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData // Fetch handles Content-Type for FormData (multipart/form-data)
+        });
+
+        if (response.ok) {
+            closeModal();
+            loadServiceTypes();
+            alert(editingServiceTypeId ? 'Service Type updated successfully!' : 'Service Type created successfully!');
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Failed to save service type');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Server error');
+    }
+});
+
+window.deleteServiceType = async (id) => {
+    if(!confirm('Are you sure you want to delete this?')) return;
+    try {
+        const response = await fetch(`/api/admin/service-types/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadServiceTypes();
+        else alert('Failed to delete');
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 
 // --- CLIENT REGISTRATION / EDIT LOGIC ---
 window.editClient = async (id) => {

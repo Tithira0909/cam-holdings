@@ -1,5 +1,0 @@
-
-> backend@1.0.0 start
-> node index.js
-
-FATAL ERROR: JWT_SECRET is not defined in .env file.
