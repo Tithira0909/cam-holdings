@@ -8,6 +8,7 @@ const projectRoutes = require('./routes/projects');
 const clientRoutes = require('./routes/clients');
 const adminRoutes = require('./routes/admins');
 const serviceTypeRoutes = require('./routes/service_types');
+const serviceRoutes = require('./routes/services');
 const path = require('path');
 const fs = require('fs');
 
@@ -36,6 +37,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/admin/clients', clientRoutes);
 app.use('/api/admin/admins', adminRoutes);
 app.use('/api/admin/service-types', serviceTypeRoutes);
+app.use('/api/admin/services', serviceRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

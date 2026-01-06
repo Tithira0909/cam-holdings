@@ -32,6 +32,7 @@ navBtns.forEach(btn => {
         if (btn.dataset.view === 'clients') loadClients();
         if (btn.dataset.view === 'admins') loadAdmins();
         if (btn.dataset.view === 'service-types') loadServiceTypes();
+        if (btn.dataset.view === 'services') loadServices();
     });
 });
 
@@ -462,6 +463,173 @@ window.deleteServiceType = async (id) => {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) loadServiceTypes();
+        else alert('Failed to delete');
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// --- SERVICES LOGIC ---
+let editingServiceId = null;
+let serviceSearchTimeout;
+document.getElementById('serviceSearch')?.addEventListener('input', (e) => {
+    clearTimeout(serviceSearchTimeout);
+    serviceSearchTimeout = setTimeout(() => loadServices(e.target.value), 300);
+});
+
+async function loadServices(query = '') {
+    const tbody = document.getElementById('servicesTableBody');
+    if (!tbody) return;
+
+    try {
+        const url = query ? `/api/admin/services?search=${encodeURIComponent(query)}` : '/api/admin/services';
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const services = await response.json();
+
+        tbody.innerHTML = '';
+        if (services.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No services found</td></tr>';
+            return;
+        }
+
+        services.forEach(service => {
+            const thumbUrl = service.image_url ? `/uploads/${service.image_url.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${service.name}</td>
+                <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
+                <td>${service.service_type_name || '-'}</td>
+                <td><span class="badge ${service.status === 'published' ? 'badge-approved' : 'badge-inactive'}">${service.status}</span></td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editService(${service.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteService(${service.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error('Error loading services:', error);
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading services</td></tr>';
+    }
+}
+
+// Service Modal Logic
+const serviceModal = document.getElementById('serviceModal');
+const openServiceModalBtn = document.getElementById('openServiceModalBtn');
+const closeServiceModalBtn = document.getElementById('closeServiceModal');
+const cancelServiceBtn = document.getElementById('cancelServiceBtn');
+
+function openServiceModal() {
+    serviceModal.classList.add('active');
+    loadServiceTypesForDropdown();
+}
+
+function closeServiceModal() {
+    serviceModal.classList.remove('active');
+    document.getElementById('serviceForm').reset();
+    editingServiceId = null;
+    document.querySelector('#serviceModal h2').textContent = 'New Service';
+    document.querySelector('#serviceModal button[type="submit"]').textContent = 'Create Service';
+}
+
+if(openServiceModalBtn) openServiceModalBtn.addEventListener('click', openServiceModal);
+if(closeServiceModalBtn) closeServiceModalBtn.addEventListener('click', closeServiceModal);
+if(cancelServiceBtn) cancelServiceBtn.addEventListener('click', closeServiceModal);
+
+async function loadServiceTypesForDropdown() {
+    try {
+        const response = await fetch('/api/admin/service-types', { headers: { 'Authorization': `Bearer ${token}` } });
+        const types = await response.json();
+        const select = document.getElementById('svc_type');
+
+        // Preserve selected value if editing
+        const currentVal = select.value;
+
+        select.innerHTML = '<option value="">Select Service Type</option>';
+        types.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.id;
+            option.textContent = type.name;
+            select.appendChild(option);
+        });
+
+        if (currentVal) select.value = currentVal;
+    } catch (error) {
+        console.error('Error loading types:', error);
+    }
+}
+
+window.editService = async (id) => {
+    try {
+        const response = await fetch('/api/admin/services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const services = await response.json();
+        const service = services.find(s => s.id === id);
+
+        if (!service) return;
+
+        editingServiceId = id;
+        document.querySelector('#serviceModal h2').textContent = 'Edit Service';
+        document.querySelector('#serviceModal button[type="submit"]').textContent = 'Update Service';
+
+        const form = document.getElementById('serviceForm');
+        form.querySelector('#svc_name').value = service.name;
+        form.querySelector('#svc_desc').value = service.description;
+        form.querySelector('#svc_status').value = service.status;
+
+        await loadServiceTypesForDropdown();
+        form.querySelector('#svc_type').value = service.service_type_id;
+
+        serviceModal.classList.add('active');
+
+    } catch (error) {
+        console.error(error);
+        alert('Error fetching details');
+    }
+};
+
+document.getElementById('serviceForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    try {
+        let url = '/api/admin/services';
+        let method = 'POST';
+
+        if (editingServiceId) {
+            url = `/api/admin/services/${editingServiceId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+
+        if (response.ok) {
+            closeServiceModal();
+            loadServices();
+            alert(editingServiceId ? 'Service updated!' : 'Service created!');
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Failed');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Server error');
+    }
+});
+
+window.deleteService = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const response = await fetch(`/api/admin/services/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadServices();
         else alert('Failed to delete');
     } catch (error) {
         console.error(error);

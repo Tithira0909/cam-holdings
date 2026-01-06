@@ -129,6 +129,22 @@ async function setupDatabase() {
     `);
     console.log('Service Types table created or already exists.');
 
+    // Create Services Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS services (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        service_type_id INT,
+        description TEXT,
+        image_url VARCHAR(255),
+        status ENUM('published', 'draft') DEFAULT 'draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (service_type_id) REFERENCES service_types(id) ON DELETE SET NULL
+      )
+    `);
+    console.log('Services table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {

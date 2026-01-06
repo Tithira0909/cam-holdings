@@ -485,6 +485,7 @@
         <button class="nav-btn" data-view="clients">Registered Clients</button>
         <button class="nav-btn" data-view="admins">Registered Admins</button>
         <button class="nav-btn" data-view="service-types">Services Type</button>
+        <button class="nav-btn" data-view="services">All Services</button>
         <button class="nav-btn" data-view="add-client">Register Client</button>
         <button id="logoutBtn" class="logout-btn">Logout</button>
     </nav>
@@ -592,6 +593,35 @@
             </div>
         </div>
 
+        <!-- All Services View -->
+        <div id="view-services" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>All Services</h2>
+                <span class="breadcrumb">Admin / All Services</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <button id="openServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add New Service</button>
+                <input type="text" id="serviceSearch" class="search-input" placeholder="Search Services" style="width: 300px;">
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Service Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody">
+                    <!-- Rows loaded via JS -->
+                    <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
         <!-- Add Client View -->
         <div id="view-add-client" class="view-section light-view-container">
             <h1 style="color: #2c3e50; border-bottom-color: #ccc;" id="clientFormTitle">Register New Client</h1>
@@ -690,6 +720,53 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelServiceTypeBtn">Close</button>
                     <button type="submit" class="btn-primary">Create Service Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Service Modal -->
+    <div id="serviceModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Service</h2>
+                <button class="close-modal-btn" id="closeServiceModal">&times;</button>
+            </div>
+
+            <form id="serviceForm">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="svc_name">Service Name *</label>
+                        <input type="text" id="svc_name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="svc_type">Service Type *</label>
+                        <select id="svc_type" name="service_type_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <!-- Populated via JS -->
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="svc_desc">Description</label>
+                        <textarea id="svc_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="svc_image">Image *</label>
+                        <div class="file-input-group">
+                            <input type="file" id="svc_image" name="image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="svc_status">Status *</label>
+                        <select id="svc_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelServiceBtn">Close</button>
+                    <button type="submit" class="btn-primary">Create Service</button>
                 </div>
             </form>
         </div>
