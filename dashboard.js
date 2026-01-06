@@ -33,6 +33,7 @@ navBtns.forEach(btn => {
         if (btn.dataset.view === 'admins') loadAdmins();
         if (btn.dataset.view === 'service-types') loadServiceTypes();
         if (btn.dataset.view === 'services') loadServices();
+        if (btn.dataset.view === 'reviews') loadReviews();
     });
 });
 
@@ -636,6 +637,216 @@ window.deleteService = async (id) => {
     }
 }
 
+
+// --- REVIEWS LOGIC ---
+let editingReviewId = null;
+
+async function loadReviews() {
+    const tbody = document.getElementById('reviewsTableBody');
+    if (!tbody) return;
+
+    try {
+        const response = await fetch('/api/admin/reviews', { headers: { 'Authorization': `Bearer ${token}` } });
+        const reviews = await response.json();
+
+        tbody.innerHTML = '';
+        if (reviews.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No reviews found</td></tr>';
+            return;
+        }
+
+        reviews.forEach(review => {
+            const isApproved = review.is_approved === 1 || review.is_approved === true;
+            const status = review.status || 'Active';
+            const ratingStars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${review.client_name}</td>
+                <td><div style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${review.description || ''}">${review.description || '-'}</div></td>
+                <td style="color:#f1c40f; font-size:1.2rem;">${ratingStars}</td>
+                <td><span class="badge" style="background-color: #95a5a6;">${review.source || 'Unknown'}</span></td>
+                <td><span class="badge ${isApproved ? 'badge-approved' : 'badge-not-approved'}">${isApproved ? 'Approved' : 'Not Approved'}</span></td>
+                <td><span class="badge ${status === 'Active' ? 'badge-active' : 'badge-inactive'}">${status}</span></td>
+                <td>
+                    ${!isApproved ? `<button class="btn-sm btn-approve" onclick="approveReview(${review.id})">Approve</button>` : ''}
+                    <button class="btn-sm btn-edit" style="background-color:#2c3e50;" onclick="toggleReviewStatus(${review.id})">Change Status</button>
+                    <button class="btn-sm btn-edit" onclick="editReview(${review.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteReview(${review.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Error loading reviews</td></tr>';
+    }
+}
+
+// Modal
+const reviewModal = document.getElementById('reviewModal');
+const openReviewModalBtn = document.getElementById('openReviewModalBtn');
+const closeReviewModalBtn = document.getElementById('closeReviewModal');
+const cancelReviewBtn = document.getElementById('cancelReviewBtn');
+
+function openReviewModal() {
+    reviewModal.classList.add('active');
+}
+
+function closeReviewModal() {
+    reviewModal.classList.remove('active');
+    document.getElementById('reviewForm').reset();
+    editingReviewId = null;
+    document.querySelector('#reviewModal h2').textContent = 'Add Review';
+    document.querySelector('#reviewModal button[type="submit"]').textContent = 'Add Review';
+    updateStarDisplay(5); // Default to 5
+    document.getElementById('rev_rating').value = 5;
+}
+
+if(openReviewModalBtn) openReviewModalBtn.addEventListener('click', openReviewModal);
+if(closeReviewModalBtn) closeReviewModalBtn.addEventListener('click', closeReviewModal);
+if(cancelReviewBtn) cancelReviewBtn.addEventListener('click', closeReviewModal);
+
+// Star Rating UI
+const starContainer = document.getElementById('starRating');
+const starInput = document.getElementById('rev_rating');
+const stars = starContainer ? starContainer.querySelectorAll('span') : [];
+
+if (starContainer) {
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const val = parseInt(star.dataset.val);
+            starInput.value = val;
+            updateStarDisplay(val);
+        });
+    });
+    // Set initial
+    updateStarDisplay(5);
+}
+
+function updateStarDisplay(rating) {
+    if (!starContainer) return;
+    const spans = starContainer.querySelectorAll('span');
+    spans.forEach(span => {
+        const val = parseInt(span.dataset.val);
+        if (val <= rating) span.classList.add('filled');
+        else span.classList.remove('filled');
+    });
+}
+
+// Edit Logic
+window.editReview = async (id) => {
+    try {
+        const response = await fetch('/api/admin/reviews', { headers: { 'Authorization': `Bearer ${token}` } });
+        const reviews = await response.json();
+        const review = reviews.find(r => r.id === id);
+
+        if (!review) return;
+
+        editingReviewId = id;
+        document.querySelector('#reviewModal h2').textContent = 'Edit Review';
+        document.querySelector('#reviewModal button[type="submit"]').textContent = 'Update Review';
+
+        const form = document.getElementById('reviewForm');
+        form.querySelector('#rev_name').value = review.client_name;
+        form.querySelector('#rev_desc').value = review.description || '';
+
+        // Radio logic
+        const sourceRadios = form.querySelectorAll('input[name="source"]');
+        sourceRadios.forEach(radio => {
+            if (radio.value === review.source) radio.checked = true;
+        });
+
+        // Rating logic
+        const rating = review.rating || 5;
+        document.getElementById('rev_rating').value = rating;
+        updateStarDisplay(rating);
+
+        reviewModal.classList.add('active');
+    } catch (error) {
+        console.error(error);
+        alert('Error fetching details');
+    }
+};
+
+// Actions
+window.approveReview = async (id) => {
+    try {
+        const response = await fetch(`/api/admin/reviews/${id}/approve`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadReviews();
+        else alert('Failed to approve');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+window.toggleReviewStatus = async (id) => {
+    try {
+        const response = await fetch(`/api/admin/reviews/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadReviews();
+        else alert('Failed to update status');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+window.deleteReview = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const response = await fetch(`/api/admin/reviews/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadReviews();
+        else alert('Failed to delete');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+// Submit
+document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        let url = '/api/admin/reviews';
+        let method = 'POST';
+
+        if (editingReviewId) {
+            url = `/api/admin/reviews/${editingReviewId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            closeReviewModal();
+            loadReviews();
+            alert(editingReviewId ? 'Review updated!' : 'Review added!');
+        } else {
+            const resData = await response.json();
+            alert(resData.message || 'Failed');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Server error');
+    }
+});
 
 // --- CLIENT REGISTRATION / EDIT LOGIC ---
 window.editClient = async (id) => {

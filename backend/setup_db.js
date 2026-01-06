@@ -145,6 +145,21 @@ async function setupDatabase() {
     `);
     console.log('Services table created or already exists.');
 
+    // Create Reviews Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_name VARCHAR(255) NOT NULL,
+        description TEXT,
+        rating INT DEFAULT 5,
+        source VARCHAR(50) DEFAULT 'unknown',
+        is_approved BOOLEAN DEFAULT FALSE,
+        status VARCHAR(20) DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Reviews table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {

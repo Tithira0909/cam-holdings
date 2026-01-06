@@ -9,6 +9,7 @@ const clientRoutes = require('./routes/clients');
 const adminRoutes = require('./routes/admins');
 const serviceTypeRoutes = require('./routes/service_types');
 const serviceRoutes = require('./routes/services');
+const reviewRoutes = require('./routes/reviews');
 const path = require('path');
 const fs = require('fs');
 
@@ -38,6 +39,7 @@ app.use('/api/admin/clients', clientRoutes);
 app.use('/api/admin/admins', adminRoutes);
 app.use('/api/admin/service-types', serviceTypeRoutes);
 app.use('/api/admin/services', serviceRoutes);
+app.use('/api/admin/reviews', reviewRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

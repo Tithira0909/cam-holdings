@@ -475,6 +475,16 @@
         .success { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
         .error { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
 
+        /* Star Rating */
+        .star-rating span {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #ccc;
+        }
+        .star-rating span.filled {
+            color: #f1c40f; /* Gold */
+        }
+
     </style>
 </head>
 <body>
@@ -486,6 +496,7 @@
         <button class="nav-btn" data-view="admins">Registered Admins</button>
         <button class="nav-btn" data-view="service-types">Services Type</button>
         <button class="nav-btn" data-view="services">All Services</button>
+        <button class="nav-btn" data-view="reviews">Customer Reviews</button>
         <button class="nav-btn" data-view="add-client">Register Client</button>
         <button id="logoutBtn" class="logout-btn">Logout</button>
     </nav>
@@ -618,6 +629,35 @@
                 <tbody id="servicesTableBody">
                     <!-- Rows loaded via JS -->
                     <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Customer Reviews View -->
+        <div id="view-reviews" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>All Customer Reviews</h2>
+                <span class="breadcrumb">Admin / All Customer Reviews</span>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <button id="openReviewModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add Review</button>
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Review</th>
+                        <th>Rating</th>
+                        <th>Review Source</th>
+                        <th>Is_Approved</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewsTableBody">
+                    <tr><td colspan="7">Loading...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -767,6 +807,50 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelServiceBtn">Close</button>
                     <button type="submit" class="btn-primary">Create Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Review Modal -->
+    <div id="reviewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Review</h2>
+                <button class="close-modal-btn" id="closeReviewModal">&times;</button>
+            </div>
+
+            <form id="reviewForm">
+                <div class="form-group">
+                    <label for="rev_name">Name</label>
+                    <input type="text" id="rev_name" name="client_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="rev_desc">Description</label>
+                    <textarea id="rev_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Review Source</label>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; color: #333;">
+                        <label><input type="radio" name="source" value="Google" checked> Google</label>
+                        <label><input type="radio" name="source" value="Trustpilot"> Trustpilot</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating" id="starRating">
+                        <span data-val="1">&#9734;</span>
+                        <span data-val="2">&#9734;</span>
+                        <span data-val="3">&#9734;</span>
+                        <span data-val="4">&#9734;</span>
+                        <span data-val="5">&#9734;</span>
+                    </div>
+                    <input type="hidden" id="rev_rating" name="rating" value="5">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelReviewBtn">Close</button>
+                    <button type="submit" class="btn-primary">Add Review</button>
                 </div>
             </form>
         </div>
