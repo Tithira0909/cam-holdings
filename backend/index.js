@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
+const clientRoutes = require('./routes/clients');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,7 @@ if (!process.env.JWT_SECRET) {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/admin/clients', clientRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

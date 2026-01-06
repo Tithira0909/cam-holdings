@@ -45,6 +45,23 @@ async function setupDatabase() {
     `);
     console.log('Projects table created or already exists.');
 
+    // Create Clients Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS clients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        first_name VARCHAR(255) NOT NULL,
+        last_name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        postal_code VARCHAR(20),
+        site_address TEXT,
+        correspondence_address TEXT,
+        contact_number VARCHAR(20),
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Clients table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {

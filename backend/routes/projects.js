@@ -1,21 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-
-// Middleware to verify token (simplified for now)
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-  if (token == null) return res.sendStatus(401);
-
-  const jwt = require('jsonwebtoken');
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
+const authenticateToken = require('../middleware/auth');
 
 // GET all projects
 router.get('/', async (req, res) => {
