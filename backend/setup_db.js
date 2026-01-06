@@ -20,17 +20,43 @@ async function setupDatabase() {
     const db = require('./db');
     const bcrypt = require('bcrypt');
 
-    // Create Users Table
+    // Create Users Table (Updated Schema)
     await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         role ENUM('ADMIN', 'CLIENT') DEFAULT 'CLIENT',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        first_name VARCHAR(255),
+        last_name VARCHAR(255),
+        email VARCHAR(255) UNIQUE,
+        phone VARCHAR(20),
+        is_active BOOLEAN DEFAULT TRUE,
+        permissions TEXT
       )
     `);
-    console.log('Users table created or already exists.');
+
+    // Migration for Users Table
+    const userMigrationQueries = [
+        "ALTER TABLE users ADD COLUMN first_name VARCHAR(255)",
+        "ALTER TABLE users ADD COLUMN last_name VARCHAR(255)",
+        "ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE",
+        "ALTER TABLE users ADD COLUMN phone VARCHAR(20)",
+        "ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE users ADD COLUMN permissions TEXT"
+    ];
+
+    for (const query of userMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060 && error.errno !== 1061) { // 1060: Duplicate column, 1061: Duplicate key
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
+    console.log('Users table created or updated.');
 
     // Create Projects Table
     await db.query(`
@@ -64,34 +90,36 @@ async function setupDatabase() {
       )
     `);
 
-    // Migration: Add columns if they don't exist
-    const migrationQueries = [
+    // Migration for Clients Table
+    const clientMigrationQueries = [
         "ALTER TABLE clients ADD COLUMN status VARCHAR(20) DEFAULT 'Active'",
         "ALTER TABLE clients ADD COLUMN is_approved BOOLEAN DEFAULT FALSE",
         "ALTER TABLE clients ADD COLUMN role VARCHAR(20) DEFAULT 'User'"
     ];
 
-    for (const query of migrationQueries) {
+    for (const query of clientMigrationQueries) {
         try {
             await db.query(query);
         } catch (error) {
-            // Ignore duplicate column errors (Error 1060)
             if (error.errno !== 1060) {
                  // console.log(`Migration note: ${error.message}`);
             }
         }
     }
-
     console.log('Clients table created or updated.');
 
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {
       const hashedPassword = await bcrypt.hash('password123', 10);
-      await db.query('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', ['admin', hashedPassword, 'ADMIN']);
+      // Ensure email is set for the default admin
+      await db.query('INSERT INTO users (username, password, role, email, first_name, last_name, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        ['admin', hashedPassword, 'ADMIN', 'admin@example.com', 'Super', 'Admin', true]);
       console.log('Default admin user created: admin / password123');
     } else {
-      console.log('Admin user already exists.');
+        // Update default admin to have email if missing (Optional fix)
+        // await db.query("UPDATE users SET email='admin@example.com', first_name='Super', last_name='Admin' WHERE username='admin' AND email IS NULL");
+        console.log('Admin user already exists.');
     }
 
     process.exit(0);

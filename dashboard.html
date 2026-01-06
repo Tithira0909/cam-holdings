@@ -361,6 +361,7 @@
         <h2>Admin Panel</h2>
         <button class="nav-btn active" data-view="projects">Projects</button>
         <button class="nav-btn" data-view="clients">Registered Clients</button>
+        <button class="nav-btn" data-view="admins">Registered Admins</button>
         <button class="nav-btn" data-view="add-client">Register Client</button>
         <button id="logoutBtn" class="logout-btn">Logout</button>
     </nav>
@@ -419,6 +420,36 @@
                     </tr>
                 </thead>
                 <tbody id="clientsTableBody">
+                    <!-- Rows loaded via JS -->
+                    <tr><td colspan="7">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Registered Admins View -->
+        <div id="view-admins" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>Registered Admins</h2>
+                <span class="breadcrumb">Admin / Registered Admins</span>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="adminSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adminsTableBody">
                     <!-- Rows loaded via JS -->
                     <tr><td colspan="7">Loading...</td></tr>
                 </tbody>

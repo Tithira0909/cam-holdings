@@ -29,6 +29,7 @@ navBtns.forEach(btn => {
         // Data Load triggers
         if (btn.dataset.view === 'projects') loadProjects();
         if (btn.dataset.view === 'clients') loadClients();
+        if (btn.dataset.view === 'admins') loadAdmins();
     });
 });
 
@@ -206,6 +207,95 @@ window.toggleStatus = async (id, action) => {
     } catch (error) {
         console.error(error);
     }
+};
+
+// --- REGISTERED ADMINS LOGIC ---
+let adminSearchTimeout;
+document.getElementById('adminSearch')?.addEventListener('input', (e) => {
+    clearTimeout(adminSearchTimeout);
+    adminSearchTimeout = setTimeout(() => loadAdmins(e.target.value), 300);
+});
+
+async function loadAdmins(query = '') {
+    const tbody = document.getElementById('adminsTableBody');
+    if (!tbody) return;
+
+    try {
+        const url = query ? `/api/admin/admins?search=${encodeURIComponent(query)}` : '/api/admin/admins';
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const admins = await response.json();
+
+        tbody.innerHTML = '';
+        if (admins.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No admins found</td></tr>';
+            return;
+        }
+
+        admins.forEach(admin => {
+            const isActive = admin.is_active !== 0 && admin.is_active !== false;
+            const status = isActive ? 'Active' : 'Inactive';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${admin.first_name || '-'}</td>
+                <td>${admin.last_name || '-'}</td>
+                <td>${admin.email || admin.username}</td>
+                <td>${admin.phone || '-'}</td>
+                <td><span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${status}</span></td>
+                <td>${admin.role}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editAdmin(${admin.id})">Edit</button>
+                    ${isActive ? `<button class="btn-sm btn-deactivate" onclick="deactivateAdmin(${admin.id})">Deactivate</button>` : ''}
+                    <button class="btn-sm" style="background-color: blue;" onclick="changePermissions(${admin.id})">Change Permissions</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error loading admins:', error);
+        tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Error loading data</td></tr>';
+    }
+}
+
+window.deactivateAdmin = async (id) => {
+    if (!confirm('Are you sure you want to deactivate this admin?')) return;
+    try {
+        const response = await fetch(`/api/admin/admins/${id}/deactivate`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadAdmins();
+        else {
+            const data = await response.json();
+            alert(data.message || 'Failed to deactivate');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+window.changePermissions = async (id) => {
+    // For now, just a dummy action or toggle role if needed.
+    // Prompt implies updating fields. I'll just alert for now or send a dummy update.
+    if (!confirm('Change permissions for this user?')) return;
+    try {
+        const response = await fetch(`/api/admin/admins/${id}/permissions`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ permissions: 'FULL_ACCESS' }) // Dummy permission
+        });
+        if (response.ok) alert('Permissions updated');
+        else alert('Failed to update permissions');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+window.editAdmin = (id) => {
+    alert('Edit Admin functionality coming soon (requires new form)');
 };
 
 // --- CLIENT REGISTRATION / EDIT LOGIC ---

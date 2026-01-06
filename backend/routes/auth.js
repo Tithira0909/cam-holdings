@@ -20,6 +20,12 @@ router.post('/login', async (req, res) => {
     }
 
     const user = rows[0];
+
+    // Check if active
+    if (user.is_active === 0 || user.is_active === false) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
