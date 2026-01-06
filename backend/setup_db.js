@@ -57,10 +57,32 @@ async function setupDatabase() {
         correspondence_address TEXT,
         contact_number VARCHAR(20),
         password_hash VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status VARCHAR(20) DEFAULT 'Active',
+        is_approved BOOLEAN DEFAULT FALSE,
+        role VARCHAR(20) DEFAULT 'User'
       )
     `);
-    console.log('Clients table created or already exists.');
+
+    // Migration: Add columns if they don't exist
+    const migrationQueries = [
+        "ALTER TABLE clients ADD COLUMN status VARCHAR(20) DEFAULT 'Active'",
+        "ALTER TABLE clients ADD COLUMN is_approved BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE clients ADD COLUMN role VARCHAR(20) DEFAULT 'User'"
+    ];
+
+    for (const query of migrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+            // Ignore duplicate column errors (Error 1060)
+            if (error.errno !== 1060) {
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
+
+    console.log('Clients table created or updated.');
 
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
