@@ -3,72 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Admin Dashboard</title>
     <style>
         body {
             background-color: #070708;
             color: white;
             font-family: Arial, sans-serif;
-            padding: 0;
             margin: 0;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        header {
+            padding: 0;
+            height: 100vh;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #1a1a1a;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .sidebar h2 {
+            color: #D6B25E;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            padding: 1rem;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: #333;
+            color: #D6B25E;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background-color: transparent;
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: #ff4d4d;
+            color: white;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        h1 {
+            color: #D6B25E;
+            margin-top: 0;
             margin-bottom: 2rem;
             border-bottom: 1px solid #333;
             padding-bottom: 1rem;
         }
-        h1 {
-            color: #D6B25E;
-            margin: 0;
-        }
-        button.logout-btn {
-            background-color: transparent;
-            color: #ff4d4d;
-            border: 1px solid #ff4d4d;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button.logout-btn:hover {
-            background-color: #ff4d4d;
-            color: white;
-        }
-        .add-project-form {
+
+        /* Dark Form Styles (Projects) */
+        .admin-form-dark {
             background-color: #1a1a1a;
-            padding: 1.5rem;
+            padding: 2rem;
             border-radius: 8px;
-            margin-bottom: 2rem;
+            max-width: 800px;
         }
-        .add-project-form h2 {
-            margin-top: 0;
-            color: #D6B25E;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
+
+        .admin-form-dark label {
             display: block;
             margin-bottom: 0.5rem;
+            color: #ccc;
         }
-        input, textarea {
+
+        .admin-form-dark input, .admin-form-dark textarea {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #333;
+            border: 1px solid #444;
             border-radius: 4px;
-            background-color: #333;
+            background-color: #2a2a2a;
             color: white;
             box-sizing: border-box;
         }
-        button.add-btn {
+
+        .admin-form-dark input:focus, .admin-form-dark textarea:focus {
+            border-color: #D6B25E;
+            outline: none;
+        }
+
+        /* Light Form Styles (Client Registration) */
+        .client-reg-container {
+            background-color: #f4f4f4; /* Light background */
+            padding: 2rem;
+            border-radius: 8px;
+            color: #333; /* Dark text */
+        }
+
+        .admin-form-light {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 900px;
+        }
+
+        .admin-form-light h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        .admin-form-light label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .admin-form-light input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .admin-form-light input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        /* Buttons */
+        button.action-btn {
             background-color: #D6B25E;
             color: black;
             border: none;
@@ -76,35 +170,77 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 1rem;
         }
-        button.add-btn:hover {
+
+        button.action-btn:hover {
             background-color: #c4a04e;
         }
+
+        button.submit-client-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button.submit-client-btn:hover {
+            background-color: #2980b9;
+        }
+
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Specific Styles for Client Registration (Grid Layout) */
+        .client-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .client-form-grid .full-width {
+            grid-column: span 2;
+        }
+
+        /* Projects List */
         .projects-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+            margin-top: 2rem;
         }
+
         .project-card {
             background-color: #1a1a1a;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            position: relative;
         }
+
         .project-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
             background-color: #333;
         }
+
         .project-content {
             padding: 1rem;
         }
+
         .project-title {
             margin-top: 0;
             color: #D6B25E;
         }
+
         .delete-btn {
             background-color: #ff4d4d;
             color: white;
@@ -115,42 +251,109 @@
             margin-top: 1rem;
             float: right;
         }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .success { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+        .error { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Project Dashboard</h1>
-            <button id="logoutBtn" class="logout-btn">Logout</button>
-        </header>
 
-        <section class="add-project-form">
-            <h2>Add New Project</h2>
-            <form id="addProjectForm">
-                <div class="form-group">
-                    <label for="title">Title</label>
-                    <input type="text" id="title" name="title" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="imageUrl">Image URL</label>
-                    <input type="text" id="imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg">
-                </div>
-                <button type="submit" class="add-btn">Add Project</button>
-            </form>
-        </section>
+    <nav class="sidebar">
+        <h2>Admin Panel</h2>
+        <button class="nav-btn active" data-view="projects">Projects</button>
+        <button class="nav-btn" data-view="add-client">Register Client</button>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </nav>
 
-        <section>
-            <h2>Existing Projects</h2>
-            <div id="projectsList" class="projects-list">
-                <!-- Projects will be loaded here -->
-                <p>Loading projects...</p>
+    <main class="main-content">
+        <!-- Projects View -->
+        <div id="view-projects" class="view-section active">
+            <h1>Manage Projects</h1>
+
+            <div class="admin-form-dark">
+                <h3>Add New Project</h3>
+                <form id="addProjectForm">
+                    <div class="form-group">
+                        <label for="proj_title">Title</label>
+                        <input type="text" id="proj_title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_desc">Description</label>
+                        <textarea id="proj_desc" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_img">Image URL</label>
+                        <input type="text" id="proj_img" name="imageUrl" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <button type="submit" class="action-btn">Add Project</button>
+                </form>
             </div>
-        </section>
-    </div>
+
+            <div id="projectsList" class="projects-list">
+                <!-- Projects Loaded Here -->
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <!-- Add Client View -->
+        <div id="view-add-client" class="view-section client-reg-container">
+            <h1 style="color: #2c3e50; border-bottom-color: #ccc;">Register New Client</h1>
+
+            <div class="admin-form-light">
+                <form id="registerClientForm" class="client-form-grid">
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_number">Contact Number</label>
+                        <input type="tel" id="contact_number" name="contact_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="postal_code">Postal Code</label>
+                        <input type="text" id="postal_code" name="postal_code">
+                    </div>
+                    <div class="form-group">
+                        <label for="site_address">Site Address</label>
+                        <input type="text" id="site_address" name="site_address">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="correspondence_address">Correspondence Address</label>
+                        <input type="text" id="correspondence_address" name="correspondence_address">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password * (min 8 chars)</label>
+                        <input type="password" id="password" name="password" minlength="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
+                    </div>
+
+                    <div class="full-width">
+                        <div id="clientMsg" class="message"></div>
+                        <button type="submit" class="submit-client-btn">Create Client Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
     <script src="dashboard.js"></script>
 </body>
 </html>
