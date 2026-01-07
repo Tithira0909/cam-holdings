@@ -130,6 +130,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    localStorage.setItem('token', data.token); // Save token for React app
                     messageDiv.style.color = '#4ade80'; // Green
                     messageDiv.textContent = 'Login successful!';
                     setTimeout(() => {
