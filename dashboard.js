@@ -1080,6 +1080,8 @@ const cancelReviewBtn = document.getElementById('cancelReviewBtn');
 
 function openReviewModal() {
     reviewModal.classList.add('active');
+    document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
 }
 
 function closeReviewModal() {
@@ -1087,9 +1089,13 @@ function closeReviewModal() {
     document.getElementById('reviewForm').reset();
     editingReviewId = null;
     document.querySelector('#reviewModal h2').textContent = 'Add Review';
-    document.querySelector('#reviewModal button[type="submit"]').textContent = 'Add Review';
-    updateStarDisplay(5); // Default to 5
+    const btn = document.getElementById('submitReviewBtn');
+    if(btn) btn.textContent = 'Add Review';
+
+    updateStarDisplay(5);
     document.getElementById('rev_rating').value = 5;
+    const ratingDisp = document.getElementById('ratingValueDisplay');
+    if(ratingDisp) ratingDisp.textContent = '5';
 }
 
 if(openReviewModalBtn) openReviewModalBtn.addEventListener('click', openReviewModal);
@@ -1099,18 +1105,41 @@ if(cancelReviewBtn) cancelReviewBtn.addEventListener('click', closeReviewModal);
 // Star Rating UI
 const starContainer = document.getElementById('starRating');
 const starInput = document.getElementById('rev_rating');
+const ratingDisplay = document.getElementById('ratingValueDisplay');
 const stars = starContainer ? starContainer.querySelectorAll('span') : [];
 
 if (starContainer) {
     stars.forEach(star => {
+        // Click
         star.addEventListener('click', () => {
             const val = parseInt(star.dataset.val);
             starInput.value = val;
+            if(ratingDisplay) ratingDisplay.textContent = val;
             updateStarDisplay(val);
         });
+        // Hover
+        star.addEventListener('mouseenter', () => {
+            highlightStars(parseInt(star.dataset.val));
+        });
     });
-    // Set initial
+
+    starContainer.addEventListener('mouseleave', () => {
+        const currentVal = parseInt(starInput.value) || 0;
+        updateStarDisplay(currentVal);
+    });
+
     updateStarDisplay(5);
+}
+
+function highlightStars(val) {
+    if (!starContainer) return;
+    const spans = starContainer.querySelectorAll('span');
+    spans.forEach(span => {
+        const v = parseInt(span.dataset.val);
+        if (v <= val) span.classList.add('hover');
+        else span.classList.remove('hover');
+        span.classList.remove('filled');
+    });
 }
 
 function updateStarDisplay(rating) {
@@ -1118,6 +1147,7 @@ function updateStarDisplay(rating) {
     const spans = starContainer.querySelectorAll('span');
     spans.forEach(span => {
         const val = parseInt(span.dataset.val);
+        span.classList.remove('hover');
         if (val <= rating) span.classList.add('filled');
         else span.classList.remove('filled');
     });
@@ -1134,24 +1164,24 @@ window.editReview = async (id) => {
 
         editingReviewId = id;
         document.querySelector('#reviewModal h2').textContent = 'Edit Review';
-        document.querySelector('#reviewModal button[type="submit"]').textContent = 'Update Review';
+        const btn = document.getElementById('submitReviewBtn');
+        if(btn) btn.textContent = 'Update Review';
 
         const form = document.getElementById('reviewForm');
         form.querySelector('#rev_name').value = review.client_name;
         form.querySelector('#rev_desc').value = review.description || '';
 
-        // Radio logic
         const sourceRadios = form.querySelectorAll('input[name="source"]');
         sourceRadios.forEach(radio => {
             if (radio.value === review.source) radio.checked = true;
         });
 
-        // Rating logic
         const rating = review.rating || 5;
         document.getElementById('rev_rating').value = rating;
+        if(ratingDisplay) ratingDisplay.textContent = rating;
         updateStarDisplay(rating);
 
-        reviewModal.classList.add('active');
+        openReviewModal();
     } catch (error) {
         console.error(error);
         alert('Error fetching details');
@@ -1202,6 +1232,33 @@ window.deleteReview = async (id) => {
 // Submit
 document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Validation
+    const nameInput = document.getElementById('rev_name');
+    const ratingInput = document.getElementById('rev_rating');
+    let valid = true;
+
+    document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+    if (!nameInput.value.trim()) {
+        document.getElementById('rev_name_error').style.display = 'block';
+        nameInput.classList.add('input-error');
+        valid = false;
+    }
+    if (!ratingInput.value || ratingInput.value < 1) {
+        document.getElementById('rev_rating_error').style.display = 'block';
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    // Loading
+    const submitBtn = document.getElementById('submitReviewBtn');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Processing...';
+    submitBtn.disabled = true;
+
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
@@ -1226,7 +1283,6 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
         if (response.ok) {
             closeReviewModal();
             loadReviews();
-            alert(editingReviewId ? 'Review updated!' : 'Review added!');
         } else {
             const resData = await response.json();
             alert(resData.message || 'Failed');
@@ -1234,6 +1290,9 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
     } catch (error) {
         console.error(error);
         alert('Server error');
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     }
 });
 
