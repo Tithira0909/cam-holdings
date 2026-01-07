@@ -513,7 +513,11 @@
                     <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                 </div>
                 <div class="submenu">
-                    <a class="submenu-link">Settings (Coming Soon)</a>
+                    <a class="submenu-link nav-btn" data-view="property-designs">Property Designs</a>
+                    <a class="submenu-link nav-btn" data-view="property-parts">Property Parts</a>
+                    <a class="submenu-link nav-btn" data-view="property-part-items">Property Part Items</a>
+                    <a class="submenu-link nav-btn" data-view="property-services">Property Services</a>
+                    <a class="submenu-link nav-btn" data-view="property-service-items">Property Service Items</a>
                 </div>
             </li>
 
@@ -736,6 +740,128 @@
                         </div>
                     </form>
                 </div>
+            </div>
+
+            <!-- Property Designs View -->
+            <div id="view-property-designs" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Design</h2>
+                    <span class="breadcrumb">Admin / Property Design</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyDesignModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Design</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Design Name</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyDesignsTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Parts View -->
+            <div id="view-property-parts" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Parts</h2>
+                    <span class="breadcrumb">Admin / Property Parts</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyPartModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Part</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Part Name</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyPartsTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Part Items View -->
+            <div id="view-property-part-items" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Part Items</h2>
+                    <span class="breadcrumb">Admin / Property Part Items</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyPartItemModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Part Item</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Property Part</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyPartItemsTableBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Services View -->
+            <div id="view-property-services" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Services</h2>
+                    <span class="breadcrumb">Admin / Property Services</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Service</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyServicesTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Service Items View -->
+            <div id="view-property-service-items" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Service Items</h2>
+                    <span class="breadcrumb">Admin / Property Service Items</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyServiceItemModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Service Item</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Property Service</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyServiceItemsTableBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Add New Project View -->
@@ -1194,6 +1320,183 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelProjectBtn">Close</button>
                     <button type="submit" class="btn-primary">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Design Modal -->
+    <div id="propertyDesignModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Design</h2>
+                <button class="close-modal-btn" id="closePropertyDesignModal">&times;</button>
+            </div>
+            <form id="propertyDesignForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyDesignBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Part Modal -->
+    <div id="propertyPartModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Part</h2>
+                <button class="close-modal-btn" id="closePropertyPartModal">&times;</button>
+            </div>
+            <form id="propertyPartForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Part Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyPartBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Part Item Modal -->
+    <div id="propertyPartItemModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Part Item</h2>
+                <button class="close-modal-btn" id="closePropertyPartItemModal">&times;</button>
+            </div>
+            <form id="propertyPartItemForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Item Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Property Part *</label>
+                        <select name="part_id" id="ppi_part_id" required>
+                            <option value="">Select Part</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyPartItemBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Service Modal -->
+    <div id="propertyServiceModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Service</h2>
+                <button class="close-modal-btn" id="closePropertyServiceModal">&times;</button>
+            </div>
+            <form id="propertyServiceForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Service Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyServiceBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Service Item Modal -->
+    <div id="propertyServiceItemModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Service Item</h2>
+                <button class="close-modal-btn" id="closePropertyServiceItemModal">&times;</button>
+            </div>
+            <form id="propertyServiceItemForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Item Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Property Service *</label>
+                        <select name="service_id" id="psi_service_id" required>
+                            <option value="">Select Service</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyServiceItemBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
                 </div>
             </form>
         </div>

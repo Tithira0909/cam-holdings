@@ -77,6 +77,11 @@ navLinks.forEach(link => {
         if (viewName === 'reviews') loadReviews();
         if (viewName === 'inquiries') loadInquiries();
         if (viewName === 'quotations') loadQuotations();
+        if (viewName === 'property-designs') loadPropertyDesigns();
+        if (viewName === 'property-parts') loadPropertyParts();
+        if (viewName === 'property-part-items') loadPropertyPartItems();
+        if (viewName === 'property-services') loadPropertyServices();
+        if (viewName === 'property-service-items') loadPropertyServiceItems();
         if (viewName === 'add-client') {
             resetClientForm();
         }
@@ -1774,6 +1779,556 @@ window.deleteProjectTask = async (id) => {
         console.error(e);
     }
 };
+
+// --- QUOTATION SETTINGS LOGIC ---
+
+// 1. Property Designs
+let editingPropertyDesignId = null;
+
+async function loadPropertyDesigns() {
+    const tbody = document.getElementById('propertyDesignsTableBody');
+    if (!tbody) return;
+    try {
+        const response = await fetch('/api/admin/property-designs', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        tbody.innerHTML = '';
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No designs found</td></tr>';
+            return;
+        }
+        rows.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(item.name)}</td>
+                <td><span class="badge ${item.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${safe(item.status)}</span></td>
+                <td>${safe(item.description || '-')}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editPropertyDesign(${item.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deletePropertyDesign(${item.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading data</td></tr>';
+    }
+}
+
+const pdModal = document.getElementById('propertyDesignModal');
+const openPdBtn = document.getElementById('openPropertyDesignModalBtn');
+const closePdBtn = document.getElementById('closePropertyDesignModal');
+const cancelPdBtn = document.getElementById('cancelPropertyDesignBtn');
+
+if(openPdBtn) openPdBtn.addEventListener('click', () => {
+    pdModal.classList.add('active');
+    document.getElementById('propertyDesignForm').reset();
+    editingPropertyDesignId = null;
+    pdModal.querySelector('h2').textContent = 'New Property Design';
+});
+const closePdModalFunc = () => pdModal.classList.remove('active');
+if(closePdBtn) closePdBtn.addEventListener('click', closePdModalFunc);
+if(cancelPdBtn) cancelPdBtn.addEventListener('click', closePdModalFunc);
+
+window.editPropertyDesign = async (id) => {
+    try {
+        // Fetch all to find (or fetch single if API exists, sticking to pattern)
+        const response = await fetch('/api/admin/property-designs', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const item = rows.find(r => r.id === id);
+        if(!item) return;
+
+        editingPropertyDesignId = id;
+        pdModal.querySelector('h2').textContent = 'Edit Property Design';
+        const form = document.getElementById('propertyDesignForm');
+        form.querySelector('[name="name"]').value = item.name;
+        form.querySelector('[name="description"]').value = item.description || '';
+        form.querySelector('[name="status"]').value = item.status;
+        pdModal.classList.add('active');
+    } catch(e){ console.error(e); }
+};
+
+document.getElementById('propertyDesignForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        let url = '/api/admin/property-designs';
+        let method = 'POST';
+        if(editingPropertyDesignId) {
+            url = `/api/admin/property-designs/${editingPropertyDesignId}`;
+            method = 'PUT';
+        }
+        const res = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) {
+            closePdModalFunc();
+            loadPropertyDesigns();
+        } else alert('Failed to save');
+    } catch(e){ console.error(e); }
+});
+
+window.deletePropertyDesign = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const res = await fetch(`/api/admin/property-designs/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if(res.ok) loadPropertyDesigns();
+        else alert('Failed to delete');
+    } catch(e){ console.error(e); }
+};
+
+
+// 2. Property Parts
+let editingPropertyPartId = null;
+
+async function loadPropertyParts() {
+    const tbody = document.getElementById('propertyPartsTableBody');
+    if (!tbody) return;
+    try {
+        const response = await fetch('/api/admin/property-parts', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        tbody.innerHTML = '';
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No parts found</td></tr>';
+            return;
+        }
+        rows.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(item.name)}</td>
+                <td><span class="badge ${item.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${safe(item.status)}</span></td>
+                <td>${safe(item.description || '-')}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editPropertyPart(${item.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deletePropertyPart(${item.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading data</td></tr>';
+    }
+}
+
+const ppModal = document.getElementById('propertyPartModal');
+const openPpBtn = document.getElementById('openPropertyPartModalBtn');
+const closePpBtn = document.getElementById('closePropertyPartModal');
+const cancelPpBtn = document.getElementById('cancelPropertyPartBtn');
+
+if(openPpBtn) openPpBtn.addEventListener('click', () => {
+    ppModal.classList.add('active');
+    document.getElementById('propertyPartForm').reset();
+    editingPropertyPartId = null;
+    ppModal.querySelector('h2').textContent = 'New Property Part';
+});
+const closePpModalFunc = () => ppModal.classList.remove('active');
+if(closePpBtn) closePpBtn.addEventListener('click', closePpModalFunc);
+if(cancelPpBtn) cancelPpBtn.addEventListener('click', closePpModalFunc);
+
+window.editPropertyPart = async (id) => {
+    try {
+        const response = await fetch('/api/admin/property-parts', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const item = rows.find(r => r.id === id);
+        if(!item) return;
+
+        editingPropertyPartId = id;
+        ppModal.querySelector('h2').textContent = 'Edit Property Part';
+        const form = document.getElementById('propertyPartForm');
+        form.querySelector('[name="name"]').value = item.name;
+        form.querySelector('[name="description"]').value = item.description || '';
+        form.querySelector('[name="status"]').value = item.status;
+        ppModal.classList.add('active');
+    } catch(e){ console.error(e); }
+};
+
+document.getElementById('propertyPartForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        let url = '/api/admin/property-parts';
+        let method = 'POST';
+        if(editingPropertyPartId) {
+            url = `/api/admin/property-parts/${editingPropertyPartId}`;
+            method = 'PUT';
+        }
+        const res = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) {
+            closePpModalFunc();
+            loadPropertyParts();
+        } else alert('Failed to save');
+    } catch(e){ console.error(e); }
+});
+
+window.deletePropertyPart = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const res = await fetch(`/api/admin/property-parts/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if(res.ok) loadPropertyParts();
+        else alert('Failed to delete');
+    } catch(e){ console.error(e); }
+};
+
+
+// 3. Property Part Items
+let editingPropertyPartItemId = null;
+
+async function loadPropertyPartItems() {
+    const tbody = document.getElementById('propertyPartItemsTableBody');
+    if (!tbody) return;
+    try {
+        const response = await fetch('/api/admin/property-part-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        tbody.innerHTML = '';
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No items found</td></tr>';
+            return;
+        }
+        rows.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(item.name)}</td>
+                <td>${safe(item.part_name || '-')}</td>
+                <td><span class="badge ${item.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${safe(item.status)}</span></td>
+                <td>${safe(item.description || '-')}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editPropertyPartItem(${item.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deletePropertyPartItem(${item.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading data</td></tr>';
+    }
+}
+
+async function loadPropertyPartsDropdown() {
+    try {
+        const response = await fetch('/api/admin/property-parts', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const select = document.getElementById('ppi_part_id');
+        select.innerHTML = '<option value="">Select Part</option>';
+        rows.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = r.name;
+            select.appendChild(opt);
+        });
+    } catch(e){ console.error(e); }
+}
+
+const ppiModal = document.getElementById('propertyPartItemModal');
+const openPpiBtn = document.getElementById('openPropertyPartItemModalBtn');
+const closePpiBtn = document.getElementById('closePropertyPartItemModal');
+const cancelPpiBtn = document.getElementById('cancelPropertyPartItemBtn');
+
+if(openPpiBtn) openPpiBtn.addEventListener('click', () => {
+    ppiModal.classList.add('active');
+    document.getElementById('propertyPartItemForm').reset();
+    editingPropertyPartItemId = null;
+    ppiModal.querySelector('h2').textContent = 'New Property Part Item';
+    loadPropertyPartsDropdown();
+});
+const closePpiModalFunc = () => ppiModal.classList.remove('active');
+if(closePpiBtn) closePpiBtn.addEventListener('click', closePpiModalFunc);
+if(cancelPpiBtn) cancelPpiBtn.addEventListener('click', closePpiModalFunc);
+
+window.editPropertyPartItem = async (id) => {
+    try {
+        const response = await fetch('/api/admin/property-part-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const item = rows.find(r => r.id === id);
+        if(!item) return;
+
+        editingPropertyPartItemId = id;
+        ppiModal.querySelector('h2').textContent = 'Edit Property Part Item';
+        const form = document.getElementById('propertyPartItemForm');
+        form.querySelector('[name="name"]').value = item.name;
+        form.querySelector('[name="description"]').value = item.description || '';
+        form.querySelector('[name="status"]').value = item.status;
+
+        await loadPropertyPartsDropdown();
+        form.querySelector('[name="part_id"]').value = item.part_id;
+
+        ppiModal.classList.add('active');
+    } catch(e){ console.error(e); }
+};
+
+document.getElementById('propertyPartItemForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        let url = '/api/admin/property-part-items';
+        let method = 'POST';
+        if(editingPropertyPartItemId) {
+            url = `/api/admin/property-part-items/${editingPropertyPartItemId}`;
+            method = 'PUT';
+        }
+        const res = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) {
+            closePpiModalFunc();
+            loadPropertyPartItems();
+        } else alert('Failed to save');
+    } catch(e){ console.error(e); }
+});
+
+window.deletePropertyPartItem = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const res = await fetch(`/api/admin/property-part-items/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if(res.ok) loadPropertyPartItems();
+        else alert('Failed to delete');
+    } catch(e){ console.error(e); }
+};
+
+
+// 4. Property Services
+let editingPropertyServiceId = null;
+
+async function loadPropertyServices() {
+    const tbody = document.getElementById('propertyServicesTableBody');
+    if (!tbody) return;
+    try {
+        const response = await fetch('/api/admin/property-services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        tbody.innerHTML = '';
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No services found</td></tr>';
+            return;
+        }
+        rows.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(item.name)}</td>
+                <td><span class="badge ${item.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${safe(item.status)}</span></td>
+                <td>${safe(item.description || '-')}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editPropertyService(${item.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deletePropertyService(${item.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading data</td></tr>';
+    }
+}
+
+const psModal = document.getElementById('propertyServiceModal');
+const openPsBtn = document.getElementById('openPropertyServiceModalBtn');
+const closePsBtn = document.getElementById('closePropertyServiceModal');
+const cancelPsBtn = document.getElementById('cancelPropertyServiceBtn');
+
+if(openPsBtn) openPsBtn.addEventListener('click', () => {
+    psModal.classList.add('active');
+    document.getElementById('propertyServiceForm').reset();
+    editingPropertyServiceId = null;
+    psModal.querySelector('h2').textContent = 'New Property Service';
+});
+const closePsModalFunc = () => psModal.classList.remove('active');
+if(closePsBtn) closePsBtn.addEventListener('click', closePsModalFunc);
+if(cancelPsBtn) cancelPsBtn.addEventListener('click', closePsModalFunc);
+
+window.editPropertyService = async (id) => {
+    try {
+        const response = await fetch('/api/admin/property-services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const item = rows.find(r => r.id === id);
+        if(!item) return;
+
+        editingPropertyServiceId = id;
+        psModal.querySelector('h2').textContent = 'Edit Property Service';
+        const form = document.getElementById('propertyServiceForm');
+        form.querySelector('[name="name"]').value = item.name;
+        form.querySelector('[name="description"]').value = item.description || '';
+        form.querySelector('[name="status"]').value = item.status;
+        psModal.classList.add('active');
+    } catch(e){ console.error(e); }
+};
+
+document.getElementById('propertyServiceForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        let url = '/api/admin/property-services';
+        let method = 'POST';
+        if(editingPropertyServiceId) {
+            url = `/api/admin/property-services/${editingPropertyServiceId}`;
+            method = 'PUT';
+        }
+        const res = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) {
+            closePsModalFunc();
+            loadPropertyServices();
+        } else alert('Failed to save');
+    } catch(e){ console.error(e); }
+});
+
+window.deletePropertyService = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const res = await fetch(`/api/admin/property-services/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if(res.ok) loadPropertyServices();
+        else alert('Failed to delete');
+    } catch(e){ console.error(e); }
+};
+
+
+// 5. Property Service Items
+let editingPropertyServiceItemId = null;
+
+async function loadPropertyServiceItems() {
+    const tbody = document.getElementById('propertyServiceItemsTableBody');
+    if (!tbody) return;
+    try {
+        const response = await fetch('/api/admin/property-service-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        tbody.innerHTML = '';
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No items found</td></tr>';
+            return;
+        }
+        rows.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(item.name)}</td>
+                <td>${safe(item.service_name || '-')}</td>
+                <td><span class="badge ${item.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${safe(item.status)}</span></td>
+                <td>${safe(item.description || '-')}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editPropertyServiceItem(${item.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deletePropertyServiceItem(${item.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading data</td></tr>';
+    }
+}
+
+async function loadPropertyServicesDropdown() {
+    try {
+        const response = await fetch('/api/admin/property-services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const select = document.getElementById('psi_service_id');
+        select.innerHTML = '<option value="">Select Service</option>';
+        rows.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = r.name;
+            select.appendChild(opt);
+        });
+    } catch(e){ console.error(e); }
+}
+
+const psiModal = document.getElementById('propertyServiceItemModal');
+const openPsiBtn = document.getElementById('openPropertyServiceItemModalBtn');
+const closePsiBtn = document.getElementById('closePropertyServiceItemModal');
+const cancelPsiBtn = document.getElementById('cancelPropertyServiceItemBtn');
+
+if(openPsiBtn) openPsiBtn.addEventListener('click', () => {
+    psiModal.classList.add('active');
+    document.getElementById('propertyServiceItemForm').reset();
+    editingPropertyServiceItemId = null;
+    psiModal.querySelector('h2').textContent = 'New Property Service Item';
+    loadPropertyServicesDropdown();
+});
+const closePsiModalFunc = () => psiModal.classList.remove('active');
+if(closePsiBtn) closePsiBtn.addEventListener('click', closePsiModalFunc);
+if(cancelPsiBtn) cancelPsiBtn.addEventListener('click', closePsiModalFunc);
+
+window.editPropertyServiceItem = async (id) => {
+    try {
+        const response = await fetch('/api/admin/property-service-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const item = rows.find(r => r.id === id);
+        if(!item) return;
+
+        editingPropertyServiceItemId = id;
+        psiModal.querySelector('h2').textContent = 'Edit Property Service Item';
+        const form = document.getElementById('propertyServiceItemForm');
+        form.querySelector('[name="name"]').value = item.name;
+        form.querySelector('[name="description"]').value = item.description || '';
+        form.querySelector('[name="status"]').value = item.status;
+
+        await loadPropertyServicesDropdown();
+        form.querySelector('[name="service_id"]').value = item.service_id;
+
+        psiModal.classList.add('active');
+    } catch(e){ console.error(e); }
+};
+
+document.getElementById('propertyServiceItemForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        let url = '/api/admin/property-service-items';
+        let method = 'POST';
+        if(editingPropertyServiceItemId) {
+            url = `/api/admin/property-service-items/${editingPropertyServiceItemId}`;
+            method = 'PUT';
+        }
+        const res = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) {
+            closePsiModalFunc();
+            loadPropertyServiceItems();
+        } else alert('Failed to save');
+    } catch(e){ console.error(e); }
+});
+
+window.deletePropertyServiceItem = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const res = await fetch(`/api/admin/property-service-items/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if(res.ok) loadPropertyServiceItems();
+        else alert('Failed to delete');
+    } catch(e){ console.error(e); }
+};
+
 
 // Init
 // Default to Dashboard

@@ -20,6 +20,11 @@ const documentTypeRoutes = require('./routes/document_types');
 const projectTaskRoutes = require('./routes/project_tasks');
 const blogRoutes = require('./routes/blogs');
 const publicApiRoutes = require('./routes/public_api');
+const propertyDesignRoutes = require('./routes/property_designs');
+const propertyPartRoutes = require('./routes/property_parts');
+const propertyPartItemRoutes = require('./routes/property_part_items');
+const propertyServiceRoutes = require('./routes/property_services');
+const propertyServiceItemRoutes = require('./routes/property_service_items');
 const path = require('path');
 const fs = require('fs');
 
@@ -60,6 +65,11 @@ app.use('/api/quotations', publicQuotationRoutes);
 app.use('/api/admin/document-types', documentTypeRoutes);
 app.use('/api/admin/project-tasks', projectTaskRoutes);
 app.use('/api/admin/blogs', blogRoutes);
+app.use('/api/admin/property-designs', propertyDesignRoutes);
+app.use('/api/admin/property-parts', propertyPartRoutes);
+app.use('/api/admin/property-part-items', propertyPartItemRoutes);
+app.use('/api/admin/property-services', propertyServiceRoutes);
+app.use('/api/admin/property-service-items', propertyServiceItemRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

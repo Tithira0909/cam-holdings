@@ -265,6 +265,62 @@ async function setupDatabase() {
     `);
     console.log('Blogs table created or already exists.');
 
+    // Quotation Settings Tables
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_designs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_parts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_part_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        part_id INT,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (part_id) REFERENCES property_parts(id) ON DELETE SET NULL
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_services (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_service_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        service_id INT,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (service_id) REFERENCES property_services(id) ON DELETE SET NULL
+      )
+    `);
+    console.log('Quotation Settings tables created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {
