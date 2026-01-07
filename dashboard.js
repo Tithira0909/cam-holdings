@@ -8,35 +8,68 @@ if (!token) {
 let editingClientId = null;
 let editingServiceTypeId = null;
 
-// --- NAVIGATION ---
-const navBtns = document.querySelectorAll('.nav-btn');
+// --- NAVIGATION & SIDEBAR LOGIC ---
+const menuItems = document.querySelectorAll('.menu-item');
+const navLinks = document.querySelectorAll('.menu-link, .submenu-link');
 const views = document.querySelectorAll('.view-section');
 
-navBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Reset Edit Mode if leaving Add Client
-        if (btn.dataset.view !== 'add-client') {
-            resetClientForm();
+// Collapsible Logic
+menuItems.forEach(item => {
+    if (item.classList.contains('collapsible')) {
+        const link = item.querySelector('.menu-link');
+        link.addEventListener('click', (e) => {
+            // Check if clicking the link itself or just the toggle
+            // For this design, clicking the parent item toggles the submenu
+            item.classList.toggle('open');
+        });
+    }
+});
+
+// Navigation Logic
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        // If it's a collapsible parent, don't navigate (handled above), unless it has data-view
+        if (link.parentElement.classList.contains('collapsible') && !link.dataset.view) {
+            return;
         }
 
-        // Navigation UI update
-        navBtns.forEach(b => b.classList.remove('active'));
+        const viewName = link.dataset.view;
+        if (!viewName) return; // Placeholder links
+
+        e.preventDefault();
+
+        // 1. Update Active State in Sidebar
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        // If in submenu, ensure parent is open and active-ish
+        const parentItem = link.closest('.menu-item');
+        /* Optional: Highlight parent icon
+        if (parentItem) {
+            const parentLink = parentItem.querySelector('.menu-link');
+            if(parentLink !== link) parentLink.classList.add('active');
+        }
+        */
+
+        // 2. Switch View
         views.forEach(v => v.classList.remove('active'));
+        const viewId = `view-${viewName}`;
+        const targetView = document.getElementById(viewId);
+        if (targetView) targetView.classList.add('active');
 
-        btn.classList.add('active');
-        const viewId = `view-${btn.dataset.view}`;
-        document.getElementById(viewId).classList.add('active');
-
-        // Data Load triggers
-        if (btn.dataset.view === 'dashboard') loadDashboardStats();
-        if (btn.dataset.view === 'quotations') loadQuotations();
-        if (btn.dataset.view === 'inquiries') loadInquiries();
-        if (btn.dataset.view === 'projects') loadProjects();
-        if (btn.dataset.view === 'clients') loadClients();
-        if (btn.dataset.view === 'admins') loadAdmins();
-        if (btn.dataset.view === 'service-types') loadServiceTypes();
-        if (btn.dataset.view === 'services') loadServices();
-        if (btn.dataset.view === 'reviews') loadReviews();
+        // 3. Trigger Data Load
+        if (viewName === 'dashboard') loadDashboardStats();
+        if (viewName === 'admins') loadAdmins();
+        if (viewName === 'clients') loadClients();
+        if (viewName === 'services') loadServices();
+        if (viewName === 'service-types') loadServiceTypes();
+        if (viewName === 'projects') loadProjects();
+        if (viewName === 'reviews') loadReviews();
+        if (viewName === 'inquiries') loadInquiries();
+        if (viewName === 'quotations') loadQuotations();
+        if (viewName === 'add-client') {
+            resetClientForm();
+        }
     });
 });
 
@@ -1104,8 +1137,16 @@ window.editClient = async (id) => {
     if (!client) return;
 
     // Switch View
+    // Find the link that opens add-client (Users -> Register Client)
+    const registerLink = document.querySelector('.submenu-link[data-view="add-client"]');
+    if (registerLink) {
+        // Expand the Users menu if needed
+        const usersMenu = registerLink.closest('.menu-item');
+        if (usersMenu) usersMenu.classList.add('open');
+        registerLink.click();
+    }
+
     editingClientId = id;
-    document.querySelector('button[data-view="add-client"]').click();
 
     // Update Form UI
     document.getElementById('clientFormTitle').textContent = 'Edit Client';

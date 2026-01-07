@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
+        :root {
+            --sidebar-bg: #012e32;
+            --sidebar-hover: #02464c;
+            --text-color: #ffffff;
+            --text-muted: #b0c4c5;
+            --accent: #D6B25E;
+            --main-bg: #f4f7f6;
+        }
+
         body {
-            background-color: #070708;
-            color: white;
-            font-family: Arial, sans-serif;
+            background-color: var(--main-bg);
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -16,789 +25,671 @@
             overflow: hidden;
         }
 
-        /* Sidebar Styles */
+        /* --- Sidebar Styles --- */
         .sidebar {
-            width: 250px;
-            background-color: #1a1a1a;
-            border-right: 1px solid #333;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
-            padding: 1rem;
+            height: 100vh;
+            transition: width 0.3s ease;
+            flex-shrink: 0;
+            overflow-y: auto;
         }
 
-        .sidebar h2 {
-            color: #D6B25E;
+        .sidebar-logo {
+            padding: 1.5rem;
             text-align: center;
-            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .nav-btn {
-            background: none;
-            border: none;
-            color: #ccc;
-            padding: 1rem;
-            text-align: left;
-            font-size: 1rem;
+        .sidebar-logo h2 {
+            margin: 0;
+            color: var(--text-color); /* White logo as per user request/screenshot contrast */
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .sidebar-logo span {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .menu-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
             cursor: pointer;
-            border-radius: 4px;
-            margin-bottom: 0.5rem;
-            transition: background-color 0.2s, color 0.2s;
+            transition: background 0.2s, color 0.2s;
+            font-size: 0.95rem;
         }
 
-        .nav-btn:hover, .nav-btn.active {
-            background-color: #333;
-            color: #D6B25E;
+        .menu-link:hover, .menu-link.active {
+            background-color: var(--sidebar-hover);
+            color: var(--text-color);
+        }
+
+        .menu-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            fill: currentColor;
+        }
+
+        .menu-text {
+            flex: 1;
+        }
+
+        .chevron {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.3s;
+            fill: currentColor;
+        }
+
+        .menu-item.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Submenu */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        .menu-item.open .submenu {
+            max-height: 500px; /* Arbitrary large height */
+            transition: max-height 0.5s ease-in;
+        }
+
+        .submenu-link {
+            display: block;
+            padding: 0.8rem 1rem 0.8rem 3.5rem; /* Indented */
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .submenu-link:hover, .submenu-link.active {
+            color: var(--accent);
+        }
+
+        /* Logout */
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .logout-btn {
-            margin-top: auto;
-            background-color: transparent;
-            color: #ff4d4d;
-            border: 1px solid #ff4d4d;
+            display: flex;
+            align-items: center;
+            width: 100%;
             padding: 0.75rem;
+            background: transparent;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
             border-radius: 4px;
             cursor: pointer;
-            text-align: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
         }
 
         .logout-btn:hover {
-            background-color: #ff4d4d;
+            background: #ff4d4d;
             color: white;
         }
 
-        /* Main Content Styles */
+        /* --- Main Content --- */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-header {
+            background-color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
         .main-content {
             flex: 1;
             padding: 2rem;
             overflow-y: auto;
+            background-color: var(--main-bg);
         }
 
+        /* Views */
         .view-section {
             display: none;
         }
-
         .view-section.active {
             display: block;
+            animation: fadeIn 0.3s;
         }
 
-        h1 {
-            color: #D6B25E;
-            margin-top: 0;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 1rem;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Dark Form Styles (Projects) */
-        .admin-form-dark {
-            background-color: #1a1a1a;
-            padding: 2rem;
-            border-radius: 8px;
-            max-width: 800px;
-        }
+        /* --- Legacy Styles (Tables, Forms, Modals) --- */
+        /* Preserving your existing styles for content */
+        .admin-form-dark { background-color: #1a1a1a; padding: 2rem; border-radius: 8px; max-width: 800px; color: white; }
+        .admin-form-dark label { display: block; margin-bottom: 0.5rem; color: #ccc; }
+        .admin-form-dark input, .admin-form-dark textarea { width: 100%; padding: 0.75rem; border: 1px solid #444; border-radius: 4px; background-color: #2a2a2a; color: white; box-sizing: border-box; }
+        .admin-form-dark input:focus { border-color: var(--accent); outline: none; }
 
-        .admin-form-dark label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #ccc;
-        }
+        .light-view-container { background-color: white; padding: 2rem; border-radius: 8px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); min-height: 80vh; }
 
-        .admin-form-dark input, .admin-form-dark textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background-color: #2a2a2a;
-            color: white;
-            box-sizing: border-box;
-        }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .page-header h2 { margin: 0; color: #000; }
+        .breadcrumb { font-size: 0.9rem; color: #666; }
 
-        .admin-form-dark input:focus, .admin-form-dark textarea:focus {
-            border-color: #D6B25E;
-            outline: none;
-        }
+        .search-container { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+        .search-input { padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; width: 300px; }
 
-        /* Light Container (Shared) */
-        .light-view-container {
-            background-color: #f4f4f4; /* Light background */
-            padding: 2rem;
-            border-radius: 8px;
-            color: #333; /* Dark text */
-            min-height: 80vh;
-        }
+        .clients-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .clients-table th, .clients-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        .clients-table th { font-size: 0.85rem; color: #888; font-weight: bold; text-transform: uppercase; }
 
-        /* Registered Clients Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .page-header h2 {
-            margin: 0;
-            color: #000;
-        }
-
-        .breadcrumb {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* Search Bar */
-        .search-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 1rem;
-        }
-
-        .search-input {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 400px;
-            font-size: 0.9rem;
-        }
-
-        /* Clients Table */
-        .clients-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .clients-table th, .clients-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .clients-table th {
-            font-size: 0.85rem;
-            color: #888;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        /* Badges */
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border-radius: 4px;
-            color: white;
-            margin-right: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-
+        .badge { display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; color: white; margin-right: 0.25rem; }
         .badge-reg { background-color: #2c3e50; }
         .badge-active { background-color: #2ecc71; }
         .badge-inactive { background-color: #95a5a6; }
-        .badge-approved { background-color: #2ecc71; } /* Dark Blue check? User said Green */
+        .badge-approved { background-color: #2ecc71; }
         .badge-not-approved { background-color: #e74c3c; }
 
-        .client-name-cell div {
-            margin-top: 0.25rem;
+        .btn-sm { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; }
+        .btn-edit { background-color: #00cec9; }
+        .btn-deactivate { background-color: #e74c3c; }
+        .btn-approve { background-color: #2c3e50; }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 800px; color: #333; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        .close-modal-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-primary { background-color: #0056b3; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-secondary { background-color: #ddd; color: #333; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        /* Responsive Sidebar */
+        @media (max-width: 768px) {
+            .sidebar { width: 0; overflow: hidden; }
+            .sidebar.active { width: 260px; }
+            .main-content { padding: 1rem; }
         }
-
-        /* Action Buttons */
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-right: 0.25rem;
-        }
-
-        .btn-edit { background-color: #00cec9; } /* Cyan/Blue */
-        .btn-deactivate { background-color: #e74c3c; } /* Red */
-        .btn-approve { background-color: #2c3e50; } /* Dark Blue */
-
-
-        /* Forms */
-        .admin-form-light {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 900px;
-        }
-
-        .admin-form-light h2 {
-            color: #2c3e50;
-            margin-top: 0;
-        }
-
-        .admin-form-light label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .admin-form-light input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: white;
-            color: #333;
-            box-sizing: border-box;
-        }
-
-        .admin-form-light input:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-
-        button.action-btn {
-            background-color: #D6B25E;
-            color: black;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        button.action-btn:hover {
-            background-color: #c4a04e;
-        }
-
-        button.submit-client-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        button.submit-client-btn:hover {
-            background-color: #2980b9;
-        }
-
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        /* Specific Styles for Client Registration (Grid Layout) */
-        .client-form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .client-form-grid .full-width {
-            grid-column: span 2;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 800px;
-            color: #333;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 1rem;
-        }
-
-        .modal-header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #333;
-        }
-
-        .close-modal-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
-        }
-
-        .file-input-group {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-        }
-
-        .file-input-group input[type="file"] {
-             border: none;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn-secondary {
-            background-color: #ddd;
-            color: #333;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-primary {
-            background-color: #0056b3; /* Dark blue matching screenshot */
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Service Types List */
-        .service-types-list {
-             display: grid;
-             gap: 1rem;
-        }
-
-        .service-type-item {
-            background: white;
-            border: 1px solid #eee;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-radius: 4px;
-        }
-
-        .service-type-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .service-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            background-color: #f0f0f0;
-        }
-
-        /* Projects List */
-        .projects-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .project-card {
-            background-color: #1a1a1a;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-
-        .project-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background-color: #333;
-        }
-
-        .project-content {
-            padding: 1rem;
-        }
-
-        .project-title {
-            margin-top: 0;
-            color: #D6B25E;
-        }
-
-        .delete-btn {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 1rem;
-            float: right;
-        }
-
-        .message {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 4px;
-            display: none;
-        }
-        .success { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
-        .error { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
-
-        /* Star Rating */
-        .star-rating span {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #ccc;
-        }
-        .star-rating span.filled {
-            color: #f1c40f; /* Gold */
-        }
-
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <h2>Admin Panel</h2>
-        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
-        <button class="nav-btn" data-view="quotations">Customer Quotations</button>
-        <button class="nav-btn" data-view="inquiries">All Inquiries</button>
-        <button class="nav-btn" data-view="projects">Projects</button>
-        <button class="nav-btn" data-view="clients">Registered Clients</button>
-        <button class="nav-btn" data-view="admins">Registered Admins</button>
-        <button class="nav-btn" data-view="service-types">Services Type</button>
-        <button class="nav-btn" data-view="services">All Services</button>
-        <button class="nav-btn" data-view="reviews">Customer Reviews</button>
-        <button class="nav-btn" data-view="add-client">Register Client</button>
-        <button id="logoutBtn" class="logout-btn">Logout</button>
-    </nav>
-
-    <main class="main-content">
-        <!-- All Inquiries View -->
-        <div id="view-inquiries" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>All Inquiries</h2>
-                <span class="breadcrumb">Admin / All Inquiries</span>
-            </div>
-
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>Client Name</th>
-                        <th>Email</th>
-                        <th>Phone Number</th>
-                        <th>Subject</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="inquiriesTableBody">
-                    <tr><td colspan="5">Loading...</td></tr>
-                </tbody>
-            </table>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h2>RDK <span>Admin</span></h2>
         </div>
 
-        <!-- Customer Quotations View -->
-        <div id="view-quotations" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>Customer Quotations</h2>
-                <span class="breadcrumb">Admin / Customer Quotations</span>
-            </div>
+        <ul class="sidebar-menu">
+            <!-- Dashboard -->
+            <li class="menu-item">
+                <div class="menu-link nav-btn active" data-view="dashboard">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                    <span class="menu-text">Dashboard</span>
+                </div>
+            </li>
 
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>Reference ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Contact</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="quotationsTableBody">
-                    <tr><td colspan="9">Loading...</td></tr>
-                </tbody>
-            </table>
+            <!-- Users -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <span class="menu-text">Users</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="admins">Registered Admins</a>
+                    <a class="submenu-link nav-btn" data-view="clients">Registered Clients</a>
+                    <a class="submenu-link nav-btn" data-view="add-client">Register Client</a>
+                </div>
+            </li>
+
+            <!-- Services -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                    <span class="menu-text">Services</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="services">All Services</a>
+                    <a class="submenu-link nav-btn" data-view="service-types">Services Type</a>
+                </div>
+            </li>
+
+            <!-- Resources (Placeholder) -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>
+                    <span class="menu-text">Resources</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link">Docs (Coming Soon)</a>
+                </div>
+            </li>
+
+            <!-- Projects -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    <span class="menu-text">Projects</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="projects">All Projects</a>
+                </div>
+            </li>
+
+            <!-- Customer Reviews -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg>
+                    <span class="menu-text">Customer Reviews</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="reviews">All Reviews</a>
+                </div>
+            </li>
+
+            <!-- Inquiries -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                    <span class="menu-text">Inquiries</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="inquiries">All Inquiries</a>
+                </div>
+            </li>
+
+            <!-- Customer Quotations -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span class="menu-text">Customer Quotations</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="quotations">All Quotations</a>
+                </div>
+            </li>
+
+            <!-- Quotation Settings -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
+                    <span class="menu-text">Quotation Settings</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link">Settings (Coming Soon)</a>
+                </div>
+            </li>
+
+            <!-- Settings -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    <span class="menu-text">Settings</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link">General</a>
+                    <a class="submenu-link">Security</a>
+                </div>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button id="logoutBtn" class="logout-btn">
+                Logout
+            </button>
         </div>
+    </aside>
 
-        <!-- Dashboard Overview -->
-        <div id="view-dashboard" class="view-section active light-view-container">
-            <div class="page-header">
-                <h2>Dashboard</h2>
-                <span class="breadcrumb">Home / Dashboard</span>
-            </div>
+    <div class="main-wrapper">
+        <header class="top-header">
+            <h3>Admin Panel</h3>
+            <div style="font-size:0.9rem; color:#666;">v1.0.0</div>
+        </header>
 
-            <div style="margin-bottom: 2rem;">
-                <h3 style="margin: 0; color: #2c3e50; font-size: 1.5rem;">Welcome back, <span id="adminNameDisplay">Admin</span></h3>
-                <p style="color: #666; margin-top: 0.5rem;">Get a quick overview of your company's current status below, or click into one of the sections for a more detailed breakdown.</p>
-            </div>
-
-            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                <!-- Registered Users Card -->
-                <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
-                    <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Registered Users</div>
-                    <div id="count-registered-users" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+        <main class="main-content">
+            <!-- All Inquiries View -->
+            <div id="view-inquiries" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Inquiries</h2>
+                    <span class="breadcrumb">Admin / All Inquiries</span>
                 </div>
 
-                <!-- Total Posts Card -->
-                <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
-                    <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Total Posts</div>
-                    <div id="count-total-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Subject</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inquiriesTableBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Customer Quotations View -->
+            <div id="view-quotations" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Customer Quotations</h2>
+                    <span class="breadcrumb">Admin / Customer Quotations</span>
                 </div>
 
-                <!-- Not Approved Posts Card -->
-                <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
-                    <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Not Approved Posts</div>
-                    <div id="count-not-approved-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Reference ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotationsTableBody">
+                        <tr><td colspan="9">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Dashboard Overview -->
+            <div id="view-dashboard" class="view-section active light-view-container">
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                    <span class="breadcrumb">Home / Dashboard</span>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="margin: 0; color: #2c3e50; font-size: 1.5rem;">Welcome back, <span id="adminNameDisplay">Admin</span></h3>
+                    <p style="color: #666; margin-top: 0.5rem;">Get a quick overview of your company's current status below, or click into one of the sections for a more detailed breakdown.</p>
+                </div>
+
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <!-- Registered Users Card -->
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                        <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Registered Users</div>
+                        <div id="count-registered-users" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                    </div>
+
+                    <!-- Total Posts Card -->
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                        <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Total Posts</div>
+                        <div id="count-total-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                    </div>
+
+                    <!-- Not Approved Posts Card -->
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                        <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Not Approved Posts</div>
+                        <div id="count-not-approved-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Projects View -->
-        <div id="view-projects" class="view-section">
-            <h1>Manage Projects</h1>
+            <!-- Projects View -->
+            <div id="view-projects" class="view-section">
+                <h1>Manage Projects</h1>
 
-            <div class="admin-form-dark">
-                <h3>Add New Project</h3>
-                <form id="addProjectForm">
-                    <div class="form-group">
-                        <label for="proj_title">Title</label>
-                        <input type="text" id="proj_title" name="title" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="proj_desc">Description</label>
-                        <textarea id="proj_desc" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="proj_img">Image URL</label>
-                        <input type="text" id="proj_img" name="imageUrl" placeholder="https://example.com/image.jpg">
-                    </div>
-                    <button type="submit" class="action-btn">Add Project</button>
-                </form>
+                <div class="admin-form-dark">
+                    <h3>Add New Project</h3>
+                    <form id="addProjectForm">
+                        <div class="form-group">
+                            <label for="proj_title">Title</label>
+                            <input type="text" id="proj_title" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="proj_desc">Description</label>
+                            <textarea id="proj_desc" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="proj_img">Image URL</label>
+                            <input type="text" id="proj_img" name="imageUrl" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <button type="submit" class="action-btn">Add Project</button>
+                    </form>
+                </div>
+
+                <div id="projectsList" class="projects-list">
+                    <!-- Projects Loaded Here -->
+                    <p>Loading...</p>
+                </div>
             </div>
 
-            <div id="projectsList" class="projects-list">
-                <!-- Projects Loaded Here -->
-                <p>Loading...</p>
-            </div>
-        </div>
+            <!-- Registered Clients View -->
+            <div id="view-clients" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Registered Clients</h2>
+                    <span class="breadcrumb">Admin / Registered Clients</span>
+                </div>
 
-        <!-- Registered Clients View -->
-        <div id="view-clients" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>Registered Clients</h2>
-                <span class="breadcrumb">Admin / Registered Clients</span>
-            </div>
+                <div class="search-container">
+                    <input type="text" id="clientSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+                </div>
 
-            <div class="search-container">
-                <input type="text" id="clientSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
-            </div>
-
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Status</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="clientsTableBody">
-                    <!-- Rows loaded via JS -->
-                    <tr><td colspan="7">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Registered Admins View -->
-        <div id="view-admins" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>Registered Admins</h2>
-                <span class="breadcrumb">Admin / Registered Admins</span>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="7">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="search-container">
-                <input type="text" id="adminSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+            <!-- Registered Admins View -->
+            <div id="view-admins" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Registered Admins</h2>
+                    <span class="breadcrumb">Admin / Registered Admins</span>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="adminSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminsTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="7">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Status</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="adminsTableBody">
-                    <!-- Rows loaded via JS -->
-                    <tr><td colspan="7">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
+            <!-- Service Types View -->
+            <div id="view-service-types" class="view-section light-view-container">
+                 <div class="page-header">
+                    <h2>Services Type</h2>
+                    <button id="openServiceTypeModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ Add New Service Type</button>
+                </div>
 
-        <!-- Service Types View -->
-        <div id="view-service-types" class="view-section light-view-container">
-             <div class="page-header">
-                <h2>Services Type</h2>
-                <button id="openServiceTypeModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ Add New Service Type</button>
+                <div id="serviceTypesList" class="service-types-list">
+                    <!-- Loaded via JS -->
+                    <p>Loading service types...</p>
+                </div>
             </div>
 
-            <div id="serviceTypesList" class="service-types-list">
-                <!-- Loaded via JS -->
-                <p>Loading service types...</p>
-            </div>
-        </div>
+            <!-- All Services View -->
+            <div id="view-services" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Services</h2>
+                    <span class="breadcrumb">Admin / All Services</span>
+                </div>
 
-        <!-- All Services View -->
-        <div id="view-services" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>All Services</h2>
-                <span class="breadcrumb">Admin / All Services</span>
-            </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add New Service</button>
+                    <input type="text" id="serviceSearch" class="search-input" placeholder="Search Services" style="width: 300px;">
+                </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <button id="openServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add New Service</button>
-                <input type="text" id="serviceSearch" class="search-input" placeholder="Search Services" style="width: 300px;">
-            </div>
-
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Image</th>
-                        <th>Service Type</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="servicesTableBody">
-                    <!-- Rows loaded via JS -->
-                    <tr><td colspan="5">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Customer Reviews View -->
-        <div id="view-reviews" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>All Customer Reviews</h2>
-                <span class="breadcrumb">Admin / All Customer Reviews</span>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Image</th>
+                            <th>Service Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div style="margin-bottom: 2rem;">
-                <button id="openReviewModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add Review</button>
+            <!-- Customer Reviews View -->
+            <div id="view-reviews" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Customer Reviews</h2>
+                    <span class="breadcrumb">Admin / All Customer Reviews</span>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <button id="openReviewModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add Review</button>
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Review</th>
+                            <th>Rating</th>
+                            <th>Review Source</th>
+                            <th>Is_Approved</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewsTableBody">
+                        <tr><td colspan="7">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>Client Name</th>
-                        <th>Review</th>
-                        <th>Rating</th>
-                        <th>Review Source</th>
-                        <th>Is_Approved</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="reviewsTableBody">
-                    <tr><td colspan="7">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
+            <!-- Add Client View -->
+            <div id="view-add-client" class="view-section light-view-container">
+                <h1 style="color: #2c3e50; border-bottom-color: #ccc;" id="clientFormTitle">Register New Client</h1>
 
-        <!-- Add Client View -->
-        <div id="view-add-client" class="view-section light-view-container">
-            <h1 style="color: #2c3e50; border-bottom-color: #ccc;" id="clientFormTitle">Register New Client</h1>
+                <div class="admin-form-light">
+                    <form id="registerClientForm" class="client-form-grid">
+                        <div class="form-group">
+                            <label for="first_name">First Name *</label>
+                            <input type="text" id="first_name" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name *</label>
+                            <input type="text" id="last_name" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact_number">Contact Number</label>
+                            <input type="tel" id="contact_number" name="contact_number">
+                        </div>
+                        <div class="form-group">
+                            <label for="postal_code">Postal Code</label>
+                            <input type="text" id="postal_code" name="postal_code">
+                        </div>
+                        <div class="form-group">
+                            <label for="site_address">Site Address</label>
+                            <input type="text" id="site_address" name="site_address">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="correspondence_address">Correspondence Address</label>
+                            <input type="text" id="correspondence_address" name="correspondence_address">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password * (min 8 chars)</label>
+                            <input type="password" id="password" name="password" minlength="8" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password *</label>
+                            <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
+                        </div>
 
-            <div class="admin-form-light">
-                <form id="registerClientForm" class="client-form-grid">
-                    <div class="form-group">
-                        <label for="first_name">First Name *</label>
-                        <input type="text" id="first_name" name="first_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="last_name">Last Name *</label>
-                        <input type="text" id="last_name" name="last_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_number">Contact Number</label>
-                        <input type="tel" id="contact_number" name="contact_number">
-                    </div>
-                    <div class="form-group">
-                        <label for="postal_code">Postal Code</label>
-                        <input type="text" id="postal_code" name="postal_code">
-                    </div>
-                    <div class="form-group">
-                        <label for="site_address">Site Address</label>
-                        <input type="text" id="site_address" name="site_address">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="correspondence_address">Correspondence Address</label>
-                        <input type="text" id="correspondence_address" name="correspondence_address">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password * (min 8 chars)</label>
-                        <input type="password" id="password" name="password" minlength="8" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm Password *</label>
-                        <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
-                    </div>
-
-                    <div class="full-width">
-                        <div id="clientMsg" class="message"></div>
-                        <button type="submit" id="submitClientBtn" class="submit-client-btn">Create Client Account</button>
-                    </div>
-                </form>
+                        <div class="full-width">
+                            <div id="clientMsg" class="message"></div>
+                            <button type="submit" id="submitClientBtn" class="submit-client-btn">Create Client Account</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <!-- New Service Type Modal -->
     <div id="serviceTypeModal" class="modal-overlay">
