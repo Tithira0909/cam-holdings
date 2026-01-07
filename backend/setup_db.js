@@ -227,6 +227,17 @@ async function setupDatabase() {
     `);
     console.log('Document Types table created or already exists.');
 
+    // Create Project Tasks Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS project_tasks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        task_name VARCHAR(255) NOT NULL,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Project Tasks table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {

@@ -72,6 +72,7 @@ navLinks.forEach(link => {
         if (viewName === 'services') loadServices();
         if (viewName === 'service-types') loadServiceTypes();
         if (viewName === 'projects') loadProjects();
+        if (viewName === 'project-tasks') loadProjectTasks();
         if (viewName === 'document-types') loadDocumentTypes();
         if (viewName === 'reviews') loadReviews();
         if (viewName === 'inquiries') loadInquiries();
@@ -1509,6 +1510,146 @@ window.deleteDocumentType = async (id) => {
         });
         if (response.ok) loadDocumentTypes();
         else alert('Failed to delete document type');
+    } catch (e) {
+        console.error(e);
+    }
+};
+
+// --- PROJECT TASKS LOGIC ---
+let editingProjectTaskId = null;
+let projectTaskSearchTimeout;
+
+document.getElementById('projectTaskSearch')?.addEventListener('input', (e) => {
+    clearTimeout(projectTaskSearchTimeout);
+    projectTaskSearchTimeout = setTimeout(() => loadProjectTasks(e.target.value), 300);
+});
+
+async function loadProjectTasks(query = '') {
+    const tbody = document.getElementById('projectTasksTableBody');
+    if (!tbody) return;
+
+    try {
+        const url = query ? `/api/admin/project-tasks?search=${encodeURIComponent(query)}` : '/api/admin/project-tasks';
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const tasks = await response.json();
+
+        tbody.innerHTML = '';
+        if (tasks.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No tasks found</td></tr>';
+            return;
+        }
+
+        tasks.forEach(task => {
+            const statusClass = task.status === 'Active' ? 'badge-active' : 'badge-inactive';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(task.task_name)}</td>
+                <td><span class="badge ${statusClass}">${safe(task.status)}</span></td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editProjectTask(${task.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteProjectTask(${task.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+        tbody.innerHTML = '<tr><td colspan="3" style="color:red; text-align:center;">Error loading tasks</td></tr>';
+    }
+}
+
+// Project Task Modal
+const ptModal = document.getElementById('projectTaskModal');
+const openPtModalBtn = document.getElementById('openProjectTaskModalBtn');
+const closePtModalBtn = document.getElementById('closeProjectTaskModal');
+const cancelPtBtn = document.getElementById('cancelProjectTaskBtn');
+
+function openPtModalFunc() {
+    ptModal.classList.add('active');
+}
+
+function closePtModalFunc() {
+    ptModal.classList.remove('active');
+    document.getElementById('projectTaskForm').reset();
+    editingProjectTaskId = null;
+    document.querySelector('#projectTaskModal h2').textContent = 'New Task';
+    document.querySelector('#projectTaskModal button[type="submit"]').textContent = 'Save Task';
+}
+
+if(openPtModalBtn) openPtModalBtn.addEventListener('click', openPtModalFunc);
+if(closePtModalBtn) closePtModalBtn.addEventListener('click', closePtModalFunc);
+if(cancelPtBtn) cancelPtBtn.addEventListener('click', closePtModalFunc);
+
+window.editProjectTask = async (id) => {
+    try {
+        const response = await fetch('/api/admin/project-tasks', { headers: { 'Authorization': `Bearer ${token}` } });
+        const tasks = await response.json();
+        const task = tasks.find(t => t.id === id);
+
+        if(!task) return;
+
+        editingProjectTaskId = id;
+        document.querySelector('#projectTaskModal h2').textContent = 'Edit Task';
+        document.querySelector('#projectTaskModal button[type="submit"]').textContent = 'Update Task';
+
+        const form = document.getElementById('projectTaskForm');
+        form.querySelector('#pt_name').value = task.task_name;
+        form.querySelector('#pt_status').value = task.status;
+
+        openPtModalFunc();
+    } catch(e) {
+        console.error(e);
+        alert('Error fetching details');
+    }
+};
+
+document.getElementById('projectTaskForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        let url = '/api/admin/project-tasks';
+        let method = 'POST';
+
+        if (editingProjectTaskId) {
+            url = `/api/admin/project-tasks/${editingProjectTaskId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            closePtModalFunc();
+            loadProjectTasks();
+            alert(editingProjectTaskId ? 'Task updated!' : 'Task created!');
+        } else {
+            const resData = await response.json();
+            alert(resData.message || 'Failed to save task');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error saving task');
+    }
+});
+
+window.deleteProjectTask = async (id) => {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    try {
+        const response = await fetch(`/api/admin/project-tasks/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadProjectTasks();
+        else alert('Failed to delete task');
     } catch (e) {
         console.error(e);
     }

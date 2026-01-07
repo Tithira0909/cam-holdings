@@ -410,6 +410,7 @@
                 </div>
                 <div class="submenu">
                     <a class="submenu-link nav-btn" data-view="projects">All Projects</a>
+                    <a class="submenu-link nav-btn" data-view="project-tasks">Project Tasks List</a>
                 </div>
             </li>
 
@@ -617,6 +618,32 @@
                     </thead>
                     <tbody id="documentTypesTableBody">
                         <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Project Tasks View -->
+            <div id="view-project-tasks" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Project Tasks List</h2>
+                    <span class="breadcrumb">Admin / Project Tasks List</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openProjectTaskModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; New Task</button>
+                    <input type="text" id="projectTaskSearch" class="search-input" placeholder="Search Task" style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectTasksTableBody">
+                        <tr><td colspan="3">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -880,6 +907,37 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelServiceTypeBtn">Close</button>
                     <button type="submit" class="btn-primary">Create Service Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Task Modal -->
+    <div id="projectTaskModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Task</h2>
+                <button class="close-modal-btn" id="closeProjectTaskModal">&times;</button>
+            </div>
+
+            <form id="projectTaskForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label for="pt_name">Task Name *</label>
+                        <input type="text" id="pt_name" name="task_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pt_status">Status</label>
+                        <select id="pt_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelProjectTaskBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Task</button>
                 </div>
             </form>
         </div>
