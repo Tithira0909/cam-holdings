@@ -311,6 +311,7 @@
         .clients-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         .clients-table th, .clients-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
         .clients-table th { font-size: 0.85rem; color: #888; font-weight: bold; text-transform: uppercase; }
+        .clients-table td:last-child { white-space: nowrap; }
 
         .badge { display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; color: white; margin-right: 0.25rem; }
         .badge-reg { background-color: #2c3e50; }
@@ -593,32 +594,32 @@
             </div>
 
             <!-- Projects View -->
-            <div id="view-projects" class="view-section">
-                <h1>Manage Projects</h1>
-
-                <div class="admin-form-dark">
-                    <h3>Add New Project</h3>
-                    <form id="addProjectForm">
-                        <div class="form-group">
-                            <label for="proj_title">Title</label>
-                            <input type="text" id="proj_title" name="title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="proj_desc">Description</label>
-                            <textarea id="proj_desc" name="description" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="proj_img">Image URL</label>
-                            <input type="text" id="proj_img" name="imageUrl" placeholder="https://example.com/image.jpg">
-                        </div>
-                        <button type="submit" class="action-btn">Add Project</button>
-                    </form>
+            <div id="view-projects" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Projects</h2>
+                    <span class="breadcrumb">Admin / All Projects</span>
                 </div>
 
-                <div id="projectsList" class="projects-list">
-                    <!-- Projects Loaded Here -->
-                    <p>Loading...</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openProjectModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Project</button>
+                    <input type="text" id="projectSearch" class="search-input" placeholder="Search Projects" style="width: 300px;">
                 </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Location</th>
+                            <th>Budget</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Registered Clients View -->
@@ -851,6 +852,76 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelServiceTypeBtn">Close</button>
                     <button type="submit" class="btn-primary">Create Service Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="projectModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Project</h2>
+                <button class="close-modal-btn" id="closeProjectModal">&times;</button>
+            </div>
+
+            <form id="projectForm">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="proj_title_input">Title *</label>
+                        <input type="text" id="proj_title_input" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_loc">Location</label>
+                        <input type="text" id="proj_loc" name="location">
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_budget">Budget</label>
+                        <input type="text" id="proj_budget" name="budget">
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_status">Status</label>
+                        <select id="proj_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="proj_desc_input">Description</label>
+                        <textarea id="proj_desc_input" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_image">Image</label>
+                        <div class="file-input-group">
+                            <input type="file" id="proj_image" name="image" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelProjectBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Progress Modal -->
+    <div id="projectProgressModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Update Progress</h2>
+                <button class="close-modal-btn" id="closeProgressModal">&times;</button>
+            </div>
+
+            <form id="progressForm">
+                <div class="form-group">
+                    <label for="prog_status">Progress Status / Value</label>
+                    <input type="text" id="prog_status" name="progress_status" placeholder="e.g. 50% or In Progress" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelProgressBtn">Close</button>
+                    <button type="submit" class="btn-primary">Update Progress</button>
                 </div>
             </form>
         </div>

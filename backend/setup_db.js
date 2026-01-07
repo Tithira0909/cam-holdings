@@ -63,13 +63,35 @@ async function setupDatabase() {
       CREATE TABLE IF NOT EXISTS projects (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
+        location VARCHAR(255),
+        budget VARCHAR(255),
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        progress_status VARCHAR(255) DEFAULT 'Not Started',
         description TEXT,
         image_url VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('Projects table created or already exists.');
+
+    // Migration for Projects Table
+    const projectMigrationQueries = [
+        "ALTER TABLE projects ADD COLUMN location VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN budget VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN status ENUM('Active', 'Inactive') DEFAULT 'Active'",
+        "ALTER TABLE projects ADD COLUMN progress_status VARCHAR(255) DEFAULT 'Not Started'"
+    ];
+
+    for (const query of projectMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060) { // 1060: Duplicate column
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
+    console.log('Projects table created or updated.');
 
     // Create Clients Table
     await db.query(`

@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
+const adminProjectRoutes = require('./routes/admin_projects');
 const clientRoutes = require('./routes/clients');
 const adminRoutes = require('./routes/admins');
 const serviceTypeRoutes = require('./routes/service_types');
@@ -40,6 +41,7 @@ if (!process.env.JWT_SECRET) {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/admin/projects', adminProjectRoutes);
 app.use('/api/admin/clients', clientRoutes);
 app.use('/api/admin/admins', adminRoutes);
 app.use('/api/admin/service-types', serviceTypeRoutes);

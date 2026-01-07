@@ -320,84 +320,194 @@ window.viewMessage = async (id) => {
 };
 
 // --- PROJECTS LOGIC ---
-async function loadProjects() {
-    const projectsList = document.getElementById('projectsList');
-    if (!projectsList) return;
+let editingProjectId = null;
+let projectProgressId = null;
+let projectSearchTimeout;
+
+document.getElementById('projectSearch')?.addEventListener('input', (e) => {
+    clearTimeout(projectSearchTimeout);
+    projectSearchTimeout = setTimeout(() => loadProjects(e.target.value), 300);
+});
+
+async function loadProjects(query = '') {
+    const tbody = document.getElementById('projectsTableBody');
+    if (!tbody) return;
 
     try {
-        const response = await fetch('/api/projects');
+        const url = query ? `/api/admin/projects?search=${encodeURIComponent(query)}` : '/api/admin/projects';
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
         const projects = await response.json();
 
-        projectsList.innerHTML = '';
+        tbody.innerHTML = '';
         if (projects.length === 0) {
-            projectsList.innerHTML = '<p>No projects found.</p>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No projects found</td></tr>';
             return;
         }
 
-        projects.forEach(project => {
-            const card = document.createElement('div');
-            card.className = 'project-card';
-            card.innerHTML = `
-                <img src="${project.image_url || 'https://via.placeholder.com/300'}" alt="${project.title}" class="project-image">
-                <div class="project-content">
-                    <h3 class="project-title">${project.title}</h3>
-                    <p>${project.description || ''}</p>
-                    <button class="delete-btn" onclick="deleteProject(${project.id})">Delete</button>
-                </div>
+        projects.forEach(proj => {
+            const statusClass = proj.status === 'Active' ? 'badge-active' : 'badge-inactive';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(proj.title)}</td>
+                <td>${safe(proj.location || '-')}</td>
+                <td>${safe(proj.budget || '-')}</td>
+                <td><span class="badge ${statusClass}">${safe(proj.status || 'Active')}</span></td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editProject(${proj.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteProject(${proj.id})">Delete</button>
+                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="openProgressModal(${proj.id}, '${safe(proj.progress_status || '')}')">Progress</button>
+                </td>
             `;
-            projectsList.appendChild(card);
+            tbody.appendChild(tr);
         });
     } catch (error) {
         console.error('Error loading projects:', error);
-        projectsList.innerHTML = '<p>Error loading projects.</p>';
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading projects</td></tr>';
     }
 }
 
-document.getElementById('addProjectForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Project Modal
+const projectModal = document.getElementById('projectModal');
+const openProjectModalBtn = document.getElementById('openProjectModalBtn');
+const closeProjectModalBtn = document.getElementById('closeProjectModal');
+const cancelProjectBtn = document.getElementById('cancelProjectBtn');
 
-    const title = document.getElementById('proj_title').value;
-    const description = document.getElementById('proj_desc').value;
-    const imageUrl = document.getElementById('proj_img').value;
+function openProjectModalFunc() {
+    projectModal.classList.add('active');
+}
+function closeProjectModalFunc() {
+    projectModal.classList.remove('active');
+    document.getElementById('projectForm').reset();
+    editingProjectId = null;
+    document.querySelector('#projectModal h2').textContent = 'New Project';
+    document.querySelector('#projectModal button[type="submit"]').textContent = 'Save Project';
+}
+
+if(openProjectModalBtn) openProjectModalBtn.addEventListener('click', openProjectModalFunc);
+if(closeProjectModalBtn) closeProjectModalBtn.addEventListener('click', closeProjectModalFunc);
+if(cancelProjectBtn) cancelProjectBtn.addEventListener('click', closeProjectModalFunc);
+
+window.editProject = async (id) => {
+    try {
+        const response = await fetch('/api/admin/projects', { headers: { 'Authorization': `Bearer ${token}` } });
+        const projects = await response.json();
+        const project = projects.find(p => p.id === id);
+
+        if(!project) return;
+
+        editingProjectId = id;
+        document.querySelector('#projectModal h2').textContent = 'Edit Project';
+        document.querySelector('#projectModal button[type="submit"]').textContent = 'Update Project';
+
+        const form = document.getElementById('projectForm');
+        form.querySelector('#proj_title_input').value = project.title;
+        form.querySelector('#proj_loc').value = project.location || '';
+        form.querySelector('#proj_budget').value = project.budget || '';
+        form.querySelector('#proj_status').value = project.status || 'Active';
+        form.querySelector('#proj_desc_input').value = project.description || '';
+
+        openProjectModalFunc();
+    } catch(e) {
+        console.error(e);
+    }
+};
+
+document.getElementById('projectForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
 
     try {
-        const response = await fetch('/api/projects', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ title, description, image_url: imageUrl })
+        let url = '/api/admin/projects';
+        let method = 'POST';
+
+        if (editingProjectId) {
+            url = `/api/admin/projects/${editingProjectId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
         });
 
         if (response.ok) {
-            e.target.reset();
+            closeProjectModalFunc();
             loadProjects();
-            alert('Project added!');
+            alert(editingProjectId ? 'Project updated!' : 'Project created!');
         } else {
-            alert('Failed to add project');
+            const data = await response.json();
+            alert(data.message || 'Failed to save project');
         }
-    } catch (error) {
-        console.error('Error adding project:', error);
-        alert('Error adding project');
+    } catch (e) {
+        console.error(e);
+        alert('Error saving project');
     }
 });
 
 window.deleteProject = async (id) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
-
     try {
-        const response = await fetch(`/api/projects/${id}`, {
+        const response = await fetch(`/api/admin/projects/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (response.ok) loadProjects();
         else alert('Failed to delete project');
-    } catch (error) {
-        console.error('Error deleting project:', error);
+    } catch (e) {
+        console.error(e);
     }
 };
+
+// Progress Modal
+const progModal = document.getElementById('projectProgressModal');
+const closeProgBtn = document.getElementById('closeProgressModal');
+const cancelProgBtn = document.getElementById('cancelProgressBtn');
+
+function closeProgModal() {
+    progModal.classList.remove('active');
+    projectProgressId = null;
+    document.getElementById('progressForm').reset();
+}
+
+if(closeProgBtn) closeProgBtn.addEventListener('click', closeProgModal);
+if(cancelProgBtn) cancelProgBtn.addEventListener('click', closeProgModal);
+
+window.openProgressModal = (id, currentStatus) => {
+    projectProgressId = id;
+    document.getElementById('prog_status').value = currentStatus;
+    progModal.classList.add('active');
+};
+
+document.getElementById('progressForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(!projectProgressId) return;
+
+    const status = document.getElementById('prog_status').value;
+
+    try {
+        const response = await fetch(`/api/admin/projects/${projectProgressId}/progress`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ progress_status: status })
+        });
+
+        if(response.ok) {
+            closeProgModal();
+            loadProjects();
+            alert('Progress updated!');
+        } else {
+            alert('Failed to update progress');
+        }
+    } catch(e) {
+        console.error(e);
+        alert('Error updating progress');
+    }
+});
 
 // --- REGISTERED CLIENTS LOGIC ---
 let clientSearchTimeout;
