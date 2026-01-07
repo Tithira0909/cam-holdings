@@ -602,7 +602,7 @@
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <button id="openBlogModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Blog</button>
+                    <button id="addBlogNavBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Blog</button>
                     <input type="text" id="blogSearch" class="search-input" placeholder="Blog Title" style="width: 300px;">
                 </div>
 
@@ -610,16 +610,77 @@
                     <thead>
                         <tr>
                             <th>Blog Title</th>
-                            <th>Excerpt</th>
-                            <th>Category</th>
+                            <th>Type</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="blogsTableBody">
-                        <tr><td colspan="5">Loading...</td></tr>
+                        <tr><td colspan="4">Loading...</td></tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Add Blog View -->
+            <div id="view-add-blog" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>New Blog</h2>
+                    <span class="breadcrumb">Admin / New Blog</span>
+                </div>
+
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="addBlogForm" enctype="multipart/form-data">
+                        <div class="client-form-grid">
+                            <div class="form-group">
+                                <label for="new_blog_type">Blog Type</label>
+                                <select id="new_blog_type" name="type" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="News Content">News Content</option>
+                                    <option value="Article">Article</option>
+                                    <option value="Tutorial">Tutorial</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_title">Blog Title *</label>
+                                <input type="text" id="new_blog_title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_banner">Banner</label>
+                                <input type="file" id="new_blog_banner" name="banner" accept="image/*">
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_featured">Featured Image *</label>
+                                <input type="file" id="new_blog_featured" name="featuredImage" accept="image/*" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="new_blog_gallery">Gallery Images *</label>
+                                <input type="file" id="new_blog_gallery" name="galleryImages" accept="image/*" multiple required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="new_blog_content">Content</label>
+                                <div id="editor" style="color: black;"></div>
+                                <input type="hidden" name="content" id="new_blog_content_hidden">
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_status">Published Status</label>
+                                <select id="new_blog_status" name="publishedStatus" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Published">Published</option>
+                                    <option value="Unpublished">Unpublished</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_is_featured">Featured Blog</label>
+                                <select id="new_blog_is_featured" name="featuredBlog" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Create Blog</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <!-- Project Tasks View -->
@@ -1196,6 +1257,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>

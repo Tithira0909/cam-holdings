@@ -238,6 +238,23 @@ async function setupDatabase() {
     `);
     console.log('Project Tasks table created or already exists.');
 
+    // Create Blogs Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS blogs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type VARCHAR(255) DEFAULT 'News Content',
+        title VARCHAR(255) NOT NULL,
+        banner_url VARCHAR(255),
+        featured_image_url VARCHAR(255),
+        gallery_json TEXT,
+        content_html TEXT,
+        published_status ENUM('Published', 'Unpublished') DEFAULT 'Unpublished',
+        is_featured BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Blogs table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {

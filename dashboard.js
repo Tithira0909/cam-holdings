@@ -1371,9 +1371,9 @@ function showMessage(element, text, type) {
     element.style.display = 'block';
 }
 
-// --- BLOGS LOGIC (Formerly Document Types) ---
-let editingBlogId = null;
+// --- BLOGS LOGIC ---
 let blogSearchTimeout;
+let editorInstance;
 
 document.getElementById('blogSearch')?.addEventListener('input', (e) => {
     clearTimeout(blogSearchTimeout);
@@ -1385,28 +1385,25 @@ async function loadBlogs(query = '') {
     if (!tbody) return;
 
     try {
-        // Keeping the API endpoint same as per instructions, but UI says Blogs
-        const url = query ? `/api/admin/document-types?search=${encodeURIComponent(query)}` : '/api/admin/document-types';
+        const url = query ? `/api/admin/blogs?search=${encodeURIComponent(query)}` : '/api/admin/blogs';
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
         const blogs = await response.json();
 
         tbody.innerHTML = '';
         if (blogs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No blogs found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No blogs found</td></tr>';
             return;
         }
 
         blogs.forEach(blog => {
-            const statusClass = blog.status === 'Active' ? 'badge-active' : 'badge-inactive';
+            const statusClass = blog.published_status === 'Published' ? 'badge-active' : 'badge-inactive';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${safe(blog.document_name)}</td>
-                <td>${safe(blog.description || '-')}</td>
+                <td>${safe(blog.title)}</td>
                 <td>${safe(blog.type)}</td>
-                <td><span class="badge ${statusClass}">${safe(blog.status)}</span></td>
+                <td><span class="badge ${statusClass}">${safe(blog.published_status)}</span></td>
                 <td>
-                    <button class="btn-sm btn-edit" onclick="editBlog(${blog.id})">Edit</button>
                     <button class="btn-sm btn-deactivate" onclick="deleteBlog(${blog.id})">Delete</button>
                 </td>
             `;
@@ -1414,98 +1411,70 @@ async function loadBlogs(query = '') {
         });
     } catch (error) {
         console.error('Error loading blogs:', error);
-        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading blogs</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading blogs</td></tr>';
     }
 }
 
-// Blog Modal
-const blogModal = document.getElementById('blogModal');
-const openBlogModalBtn = document.getElementById('openBlogModalBtn');
-const closeBlogModalBtn = document.getElementById('closeBlogModal');
-const cancelBlogBtn = document.getElementById('cancelBlogBtn');
-
-function openBlogModalFunc() {
-    blogModal.classList.add('active');
+// Add Blog Navigation & Logic
+const addBlogNavBtn = document.getElementById('addBlogNavBtn');
+if (addBlogNavBtn) {
+    addBlogNavBtn.addEventListener('click', () => {
+        // Switch view manually to Add Blog
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-add-blog').classList.add('active');
+        initEditor();
+    });
 }
 
-function closeBlogModalFunc() {
-    blogModal.classList.remove('active');
-    document.getElementById('blogForm').reset();
-    editingBlogId = null;
-    document.querySelector('#blogModal h2').textContent = 'New Blog';
-    document.querySelector('#blogModal button[type="submit"]').textContent = 'Save Blog';
-}
-
-if(openBlogModalBtn) openBlogModalBtn.addEventListener('click', openBlogModalFunc);
-if(closeBlogModalBtn) closeBlogModalBtn.addEventListener('click', closeBlogModalFunc);
-if(cancelBlogBtn) cancelBlogBtn.addEventListener('click', closeBlogModalFunc);
-
-window.editBlog = async (id) => {
+async function initEditor() {
+    if (editorInstance) return;
     try {
-        const response = await fetch('/api/admin/document-types', { headers: { 'Authorization': `Bearer ${token}` } });
-        const blogs = await response.json();
-        const blog = blogs.find(b => b.id === id);
-
-        if(!blog) return;
-
-        editingBlogId = id;
-        document.querySelector('#blogModal h2').textContent = 'Edit Blog';
-        document.querySelector('#blogModal button[type="submit"]').textContent = 'Update Blog';
-
-        const form = document.getElementById('blogForm');
-        form.querySelector('#blog_title').value = blog.document_name;
-        form.querySelector('#blog_category').value = blog.type;
-        form.querySelector('#blog_excerpt').value = blog.description || '';
-        form.querySelector('#blog_status').value = blog.status;
-
-        openBlogModalFunc();
-    } catch(e) {
-        console.error(e);
-        alert('Error fetching blog details');
-    }
-};
-
-document.getElementById('blogForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-
-    try {
-        let url = '/api/admin/document-types';
-        let method = 'POST';
-
-        if (editingBlogId) {
-            url = `/api/admin/document-types/${editingBlogId}`;
-            method = 'PUT';
+        if (window.ClassicEditor) {
+            editorInstance = await ClassicEditor.create(document.querySelector('#editor'));
         }
+    } catch (error) {
+        console.error('CKEditor Init Error:', error);
+    }
+}
 
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+document.getElementById('addBlogForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (editorInstance) {
+        document.getElementById('new_blog_content_hidden').value = editorInstance.getData();
+    }
+
+    const formData = new FormData(e.target);
+
+    try {
+        const response = await fetch('/api/admin/blogs', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
         });
 
         if (response.ok) {
-            closeBlogModalFunc();
-            loadBlogs();
-            alert(editingBlogId ? 'Blog updated!' : 'Blog created!');
+            alert('Blog created successfully');
+            e.target.reset();
+            if(editorInstance) editorInstance.setData('');
+
+            // Navigate back to list (Simulate click on sidebar link)
+            const blogsLink = document.querySelector('[data-view="blogs"]');
+            if (blogsLink) blogsLink.click();
         } else {
-            const resData = await response.json();
-            alert(resData.message || 'Failed to save blog');
+            const data = await response.json();
+            alert(data.message || 'Failed to create blog');
         }
     } catch (e) {
         console.error(e);
-        alert('Error saving blog');
+        alert('Error creating blog');
     }
 });
 
 window.deleteBlog = async (id) => {
     if (!confirm('Are you sure you want to delete this blog?')) return;
     try {
-        const response = await fetch(`/api/admin/document-types/${id}`, {
+        const response = await fetch(`/api/admin/blogs/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

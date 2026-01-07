@@ -18,6 +18,7 @@ const quotationRoutes = require('./routes/quotations');
 const publicQuotationRoutes = require('./routes/public_quotations');
 const documentTypeRoutes = require('./routes/document_types');
 const projectTaskRoutes = require('./routes/project_tasks');
+const blogRoutes = require('./routes/blogs');
 const path = require('path');
 const fs = require('fs');
 
@@ -56,6 +57,7 @@ app.use('/api/admin/quotations', quotationRoutes);
 app.use('/api/quotations', publicQuotationRoutes);
 app.use('/api/admin/document-types', documentTypeRoutes);
 app.use('/api/admin/project-tasks', projectTaskRoutes);
+app.use('/api/admin/blogs', blogRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {
