@@ -369,7 +369,89 @@ async function loadProjects(query = '') {
     }
 }
 
-// Project Modal
+// --- NEW PROJECT PAGE LOGIC ---
+let projectEditorInstance;
+
+async function loadClientsForProjectForm() {
+    try {
+        const response = await fetch('/api/admin/clients', { headers: { 'Authorization': `Bearer ${token}` } });
+        const clients = await response.json();
+        const select = document.getElementById('np_client');
+        select.innerHTML = '<option value="">Select Client</option>';
+        clients.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.textContent = `${c.first_name} ${c.last_name}`;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function loadServicesForProjectForm() {
+    try {
+        const response = await fetch('/api/admin/services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const services = await response.json();
+        const select = document.getElementById('np_service');
+        select.innerHTML = '<option value="">Select Service</option>';
+        services.forEach(s => {
+            const option = document.createElement('option');
+            option.value = s.id;
+            option.textContent = s.name;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function initProjectEditor() {
+    if (projectEditorInstance) return;
+    try {
+        if (window.ClassicEditor) {
+            projectEditorInstance = await ClassicEditor.create(document.querySelector('#projectEditor'));
+        }
+    } catch (error) {
+        console.error('CKEditor Init Error:', error);
+    }
+}
+
+document.getElementById('addProjectForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (projectEditorInstance) {
+        document.getElementById('np_description_hidden').value = projectEditorInstance.getData();
+    }
+
+    const formData = new FormData(e.target);
+
+    try {
+        const response = await fetch('/api/admin/projects', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+
+        if (response.ok) {
+            alert('Project created successfully');
+            e.target.reset();
+            if(projectEditorInstance) projectEditorInstance.setData('');
+
+            // Navigate back
+            const projectsLink = document.querySelector('[data-view="projects"]');
+            if (projectsLink) projectsLink.click();
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Failed to create project');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error creating project');
+    }
+});
+
+// Project Modal (Used for Edit)
 const projectModal = document.getElementById('projectModal');
 const openProjectModalBtn = document.getElementById('openProjectModalBtn');
 const closeProjectModalBtn = document.getElementById('closeProjectModal');
@@ -386,7 +468,16 @@ function closeProjectModalFunc() {
     document.querySelector('#projectModal button[type="submit"]').textContent = 'Save Project';
 }
 
-if(openProjectModalBtn) openProjectModalBtn.addEventListener('click', openProjectModalFunc);
+if(openProjectModalBtn) {
+    openProjectModalBtn.addEventListener('click', () => {
+        // Switch view to Add Project Page
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-add-project').classList.add('active');
+        loadClientsForProjectForm();
+        loadServicesForProjectForm();
+        initProjectEditor();
+    });
+}
 if(closeProjectModalBtn) closeProjectModalBtn.addEventListener('click', closeProjectModalFunc);
 if(cancelProjectBtn) cancelProjectBtn.addEventListener('click', closeProjectModalFunc);
 

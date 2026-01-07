@@ -738,6 +738,97 @@
                 </div>
             </div>
 
+            <!-- Add New Project View -->
+            <div id="view-add-project" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>New Project</h2>
+                    <span class="breadcrumb">Admin / New Project</span>
+                </div>
+
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="addProjectForm" enctype="multipart/form-data">
+                        <div class="client-form-grid">
+                            <div class="form-group">
+                                <label for="np_client">Select Client *</label>
+                                <select id="np_client" name="client_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_title">Title *</label>
+                                <input type="text" id="np_title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_slug">Slug</label>
+                                <input type="text" id="np_slug" name="slug">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_location">Location</label>
+                                <input type="text" id="np_location" name="location">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_budget">Budget</label>
+                                <input type="text" id="np_budget" name="budget">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="np_description">Description</label>
+                                <div id="projectEditor" style="color: black;"></div>
+                                <input type="hidden" name="description" id="np_description_hidden">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_service">Service</label>
+                                <select id="np_service" name="service_id" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_project_status">Project Status</label>
+                                <select id="np_project_status" name="project_status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Quotation">Quotation</option>
+                                    <option value="Booking">Booking</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_start_date">Project Start Date</label>
+                                <input type="date" id="np_start_date" name="start_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_end_date">Estimated End Date</label>
+                                <input type="date" id="np_end_date" name="end_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_status">Status</label>
+                                <select id="np_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_featured">Featured</label>
+                                <select id="np_featured" name="is_featured" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_drawing">Drawing *</label>
+                                <input type="file" id="np_drawing" name="drawing" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_project_file">Project *</label>
+                                <input type="file" id="np_project_file" name="project" required>
+                            </div>
+                        </div>
+
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Create Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Project Tasks View -->
             <div id="view-project-tasks" class="view-section light-view-container">
                 <div class="page-header">

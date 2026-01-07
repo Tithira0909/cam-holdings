@@ -79,7 +79,17 @@ async function setupDatabase() {
         "ALTER TABLE projects ADD COLUMN location VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN budget VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN status ENUM('Active', 'Inactive') DEFAULT 'Active'",
-        "ALTER TABLE projects ADD COLUMN progress_status VARCHAR(255) DEFAULT 'Not Started'"
+        "ALTER TABLE projects ADD COLUMN progress_status VARCHAR(255) DEFAULT 'Not Started'",
+        "ALTER TABLE projects ADD COLUMN client_id INT",
+        "ALTER TABLE projects ADD COLUMN slug VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN description_html TEXT",
+        "ALTER TABLE projects ADD COLUMN service_id INT",
+        "ALTER TABLE projects ADD COLUMN project_status VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN start_date DATE",
+        "ALTER TABLE projects ADD COLUMN end_date DATE",
+        "ALTER TABLE projects ADD COLUMN is_featured BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE projects ADD COLUMN drawing_url VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)"
     ];
 
     for (const query of projectMigrationQueries) {

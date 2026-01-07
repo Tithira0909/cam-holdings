@@ -40,14 +40,29 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // POST new project
-router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
-    const { title, location, budget, status, description, progress_status } = req.body;
-    const image_url = req.file ? req.file.path : null;
+router.post('/', authenticateToken, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'drawing', maxCount: 1 }, { name: 'project', maxCount: 1 }]), async (req, res) => {
+    const {
+        title, location, budget, status, description, progress_status,
+        client_id, slug, service_id, project_status, start_date, end_date, is_featured
+    } = req.body;
+
+    const files = req.files || {};
+    const image_url = files['image'] ? files['image'][0].path : null;
+    const drawing_url = files['drawing'] ? files['drawing'][0].path : null;
+    const project_file_url = files['project'] ? files['project'][0].path : null;
 
     try {
         const [result] = await db.query(
-            'INSERT INTO projects (title, location, budget, status, description, progress_status, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [title, location, budget, status || 'Active', description, progress_status || 'Not Started', image_url]
+            `INSERT INTO projects (
+                title, location, budget, status, description, description_html, progress_status, image_url,
+                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                title, location, budget, status || 'Active', description, description, progress_status || 'Not Started', image_url,
+                client_id || null, slug || null, service_id || null, project_status || null,
+                start_date || null, end_date || null, is_featured === 'Yes',
+                drawing_url, project_file_url
+            ]
         );
         res.status(201).json({ id: result.insertId, message: 'Project created' });
     } catch (error) {
