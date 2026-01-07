@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            background-color: #070708;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #1a1a1a;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .sidebar h2 {
+            color: #D6B25E;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            padding: 1rem;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: #333;
+            color: #D6B25E;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background-color: transparent;
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: #ff4d4d;
+            color: white;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        h1 {
+            color: #D6B25E;
+            margin-top: 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 1rem;
+        }
+
+        /* Dark Form Styles (Projects) */
+        .admin-form-dark {
+            background-color: #1a1a1a;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 800px;
+        }
+
+        .admin-form-dark label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+        }
+
+        .admin-form-dark input, .admin-form-dark textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2a2a2a;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .admin-form-dark input:focus, .admin-form-dark textarea:focus {
+            border-color: #D6B25E;
+            outline: none;
+        }
+
+        /* Light Container (Shared) */
+        .light-view-container {
+            background-color: #f4f4f4; /* Light background */
+            padding: 2rem;
+            border-radius: 8px;
+            color: #333; /* Dark text */
+            min-height: 80vh;
+        }
+
+        /* Registered Clients Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            color: #000;
+        }
+
+        .breadcrumb {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Search Bar */
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 400px;
+            font-size: 0.9rem;
+        }
+
+        /* Clients Table */
+        .clients-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .clients-table th, .clients-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .clients-table th {
+            font-size: 0.85rem;
+            color: #888;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            color: white;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .badge-reg { background-color: #2c3e50; }
+        .badge-active { background-color: #2ecc71; }
+        .badge-inactive { background-color: #95a5a6; }
+        .badge-approved { background-color: #2ecc71; } /* Dark Blue check? User said Green */
+        .badge-not-approved { background-color: #e74c3c; }
+
+        .client-name-cell div {
+            margin-top: 0.25rem;
+        }
+
+        /* Action Buttons */
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 0.25rem;
+        }
+
+        .btn-edit { background-color: #00cec9; } /* Cyan/Blue */
+        .btn-deactivate { background-color: #e74c3c; } /* Red */
+        .btn-approve { background-color: #2c3e50; } /* Dark Blue */
+
+
+        /* Forms */
+        .admin-form-light {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 900px;
+        }
+
+        .admin-form-light h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        .admin-form-light label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .admin-form-light input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .admin-form-light input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        button.action-btn {
+            background-color: #D6B25E;
+            color: black;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        button.action-btn:hover {
+            background-color: #c4a04e;
+        }
+
+        button.submit-client-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button.submit-client-btn:hover {
+            background-color: #2980b9;
+        }
+
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Specific Styles for Client Registration (Grid Layout) */
+        .client-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .client-form-grid .full-width {
+            grid-column: span 2;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            color: #333;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .file-input-group {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-input-group input[type="file"] {
+             border: none;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-secondary {
+            background-color: #ddd;
+            color: #333;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #0056b3; /* Dark blue matching screenshot */
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Service Types List */
+        .service-types-list {
+             display: grid;
+             gap: 1rem;
+        }
+
+        .service-type-item {
+            background: white;
+            border: 1px solid #eee;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 4px;
+        }
+
+        .service-type-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .service-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+        }
+
+        /* Projects List */
+        .projects-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #333;
+        }
+
+        .project-content {
+            padding: 1rem;
+        }
+
+        .project-title {
+            margin-top: 0;
+            color: #D6B25E;
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1rem;
+            float: right;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .success { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+        .error { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+
+        /* Star Rating */
+        .star-rating span {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #ccc;
+        }
+        .star-rating span.filled {
+            color: #f1c40f; /* Gold */
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h2>Admin Panel</h2>
+        <button class="nav-btn active" data-view="projects">Projects</button>
+        <button class="nav-btn" data-view="clients">Registered Clients</button>
+        <button class="nav-btn" data-view="admins">Registered Admins</button>
+        <button class="nav-btn" data-view="service-types">Services Type</button>
+        <button class="nav-btn" data-view="services">All Services</button>
+        <button class="nav-btn" data-view="reviews">Customer Reviews</button>
+        <button class="nav-btn" data-view="add-client">Register Client</button>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </nav>
+
+    <main class="main-content">
+        <!-- Projects View -->
+        <div id="view-projects" class="view-section active">
+            <h1>Manage Projects</h1>
+
+            <div class="admin-form-dark">
+                <h3>Add New Project</h3>
+                <form id="addProjectForm">
+                    <div class="form-group">
+                        <label for="proj_title">Title</label>
+                        <input type="text" id="proj_title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_desc">Description</label>
+                        <textarea id="proj_desc" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_img">Image URL</label>
+                        <input type="text" id="proj_img" name="imageUrl" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <button type="submit" class="action-btn">Add Project</button>
+                </form>
+            </div>
+
+            <div id="projectsList" class="projects-list">
+                <!-- Projects Loaded Here -->
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <!-- Registered Clients View -->
+        <div id="view-clients" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>Registered Clients</h2>
+                <span class="breadcrumb">Admin / Registered Clients</span>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="clientSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                    <!-- Rows loaded via JS -->
+                    <tr><td colspan="7">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Registered Admins View -->
+        <div id="view-admins" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>Registered Admins</h2>
+                <span class="breadcrumb">Admin / Registered Admins</span>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="adminSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adminsTableBody">
+                    <!-- Rows loaded via JS -->
+                    <tr><td colspan="7">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Service Types View -->
+        <div id="view-service-types" class="view-section light-view-container">
+             <div class="page-header">
+                <h2>Services Type</h2>
+                <button id="openServiceTypeModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ Add New Service Type</button>
+            </div>
+
+            <div id="serviceTypesList" class="service-types-list">
+                <!-- Loaded via JS -->
+                <p>Loading service types...</p>
+            </div>
+        </div>
+
+        <!-- All Services View -->
+        <div id="view-services" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>All Services</h2>
+                <span class="breadcrumb">Admin / All Services</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <button id="openServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add New Service</button>
+                <input type="text" id="serviceSearch" class="search-input" placeholder="Search Services" style="width: 300px;">
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Service Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody">
+                    <!-- Rows loaded via JS -->
+                    <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Customer Reviews View -->
+        <div id="view-reviews" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>All Customer Reviews</h2>
+                <span class="breadcrumb">Admin / All Customer Reviews</span>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <button id="openReviewModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add Review</button>
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Review</th>
+                        <th>Rating</th>
+                        <th>Review Source</th>
+                        <th>Is_Approved</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewsTableBody">
+                    <tr><td colspan="7">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add Client View -->
+        <div id="view-add-client" class="view-section light-view-container">
+            <h1 style="color: #2c3e50; border-bottom-color: #ccc;" id="clientFormTitle">Register New Client</h1>
+
+            <div class="admin-form-light">
+                <form id="registerClientForm" class="client-form-grid">
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_number">Contact Number</label>
+                        <input type="tel" id="contact_number" name="contact_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="postal_code">Postal Code</label>
+                        <input type="text" id="postal_code" name="postal_code">
+                    </div>
+                    <div class="form-group">
+                        <label for="site_address">Site Address</label>
+                        <input type="text" id="site_address" name="site_address">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="correspondence_address">Correspondence Address</label>
+                        <input type="text" id="correspondence_address" name="correspondence_address">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password * (min 8 chars)</label>
+                        <input type="password" id="password" name="password" minlength="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
+                    </div>
+
+                    <div class="full-width">
+                        <div id="clientMsg" class="message"></div>
+                        <button type="submit" id="submitClientBtn" class="submit-client-btn">Create Client Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Service Type Modal -->
+    <div id="serviceTypeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Service Type</h2>
+                <button class="close-modal-btn" id="closeServiceTypeModal">&times;</button>
+            </div>
+
+            <form id="serviceTypeForm">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="st_name">Service Type Name *</label>
+                        <input type="text" id="st_name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="st_slug">Slug *</label>
+                        <input type="text" id="st_slug" name="slug" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="st_desc">Description *</label>
+                        <input type="text" id="st_desc" name="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="st_thumbnail">Thumbnail * (dimensions - 702px X 536px)</label>
+                        <div class="file-input-group">
+                            <input type="file" id="st_thumbnail" name="thumbnail" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="st_banner">Banner * (dimensions - 2165px X 630px)</label>
+                        <div class="file-input-group">
+                            <input type="file" id="st_banner" name="banner" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="st_status">Status *</label>
+                        <select id="st_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelServiceTypeBtn">Close</button>
+                    <button type="submit" class="btn-primary">Create Service Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Service Modal -->
+    <div id="serviceModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Service</h2>
+                <button class="close-modal-btn" id="closeServiceModal">&times;</button>
+            </div>
+
+            <form id="serviceForm">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="svc_name">Service Name *</label>
+                        <input type="text" id="svc_name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="svc_type">Service Type *</label>
+                        <select id="svc_type" name="service_type_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <!-- Populated via JS -->
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="svc_desc">Description</label>
+                        <textarea id="svc_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="svc_image">Image *</label>
+                        <div class="file-input-group">
+                            <input type="file" id="svc_image" name="image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="svc_status">Status *</label>
+                        <select id="svc_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelServiceBtn">Close</button>
+                    <button type="submit" class="btn-primary">Create Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Review Modal -->
+    <div id="reviewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Review</h2>
+                <button class="close-modal-btn" id="closeReviewModal">&times;</button>
+            </div>
+
+            <form id="reviewForm">
+                <div class="form-group">
+                    <label for="rev_name">Name</label>
+                    <input type="text" id="rev_name" name="client_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="rev_desc">Description</label>
+                    <textarea id="rev_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Review Source</label>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; color: #333;">
+                        <label><input type="radio" name="source" value="Google" checked> Google</label>
+                        <label><input type="radio" name="source" value="Trustpilot"> Trustpilot</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating" id="starRating">
+                        <span data-val="1">&#9734;</span>
+                        <span data-val="2">&#9734;</span>
+                        <span data-val="3">&#9734;</span>
+                        <span data-val="4">&#9734;</span>
+                        <span data-val="5">&#9734;</span>
+                    </div>
+                    <input type="hidden" id="rev_rating" name="rating" value="5">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelReviewBtn">Close</button>
+                    <button type="submit" class="btn-primary">Add Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
