@@ -214,6 +214,19 @@ async function setupDatabase() {
     `);
     console.log('Quotations table created or already exists.');
 
+    // Create Document Types Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS document_types (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        document_name VARCHAR(255) NOT NULL,
+        description TEXT,
+        type VARCHAR(255) DEFAULT 'Project Document',
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Document Types table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {

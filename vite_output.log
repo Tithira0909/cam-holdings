@@ -55,3 +55,19 @@ AggregateError [ECONNREFUSED]:
 7:02:58 AM [vite] (client) page reload dashboard.html
 7:19:02 AM [vite] (client) page reload dashboard.html
 7:21:59 AM [vite] (client) page reload dashboard.html
+7:40:39 AM [vite] (client) page reload dashboard.html
+7:46:11 AM [vite] http proxy error: /api/auth/login
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+7:47:42 AM [vite] .env changed, restarting server...
+7:47:42 AM [vite] (client) Re-optimizing dependencies because lockfile has changed
+7:47:42 AM [vite] server restarted.
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+2290 |    }
+2291 |  }
+2292 |  @import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap");
+     |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2293 |
+2294 |  @font-face{
+7:51:03 AM [vite] (client) page reload dashboard.js

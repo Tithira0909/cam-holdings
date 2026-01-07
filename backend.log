@@ -1,0 +1,1 @@
+FATAL ERROR: JWT_SECRET is not defined in .env file.

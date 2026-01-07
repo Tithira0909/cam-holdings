@@ -72,6 +72,7 @@ navLinks.forEach(link => {
         if (viewName === 'services') loadServices();
         if (viewName === 'service-types') loadServiceTypes();
         if (viewName === 'projects') loadProjects();
+        if (viewName === 'document-types') loadDocumentTypes();
         if (viewName === 'reviews') loadReviews();
         if (viewName === 'inquiries') loadInquiries();
         if (viewName === 'quotations') loadQuotations();
@@ -1368,6 +1369,150 @@ function showMessage(element, text, type) {
     element.classList.add(type);
     element.style.display = 'block';
 }
+
+// --- DOCUMENT TYPES LOGIC ---
+let editingDocumentTypeId = null;
+let documentTypeSearchTimeout;
+
+document.getElementById('documentTypeSearch')?.addEventListener('input', (e) => {
+    clearTimeout(documentTypeSearchTimeout);
+    documentTypeSearchTimeout = setTimeout(() => loadDocumentTypes(e.target.value), 300);
+});
+
+async function loadDocumentTypes(query = '') {
+    const tbody = document.getElementById('documentTypesTableBody');
+    if (!tbody) return;
+
+    try {
+        const url = query ? `/api/admin/document-types?search=${encodeURIComponent(query)}` : '/api/admin/document-types';
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const types = await response.json();
+
+        tbody.innerHTML = '';
+        if (types.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No document types found</td></tr>';
+            return;
+        }
+
+        types.forEach(type => {
+            const statusClass = type.status === 'Active' ? 'badge-active' : 'badge-inactive';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(type.document_name)}</td>
+                <td>${safe(type.description || '-')}</td>
+                <td>${safe(type.type)}</td>
+                <td><span class="badge ${statusClass}">${safe(type.status)}</span></td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editDocumentType(${type.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteDocumentType(${type.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error loading document types:', error);
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading document types</td></tr>';
+    }
+}
+
+// Document Type Modal
+const docTypeModal = document.getElementById('documentTypeModal');
+const openDocTypeModalBtn = document.getElementById('openDocumentTypeModalBtn');
+const closeDocTypeModalBtn = document.getElementById('closeDocumentTypeModal');
+const cancelDocTypeBtn = document.getElementById('cancelDocumentTypeBtn');
+
+function openDocTypeModalFunc() {
+    docTypeModal.classList.add('active');
+}
+
+function closeDocTypeModalFunc() {
+    docTypeModal.classList.remove('active');
+    document.getElementById('documentTypeForm').reset();
+    editingDocumentTypeId = null;
+    document.querySelector('#documentTypeModal h2').textContent = 'New Document Type';
+    document.querySelector('#documentTypeModal button[type="submit"]').textContent = 'Save Document Type';
+}
+
+if(openDocTypeModalBtn) openDocTypeModalBtn.addEventListener('click', openDocTypeModalFunc);
+if(closeDocTypeModalBtn) closeDocTypeModalBtn.addEventListener('click', closeDocTypeModalFunc);
+if(cancelDocTypeBtn) cancelDocTypeBtn.addEventListener('click', closeDocTypeModalFunc);
+
+window.editDocumentType = async (id) => {
+    try {
+        const response = await fetch('/api/admin/document-types', { headers: { 'Authorization': `Bearer ${token}` } });
+        const types = await response.json();
+        const type = types.find(t => t.id === id);
+
+        if(!type) return;
+
+        editingDocumentTypeId = id;
+        document.querySelector('#documentTypeModal h2').textContent = 'Edit Document Type';
+        document.querySelector('#documentTypeModal button[type="submit"]').textContent = 'Update Document Type';
+
+        const form = document.getElementById('documentTypeForm');
+        form.querySelector('#dtype_name').value = type.document_name;
+        form.querySelector('#dtype_type').value = type.type;
+        form.querySelector('#dtype_desc').value = type.description || '';
+        form.querySelector('#dtype_status').value = type.status;
+
+        openDocTypeModalFunc();
+    } catch(e) {
+        console.error(e);
+        alert('Error fetching details');
+    }
+};
+
+document.getElementById('documentTypeForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        let url = '/api/admin/document-types';
+        let method = 'POST';
+
+        if (editingDocumentTypeId) {
+            url = `/api/admin/document-types/${editingDocumentTypeId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            closeDocTypeModalFunc();
+            loadDocumentTypes();
+            alert(editingDocumentTypeId ? 'Document Type updated!' : 'Document Type created!');
+        } else {
+            const resData = await response.json();
+            alert(resData.message || 'Failed to save document type');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error saving document type');
+    }
+});
+
+window.deleteDocumentType = async (id) => {
+    if (!confirm('Are you sure you want to delete this document type?')) return;
+    try {
+        const response = await fetch(`/api/admin/document-types/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadDocumentTypes();
+        else alert('Failed to delete document type');
+    } catch (e) {
+        console.error(e);
+    }
+};
 
 // Init
 // Default to Dashboard

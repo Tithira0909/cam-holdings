@@ -389,7 +389,7 @@
                 </div>
             </li>
 
-            <!-- Resources (Placeholder) -->
+            <!-- Resources -->
             <li class="menu-item collapsible">
                 <div class="menu-link">
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>
@@ -397,7 +397,7 @@
                     <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                 </div>
                 <div class="submenu">
-                    <a class="submenu-link">Docs (Coming Soon)</a>
+                    <a class="submenu-link nav-btn" data-view="document-types">Document Types</a>
                 </div>
             </li>
 
@@ -591,6 +591,34 @@
                         <div id="count-not-approved-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Document Types View -->
+            <div id="view-document-types" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Document Types</h2>
+                    <span class="breadcrumb">Admin / Document Types</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openDocumentTypeModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; New Document Type</button>
+                    <input type="text" id="documentTypeSearch" class="search-input" placeholder="Document Type" style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentTypesTableBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Projects View -->
@@ -1022,6 +1050,45 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelServiceBtn">Close</button>
                     <button type="submit" class="btn-primary">Create Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Document Type Modal -->
+    <div id="documentTypeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Document Type</h2>
+                <button class="close-modal-btn" id="closeDocumentTypeModal">&times;</button>
+            </div>
+
+            <form id="documentTypeForm">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="dtype_name">Document Name *</label>
+                        <input type="text" id="dtype_name" name="document_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dtype_type">Type</label>
+                        <input type="text" id="dtype_type" name="type" value="Project Document">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="dtype_desc">Description</label>
+                        <textarea id="dtype_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dtype_status">Status</label>
+                        <select id="dtype_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelDocumentTypeBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
