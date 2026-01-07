@@ -13,6 +13,8 @@ const reviewRoutes = require('./routes/reviews');
 const dashboardRoutes = require('./routes/dashboard');
 const inquiryRoutes = require('./routes/inquiries');
 const contactRoutes = require('./routes/contact');
+const quotationRoutes = require('./routes/quotations');
+const publicQuotationRoutes = require('./routes/public_quotations');
 const path = require('path');
 const fs = require('fs');
 
@@ -46,6 +48,8 @@ app.use('/api/admin/reviews', reviewRoutes);
 app.use('/api/admin/dashboard', dashboardRoutes);
 app.use('/api/admin/inquiries', inquiryRoutes);
 app.use('/api/inquiries', contactRoutes);
+app.use('/api/admin/quotations', quotationRoutes);
+app.use('/api/quotations', publicQuotationRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

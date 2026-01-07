@@ -29,6 +29,7 @@ navBtns.forEach(btn => {
 
         // Data Load triggers
         if (btn.dataset.view === 'dashboard') loadDashboardStats();
+        if (btn.dataset.view === 'quotations') loadQuotations();
         if (btn.dataset.view === 'inquiries') loadInquiries();
         if (btn.dataset.view === 'projects') loadProjects();
         if (btn.dataset.view === 'clients') loadClients();
@@ -45,6 +46,9 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('last_name');
     window.location.replace('login.html');
 });
+
+// Helper for XSS protection
+const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
 // --- DASHBOARD LOGIC ---
 async function loadDashboardStats() {
@@ -101,12 +105,12 @@ async function loadInquiries() {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="client-name-cell">
-                    ${item.client_name}
-                    <div><span class="badge" style="background-color: #00cec9;">Received on - ${dateStr}</span></div>
+                    ${safe(item.client_name)}
+                    <div><span class="badge" style="background-color: #00cec9;">Received on - ${safe(dateStr)}</span></div>
                 </td>
-                <td>${item.email}</td>
-                <td>${item.phone || '-'}</td>
-                <td>${item.subject || '-'}</td>
+                <td>${safe(item.email)}</td>
+                <td>${safe(item.phone) || '-'}</td>
+                <td>${safe(item.subject) || '-'}</td>
                 <td>
                     <button class="btn-sm" style="background-color: #0d0d26;" onclick="viewMessage(${item.id})">View Message</button>
                 </td>
@@ -119,6 +123,109 @@ async function loadInquiries() {
         tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading inquiries</td></tr>';
     }
 }
+
+// --- QUOTATIONS LOGIC ---
+async function loadQuotations() {
+    const tbody = document.getElementById('quotationsTableBody');
+    if (!tbody) return;
+
+    try {
+        const response = await fetch('/api/admin/quotations', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch quotations');
+
+        const quotes = await response.json();
+
+        tbody.innerHTML = '';
+        if (quotes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No quotations found</td></tr>';
+            return;
+        }
+
+        quotes.forEach(item => {
+            const createdObj = new Date(item.created_at);
+            const createdStr = createdObj.toISOString().split('T')[0] + ' ' + createdObj.toTimeString().split(' ')[0];
+
+            // Format reference column with badge
+            const refHtml = `
+                <div>${safe(item.reference_id)}</div>
+                <div><span class="badge" style="background-color: #e74c3c;">${safe(createdStr)}</span></div>
+            `;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${refHtml}</td>
+                <td>${safe(item.first_name)}</td>
+                <td>${safe(item.last_name || 'Null')}</td>
+                <td>${safe(item.email)}</td>
+                <td>${safe(item.contact || '-')}</td>
+                <td>${safe(item.type)}</td>
+                <td>${safe(item.date ? new Date(item.date).toISOString().split('T')[0] : '')}</td>
+                <td>${safe(item.time || '')}</td>
+                <td>
+                    <button class="btn-sm" style="background-color: #0066cc;" onclick="previewQuotation(${item.id})">Preview</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error loading quotations:', error);
+        tbody.innerHTML = '<tr><td colspan="9" style="color:red; text-align:center;">Error loading quotations</td></tr>';
+    }
+}
+
+// Quote Modal
+const quoteModal = document.getElementById('quoteModal');
+const closeQuoteModalBtn = document.getElementById('closeQuoteModal');
+const closeQuoteBtn = document.getElementById('closeQuoteBtn');
+
+function closeQuoteModalFunc() {
+    quoteModal.classList.remove('active');
+}
+
+if(closeQuoteModalBtn) closeQuoteModalBtn.addEventListener('click', closeQuoteModalFunc);
+if(closeQuoteBtn) closeQuoteBtn.addEventListener('click', closeQuoteModalFunc);
+
+window.previewQuotation = async (id) => {
+    try {
+        const response = await fetch(`/api/admin/quotations/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch details');
+        const data = await response.json();
+
+        document.getElementById('qRef').textContent = data.reference_id;
+        document.getElementById('qName').textContent = `${data.first_name} ${data.last_name || ''}`;
+        document.getElementById('qEmail').textContent = data.email;
+        document.getElementById('qPhone').textContent = data.contact || '-';
+        document.getElementById('qType').textContent = data.type;
+
+        let dateTimeStr = '';
+        if (data.date) dateTimeStr += new Date(data.date).toISOString().split('T')[0];
+        if (data.time) dateTimeStr += ' ' + data.time;
+        document.getElementById('qDateTime').textContent = dateTimeStr;
+
+        // Parse JSON details if possible
+        let detailsText = '';
+        try {
+            const detailsObj = JSON.parse(data.details_json);
+            // Pretty print or just key-value
+            detailsText = Object.entries(detailsObj).map(([k, v]) => `${k}: ${v}`).join('\n');
+        } catch (e) {
+            detailsText = data.details_json || '';
+        }
+
+        document.getElementById('qBody').textContent = detailsText;
+
+        quoteModal.classList.add('active');
+    } catch (error) {
+        console.error(error);
+        alert('Error fetching details');
+    }
+};
 
 // Message Modal
 const msgModal = document.getElementById('messageModal');
@@ -152,7 +259,7 @@ window.viewMessage = async (id) => {
         document.getElementById('msgDate').textContent = dateObj.toISOString().split('T')[0] + ' ' + dateObj.toTimeString().split(' ')[0];
 
         // Escape HTML for message body security
-        const safeMsg = data.message ? data.message.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+        const safeMsg = data.message ? String(data.message).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
         document.getElementById('msgBody').innerHTML = safeMsg;
 
         msgModal.classList.add('active');

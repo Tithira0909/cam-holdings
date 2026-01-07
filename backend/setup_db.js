@@ -174,6 +174,24 @@ async function setupDatabase() {
     `);
     console.log('Inquiries table created or already exists.');
 
+    // Create Quotations Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS quotations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        reference_id VARCHAR(50) UNIQUE NOT NULL,
+        first_name VARCHAR(255) NOT NULL,
+        last_name VARCHAR(255),
+        email VARCHAR(255) NOT NULL,
+        contact VARCHAR(20),
+        type ENUM('Quotation', 'Booking') DEFAULT 'Quotation',
+        date DATE,
+        time TIME,
+        details_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Quotations table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {

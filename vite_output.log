@@ -32,3 +32,17 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+6:14:16 AM [vite] (client) page reload get-a-quote.html
+6:14:41 AM [vite] (client) page reload dashboard.html
+6:15:43 AM [vite] http proxy error: /api/auth/login
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+6:20:01 AM [vite] http proxy error: /api/auth/login
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+6:22:34 AM [vite] http proxy error: /api/auth/login
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
