@@ -25,6 +25,8 @@ const propertyPartRoutes = require('./routes/property_parts');
 const propertyPartItemRoutes = require('./routes/property_part_items');
 const propertyServiceRoutes = require('./routes/property_services');
 const propertyServiceItemRoutes = require('./routes/property_service_items');
+const settingsRoutes = require('./routes/settings');
+const rolesRoutes = require('./routes/roles');
 const path = require('path');
 const fs = require('fs');
 
@@ -70,6 +72,8 @@ app.use('/api/admin/property-parts', propertyPartRoutes);
 app.use('/api/admin/property-part-items', propertyPartItemRoutes);
 app.use('/api/admin/property-services', propertyServiceRoutes);
 app.use('/api/admin/property-service-items', propertyServiceItemRoutes);
+app.use('/api/admin/settings', settingsRoutes);
+app.use('/api/admin/roles', rolesRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

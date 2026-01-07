@@ -82,6 +82,10 @@ navLinks.forEach(link => {
         if (viewName === 'property-part-items') loadPropertyPartItems();
         if (viewName === 'property-services') loadPropertyServices();
         if (viewName === 'property-service-items') loadPropertyServiceItems();
+        if (viewName === 'settings-permissions') loadRoles();
+        if (viewName === 'settings-analytics') loadAnalyticsSettings();
+        if (viewName === 'settings-site') loadSiteSettings();
+        if (viewName === 'settings-email') loadEmailSettings();
         if (viewName === 'add-client') {
             resetClientForm();
         }
@@ -2333,3 +2337,230 @@ window.deletePropertyServiceItem = async (id) => {
 // Init
 // Default to Dashboard
 loadDashboardStats();
+
+// --- SETTINGS LOGIC ---
+
+// 1. Roles (Permissions)
+let editingRoleId = null;
+
+async function loadRoles() {
+    const tbody = document.getElementById('rolesTableBody');
+    if (!tbody) return;
+    try {
+        const response = await fetch('/api/admin/roles', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        tbody.innerHTML = '';
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No roles found</td></tr>';
+            return;
+        }
+        rows.forEach(item => {
+            // permissions is JSON string
+            let perms = '';
+            try {
+                const p = JSON.parse(item.permissions);
+                perms = safe(p);
+            } catch(e) { perms = safe(item.permissions); }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${safe(item.name)}</td>
+                <td><div style="max-width:300px; overflow:hidden; text-overflow:ellipsis;">${perms}</div></td>
+                <td><span class="badge ${item.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${safe(item.status)}</span></td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editRole(${item.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteRole(${item.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading data</td></tr>';
+    }
+}
+
+const roleModal = document.getElementById('roleModal');
+const openRoleBtn = document.getElementById('openRoleModalBtn');
+const closeRoleBtn = document.getElementById('closeRoleModal');
+const cancelRoleBtn = document.getElementById('cancelRoleBtn');
+
+if(openRoleBtn) openRoleBtn.addEventListener('click', () => {
+    roleModal.classList.add('active');
+    document.getElementById('roleForm').reset();
+    editingRoleId = null;
+    roleModal.querySelector('h2').textContent = 'New Role';
+});
+const closeRoleModalFunc = () => roleModal.classList.remove('active');
+if(closeRoleBtn) closeRoleBtn.addEventListener('click', closeRoleModalFunc);
+if(cancelRoleBtn) cancelRoleBtn.addEventListener('click', closeRoleModalFunc);
+
+window.editRole = async (id) => {
+    try {
+        const response = await fetch('/api/admin/roles', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rows = await response.json();
+        const item = rows.find(r => r.id === id);
+        if(!item) return;
+
+        editingRoleId = id;
+        roleModal.querySelector('h2').textContent = 'Edit Role';
+        const form = document.getElementById('roleForm');
+        form.querySelector('[name="name"]').value = item.name;
+
+        let perms = '';
+        try {
+            perms = JSON.parse(item.permissions);
+        } catch(e) { perms = item.permissions; }
+
+        form.querySelector('[name="permissions"]').value = perms;
+        form.querySelector('[name="status"]').value = item.status;
+        roleModal.classList.add('active');
+    } catch(e){ console.error(e); }
+};
+
+document.getElementById('roleForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    // Convert permissions to something? Keeping as string for now
+
+    try {
+        let url = '/api/admin/roles';
+        let method = 'POST';
+        if(editingRoleId) {
+            url = `/api/admin/roles/${editingRoleId}`;
+            method = 'PUT';
+        }
+        const res = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) {
+            closeRoleModalFunc();
+            loadRoles();
+        } else {
+            const err = await res.json();
+            alert(err.message || 'Failed to save');
+        }
+    } catch(e){ console.error(e); }
+});
+
+window.deleteRole = async (id) => {
+    if(!confirm('Are you sure?')) return;
+    try {
+        const res = await fetch(`/api/admin/roles/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if(res.ok) loadRoles();
+        else alert('Failed to delete');
+    } catch(e){ console.error(e); }
+};
+
+// 2. Analytics Settings
+async function loadAnalyticsSettings() {
+    try {
+        const res = await fetch('/api/admin/settings/analytics', { headers: { 'Authorization': `Bearer ${token}` } });
+        if(!res.ok) return;
+        const data = await res.json();
+        const form = document.getElementById('analyticsSettingsForm');
+        if(data) {
+            form.querySelector('[name="google_analytics_id"]').value = data.google_analytics_id || '';
+            form.querySelector('[name="facebook_pixel_id"]').value = data.facebook_pixel_id || '';
+            form.querySelector('[name="custom_header_scripts"]').value = data.custom_header_scripts || '';
+            form.querySelector('[name="custom_footer_scripts"]').value = data.custom_footer_scripts || '';
+        }
+    } catch(e) { console.error(e); }
+}
+
+document.getElementById('analyticsSettingsForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        const res = await fetch('/api/admin/settings/analytics', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) alert('Settings saved');
+        else alert('Failed to save');
+    } catch(e) { console.error(e); alert('Error'); }
+});
+
+// 3. Site Settings
+async function loadSiteSettings() {
+    try {
+        const res = await fetch('/api/admin/settings/site', { headers: { 'Authorization': `Bearer ${token}` } });
+        if(!res.ok) return;
+        const data = await res.json();
+        const form = document.getElementById('siteSettingsForm');
+        if(data) {
+            form.querySelector('[name="site_title"]').value = data.site_title || '';
+            form.querySelector('[name="site_tagline"]').value = data.site_tagline || '';
+            form.querySelector('[name="site_email"]').value = data.site_email || '';
+            form.querySelector('[name="contact_phone"]').value = data.contact_phone || '';
+            form.querySelector('[name="address"]').value = data.address || '';
+            form.querySelector('[name="logo_url"]').value = data.logo_url || '';
+            form.querySelector('[name="favicon_url"]').value = data.favicon_url || '';
+            form.querySelector('[name="maintenance_mode"]').value = data.maintenance_mode ? 'true' : 'false';
+            form.querySelector('[name="social_facebook"]').value = data.social_facebook || '';
+            form.querySelector('[name="social_twitter"]').value = data.social_twitter || '';
+            form.querySelector('[name="social_instagram"]').value = data.social_instagram || '';
+            form.querySelector('[name="social_linkedin"]').value = data.social_linkedin || '';
+            form.querySelector('[name="social_youtube"]').value = data.social_youtube || '';
+        }
+    } catch(e) { console.error(e); }
+}
+
+document.getElementById('siteSettingsForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        const res = await fetch('/api/admin/settings/site', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) alert('Settings saved');
+        else alert('Failed to save');
+    } catch(e) { console.error(e); alert('Error'); }
+});
+
+// 4. Email Settings
+async function loadEmailSettings() {
+    try {
+        const res = await fetch('/api/admin/settings/email', { headers: { 'Authorization': `Bearer ${token}` } });
+        if(!res.ok) return;
+        const data = await res.json();
+        const form = document.getElementById('emailSettingsForm');
+        if(data) {
+            form.querySelector('[name="mail_driver"]').value = data.mail_driver || 'smtp';
+            form.querySelector('[name="mail_host"]').value = data.mail_host || '';
+            form.querySelector('[name="mail_port"]').value = data.mail_port || '';
+            form.querySelector('[name="mail_username"]').value = data.mail_username || '';
+            // Don't fill password for security, or maybe fill it?
+            // form.querySelector('[name="mail_password"]').value = data.mail_password || '';
+            form.querySelector('[name="mail_encryption"]').value = data.mail_encryption || 'tls';
+            form.querySelector('[name="from_address"]').value = data.from_address || '';
+            form.querySelector('[name="from_name"]').value = data.from_name || '';
+        }
+    } catch(e) { console.error(e); }
+}
+
+document.getElementById('emailSettingsForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+        const res = await fetch('/api/admin/settings/email', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if(res.ok) alert('Settings saved');
+        else alert('Failed to save');
+    } catch(e) { console.error(e); alert('Error'); }
+});

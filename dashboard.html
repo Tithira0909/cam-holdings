@@ -529,8 +529,10 @@
                     <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                 </div>
                 <div class="submenu">
-                    <a class="submenu-link">General</a>
-                    <a class="submenu-link">Security</a>
+                    <a class="submenu-link nav-btn" data-view="settings-permissions">Permission Settings</a>
+                    <a class="submenu-link nav-btn" data-view="settings-analytics">Analytics Settings</a>
+                    <a class="submenu-link nav-btn" data-view="settings-site">Site Settings</a>
+                    <a class="submenu-link nav-btn" data-view="settings-email">Email Settings</a>
                 </div>
             </li>
         </ul>
@@ -1191,6 +1193,188 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Permission Settings View (Roles) -->
+            <div id="view-settings-permissions" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Permission Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Permissions</span>
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <button id="openRoleModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ Add New Role</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Permissions</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rolesTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Analytics Settings View -->
+            <div id="view-settings-analytics" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Analytics Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Analytics</span>
+                </div>
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="analyticsSettingsForm">
+                        <div class="form-group full-width">
+                            <label>Google Analytics ID</label>
+                            <input type="text" name="google_analytics_id" placeholder="UA-XXXXX-Y or G-XXXXXXX">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Facebook Pixel ID</label>
+                            <input type="text" name="facebook_pixel_id">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Custom Header Scripts</label>
+                            <textarea name="custom_header_scripts" rows="5" placeholder="<script>...</script>"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Custom Footer Scripts</label>
+                            <textarea name="custom_footer_scripts" rows="5" placeholder="<script>...</script>"></textarea>
+                        </div>
+                        <div class="full-width">
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Site Settings View -->
+            <div id="view-settings-site" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Site Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Site</span>
+                </div>
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="siteSettingsForm" class="client-form-grid">
+                        <div class="form-group">
+                            <label>Site Title</label>
+                            <input type="text" name="site_title">
+                        </div>
+                        <div class="form-group">
+                            <label>Site Tagline</label>
+                            <input type="text" name="site_tagline">
+                        </div>
+                        <div class="form-group">
+                            <label>Site Email</label>
+                            <input type="email" name="site_email">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Phone</label>
+                            <input type="text" name="contact_phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Maintenance Mode</label>
+                            <select name="maintenance_mode" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="false">Off</option>
+                                <option value="true">On</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Address</label>
+                            <textarea name="address" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Logo URL</label>
+                            <input type="text" name="logo_url">
+                        </div>
+                        <div class="form-group">
+                            <label>Favicon URL</label>
+                            <input type="text" name="favicon_url">
+                        </div>
+
+                        <!-- Social Links -->
+                        <div class="form-group full-width">
+                            <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: #555;">Social Links</h3>
+                        </div>
+                        <div class="form-group">
+                            <label>Facebook URL</label>
+                            <input type="text" name="social_facebook">
+                        </div>
+                        <div class="form-group">
+                            <label>Twitter/X URL</label>
+                            <input type="text" name="social_twitter">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram URL</label>
+                            <input type="text" name="social_instagram">
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn URL</label>
+                            <input type="text" name="social_linkedin">
+                        </div>
+                        <div class="form-group">
+                            <label>YouTube URL</label>
+                            <input type="text" name="social_youtube">
+                        </div>
+
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Email Settings View -->
+            <div id="view-settings-email" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Email Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Email</span>
+                </div>
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="emailSettingsForm" class="client-form-grid">
+                        <div class="form-group">
+                            <label>Mail Driver</label>
+                            <input type="text" name="mail_driver" value="smtp">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Host</label>
+                            <input type="text" name="mail_host">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Port</label>
+                            <input type="text" name="mail_port">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Username</label>
+                            <input type="text" name="mail_username">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Password</label>
+                            <input type="password" name="mail_password">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Encryption</label>
+                            <select name="mail_encryption" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="tls">TLS</option>
+                                <option value="ssl">SSL</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>From Address</label>
+                            <input type="email" name="from_address">
+                        </div>
+                        <div class="form-group">
+                            <label>From Name</label>
+                            <input type="text" name="from_name">
+                        </div>
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -1708,6 +1892,40 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelReviewBtn">Close</button>
                     <button type="submit" class="btn-primary" id="submitReviewBtn">Add Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Role Modal -->
+    <div id="roleModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Role Details</h2>
+                <button class="close-modal-btn" id="closeRoleModal">&times;</button>
+            </div>
+            <form id="roleForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Role Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <!-- Simplified permissions input for now, could be checkboxes -->
+                    <div class="form-group full-width">
+                        <label>Permissions (comma separated, e.g., read,write)</label>
+                        <input type="text" name="permissions" placeholder="e.g. read_projects, write_blogs">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelRoleBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Role</button>
                 </div>
             </form>
         </div>

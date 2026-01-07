@@ -321,6 +321,73 @@ async function setupDatabase() {
     `);
     console.log('Quotation Settings tables created or already exists.');
 
+    // --- New Settings Tables ---
+
+    // Roles (Permission Settings)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS roles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        permissions TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Roles table created or already exists.');
+
+    // Analytics Settings
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS analytics_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        google_analytics_id VARCHAR(255),
+        facebook_pixel_id VARCHAR(255),
+        custom_header_scripts TEXT,
+        custom_footer_scripts TEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Analytics Settings table created or already exists.');
+
+    // Site Settings
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS site_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        site_title VARCHAR(255),
+        site_tagline VARCHAR(255),
+        site_email VARCHAR(255),
+        contact_phone VARCHAR(255),
+        address TEXT,
+        logo_url VARCHAR(255),
+        favicon_url VARCHAR(255),
+        maintenance_mode BOOLEAN DEFAULT FALSE,
+        social_facebook VARCHAR(255),
+        social_twitter VARCHAR(255),
+        social_instagram VARCHAR(255),
+        social_linkedin VARCHAR(255),
+        social_youtube VARCHAR(255),
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Site Settings table created or already exists.');
+
+    // Email Settings
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS email_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        mail_driver VARCHAR(50) DEFAULT 'smtp',
+        mail_host VARCHAR(255),
+        mail_port VARCHAR(50),
+        mail_username VARCHAR(255),
+        mail_password VARCHAR(255),
+        mail_encryption VARCHAR(50) DEFAULT 'tls',
+        from_address VARCHAR(255),
+        from_name VARCHAR(255),
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Email Settings table created or already exists.');
+
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {
@@ -330,8 +397,6 @@ async function setupDatabase() {
         ['admin', hashedPassword, 'ADMIN', 'admin@example.com', 'Super', 'Admin', true]);
       console.log('Default admin user created: admin / password123');
     } else {
-        // Update default admin to have email if missing (Optional fix)
-        // await db.query("UPDATE users SET email='admin@example.com', first_name='Super', last_name='Admin' WHERE username='admin' AND email IS NULL");
         console.log('Admin user already exists.');
     }
 
