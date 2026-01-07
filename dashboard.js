@@ -34,6 +34,7 @@ navBtns.forEach(btn => {
         if (btn.dataset.view === 'service-types') loadServiceTypes();
         if (btn.dataset.view === 'services') loadServices();
         if (btn.dataset.view === 'reviews') loadReviews();
+        if (btn.dataset.view === 'inquiries') loadInquiries();
     });
 });
 
@@ -847,6 +848,123 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
         alert('Server error');
     }
 });
+
+// --- INQUIRIES LOGIC ---
+async function loadInquiries() {
+    const tbody = document.getElementById('inquiriesTableBody');
+    if (!tbody) return;
+
+    try {
+        const response = await fetch('/api/admin/inquiries', { headers: { 'Authorization': `Bearer ${token}` } });
+        const inquiries = await response.json();
+
+        tbody.innerHTML = '';
+        if (inquiries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No inquiries found</td></tr>';
+            return;
+        }
+
+        inquiries.forEach(inquiry => {
+            const createdDate = new Date(inquiry.created_at);
+            const formattedDate = createdDate.toISOString().replace('T', ' ').substring(0, 19);
+
+            const tr = document.createElement('tr');
+
+            // Helper to escape HTML
+            const escapeHtml = (unsafe) => {
+                return (unsafe || '')
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            };
+
+            tr.innerHTML = `
+                <td class="client-name-cell">
+                    ${escapeHtml(inquiry.client_name)}
+                    <div><span class="badge" style="background-color: #00cec9;">Received on - ${formattedDate}</span></div>
+                </td>
+                <td>${escapeHtml(inquiry.email)}</td>
+                <td>${escapeHtml(inquiry.phone)}</td>
+                <td>${escapeHtml(inquiry.subject)}</td>
+                <td>
+                    <button class="btn-sm" style="background-color: #000080;" onclick="viewInquiry(${inquiry.id})">View Message</button>
+                    <!-- Optional Delete
+                    <button class="btn-sm btn-deactivate" onclick="deleteInquiry(${inquiry.id})">Delete</button>
+                    -->
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error loading inquiries:', error);
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading inquiries</td></tr>';
+    }
+}
+
+// Inquiry Modal
+const inquiryModal = document.getElementById('inquiryModal');
+const closeInquiryModalBtn = document.getElementById('closeInquiryModal');
+const closeInquiryBtn = document.getElementById('closeInquiryBtn');
+
+function closeInquiryModal() {
+    inquiryModal.classList.remove('active');
+    document.getElementById('inquiryDetailsContent').innerHTML = '';
+}
+
+if(closeInquiryModalBtn) closeInquiryModalBtn.addEventListener('click', closeInquiryModal);
+if(closeInquiryBtn) closeInquiryBtn.addEventListener('click', closeInquiryModal);
+
+window.viewInquiry = async (id) => {
+    try {
+        const response = await fetch(`/api/admin/inquiries/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!response.ok) throw new Error('Failed to fetch inquiry');
+
+        const inquiry = await response.json();
+        const contentDiv = document.getElementById('inquiryDetailsContent');
+
+        // Helper to escape HTML
+        const escapeHtml = (unsafe) => {
+            return (unsafe || '')
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        };
+
+        contentDiv.innerHTML = `
+            <div style="margin-bottom: 1rem;"><strong>Client Name:</strong> ${escapeHtml(inquiry.client_name)}</div>
+            <div style="margin-bottom: 1rem;"><strong>Email:</strong> ${escapeHtml(inquiry.email)}</div>
+            <div style="margin-bottom: 1rem;"><strong>Phone:</strong> ${escapeHtml(inquiry.phone)}</div>
+            <div style="margin-bottom: 1rem;"><strong>Subject:</strong> ${escapeHtml(inquiry.subject)}</div>
+            <div style="margin-bottom: 1rem;"><strong>Received On:</strong> ${new Date(inquiry.created_at).toLocaleString()}</div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 1rem 0;">
+            <div style="margin-bottom: 0.5rem;"><strong>Message:</strong></div>
+            <div style="background: #f9f9f9; padding: 1rem; border-radius: 4px; white-space: pre-wrap;">${escapeHtml(inquiry.message)}</div>
+        `;
+
+        inquiryModal.classList.add('active');
+    } catch (error) {
+        console.error(error);
+        alert('Error fetching inquiry details');
+    }
+};
+
+window.deleteInquiry = async (id) => {
+    if(!confirm('Are you sure you want to delete this inquiry?')) return;
+    try {
+        const response = await fetch(`/api/admin/inquiries/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadInquiries();
+        else alert('Failed to delete inquiry');
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 // --- CLIENT REGISTRATION / EDIT LOGIC ---
 window.editClient = async (id) => {

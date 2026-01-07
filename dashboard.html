@@ -497,6 +497,7 @@
         <button class="nav-btn" data-view="service-types">Services Type</button>
         <button class="nav-btn" data-view="services">All Services</button>
         <button class="nav-btn" data-view="reviews">Customer Reviews</button>
+        <button class="nav-btn" data-view="inquiries">All Inquiries</button>
         <button class="nav-btn" data-view="add-client">Register Client</button>
         <button id="logoutBtn" class="logout-btn">Logout</button>
     </nav>
@@ -658,6 +659,29 @@
                 </thead>
                 <tbody id="reviewsTableBody">
                     <tr><td colspan="7">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- All Inquiries View -->
+        <div id="view-inquiries" class="view-section light-view-container">
+            <div class="page-header">
+                <h2>All Inquiries</h2>
+                <span class="breadcrumb">Admin / All Inquiries</span>
+            </div>
+
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Subject</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inquiriesTableBody">
+                    <tr><td colspan="5">Loading...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -853,6 +877,22 @@
                     <button type="submit" class="btn-primary">Add Review</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Inquiry Details Modal -->
+    <div id="inquiryModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Inquiry Details</h2>
+                <button class="close-modal-btn" id="closeInquiryModal">&times;</button>
+            </div>
+            <div id="inquiryDetailsContent">
+                <!-- Content populated via JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="closeInquiryBtn">Close</button>
+            </div>
         </div>
     </div>
 
