@@ -28,6 +28,7 @@ navBtns.forEach(btn => {
         document.getElementById(viewId).classList.add('active');
 
         // Data Load triggers
+        if (btn.dataset.view === 'dashboard') loadDashboardStats();
         if (btn.dataset.view === 'projects') loadProjects();
         if (btn.dataset.view === 'clients') loadClients();
         if (btn.dataset.view === 'admins') loadAdmins();
@@ -39,8 +40,38 @@ navBtns.forEach(btn => {
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('first_name');
+    localStorage.removeItem('last_name');
     window.location.replace('login.html');
 });
+
+// --- DASHBOARD LOGIC ---
+async function loadDashboardStats() {
+    // Set Admin Name
+    const fName = localStorage.getItem('first_name') || 'Admin';
+    const lName = localStorage.getItem('last_name') || '';
+    const fullName = `${fName} ${lName}`.trim();
+    const adminNameDisplay = document.getElementById('adminNameDisplay');
+    if (adminNameDisplay) adminNameDisplay.textContent = fullName;
+
+    // Fetch Stats
+    try {
+        const response = await fetch('/api/admin/dashboard/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch stats');
+
+        const stats = await response.json();
+
+        document.getElementById('count-registered-users').textContent = stats.registeredUsers;
+        document.getElementById('count-total-posts').textContent = stats.totalPosts;
+        document.getElementById('count-not-approved-posts').textContent = stats.notApprovedPosts;
+
+    } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+    }
+}
 
 // --- PROJECTS LOGIC ---
 async function loadProjects() {
@@ -975,5 +1006,5 @@ function showMessage(element, text, type) {
 }
 
 // Init
-// Check hash or default?
-loadProjects();
+// Default to Dashboard
+loadDashboardStats();

@@ -23,6 +23,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         if (response.ok) {
             // Login successful
             localStorage.setItem('token', data.token);
+            if (data.first_name) localStorage.setItem('first_name', data.first_name);
+            if (data.last_name) localStorage.setItem('last_name', data.last_name);
+
             window.location.href = 'dashboard.html';
         } else {
             // Login failed

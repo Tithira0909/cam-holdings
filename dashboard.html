@@ -491,7 +491,8 @@
 
     <nav class="sidebar">
         <h2>Admin Panel</h2>
-        <button class="nav-btn active" data-view="projects">Projects</button>
+        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="projects">Projects</button>
         <button class="nav-btn" data-view="clients">Registered Clients</button>
         <button class="nav-btn" data-view="admins">Registered Admins</button>
         <button class="nav-btn" data-view="service-types">Services Type</button>
@@ -502,8 +503,41 @@
     </nav>
 
     <main class="main-content">
+        <!-- Dashboard Overview -->
+        <div id="view-dashboard" class="view-section active light-view-container">
+            <div class="page-header">
+                <h2>Dashboard</h2>
+                <span class="breadcrumb">Home / Dashboard</span>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin: 0; color: #2c3e50; font-size: 1.5rem;">Welcome back, <span id="adminNameDisplay">Admin</span></h3>
+                <p style="color: #666; margin-top: 0.5rem;">Get a quick overview of your company's current status below, or click into one of the sections for a more detailed breakdown.</p>
+            </div>
+
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <!-- Registered Users Card -->
+                <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                    <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Registered Users</div>
+                    <div id="count-registered-users" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                </div>
+
+                <!-- Total Posts Card -->
+                <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                    <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Total Posts</div>
+                    <div id="count-total-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                </div>
+
+                <!-- Not Approved Posts Card -->
+                <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                    <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Not Approved Posts</div>
+                    <div id="count-not-approved-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Projects View -->
-        <div id="view-projects" class="view-section active">
+        <div id="view-projects" class="view-section">
             <h1>Manage Projects</h1>
 
             <div class="admin-form-dark">
