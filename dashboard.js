@@ -29,6 +29,7 @@ navBtns.forEach(btn => {
 
         // Data Load triggers
         if (btn.dataset.view === 'dashboard') loadDashboardStats();
+        if (btn.dataset.view === 'inquiries') loadInquiries();
         if (btn.dataset.view === 'projects') loadProjects();
         if (btn.dataset.view === 'clients') loadClients();
         if (btn.dataset.view === 'admins') loadAdmins();
@@ -72,6 +73,95 @@ async function loadDashboardStats() {
         console.error('Error loading dashboard stats:', error);
     }
 }
+
+// --- INQUIRIES LOGIC ---
+async function loadInquiries() {
+    const tbody = document.getElementById('inquiriesTableBody');
+    if (!tbody) return;
+
+    try {
+        const response = await fetch('/api/admin/inquiries', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch inquiries');
+
+        const inquiries = await response.json();
+
+        tbody.innerHTML = '';
+        if (inquiries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No inquiries found</td></tr>';
+            return;
+        }
+
+        inquiries.forEach(item => {
+            const dateObj = new Date(item.created_at);
+            const dateStr = dateObj.toISOString().split('T')[0] + ' ' + dateObj.toTimeString().split(' ')[0]; // YYYY-MM-DD HH:mm:ss rough approximation or use proper format
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="client-name-cell">
+                    ${item.client_name}
+                    <div><span class="badge" style="background-color: #00cec9;">Received on - ${dateStr}</span></div>
+                </td>
+                <td>${item.email}</td>
+                <td>${item.phone || '-'}</td>
+                <td>${item.subject || '-'}</td>
+                <td>
+                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="viewMessage(${item.id})">View Message</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error('Error loading inquiries:', error);
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading inquiries</td></tr>';
+    }
+}
+
+// Message Modal
+const msgModal = document.getElementById('messageModal');
+const closeMsgModalBtn = document.getElementById('closeMessageModal');
+const closeMsgBtn = document.getElementById('closeMessageBtn');
+
+function closeMessageModal() {
+    msgModal.classList.remove('active');
+}
+
+if(closeMsgModalBtn) closeMsgModalBtn.addEventListener('click', closeMessageModal);
+if(closeMsgBtn) closeMsgBtn.addEventListener('click', closeMessageModal);
+
+window.viewMessage = async (id) => {
+    try {
+        // Fetch full details (or find in list if we cached it, but endpoint requested)
+        const response = await fetch(`/api/admin/inquiries/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch message details');
+
+        const data = await response.json();
+
+        document.getElementById('msgName').textContent = data.client_name;
+        document.getElementById('msgEmail').textContent = data.email;
+        document.getElementById('msgPhone').textContent = data.phone || '-';
+        document.getElementById('msgSubject').textContent = data.subject || '-';
+
+        const dateObj = new Date(data.created_at);
+        document.getElementById('msgDate').textContent = dateObj.toISOString().split('T')[0] + ' ' + dateObj.toTimeString().split(' ')[0];
+
+        // Escape HTML for message body security
+        const safeMsg = data.message ? data.message.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+        document.getElementById('msgBody').innerHTML = safeMsg;
+
+        msgModal.classList.add('active');
+
+    } catch (error) {
+        console.error(error);
+        alert('Error fetching details');
+    }
+};
 
 // --- PROJECTS LOGIC ---
 async function loadProjects() {
