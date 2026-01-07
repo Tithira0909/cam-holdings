@@ -13,6 +13,14 @@ const menuItems = document.querySelectorAll('.menu-item');
 const navLinks = document.querySelectorAll('.menu-link, .submenu-link');
 const views = document.querySelectorAll('.view-section');
 
+// Sidebar Toggle
+const sidebarToggle = document.getElementById('sidebarToggle');
+if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+        document.body.classList.toggle('collapsed');
+    });
+}
+
 // Collapsible Logic
 menuItems.forEach(item => {
     if (item.classList.contains('collapsible')) {
@@ -89,8 +97,16 @@ async function loadDashboardStats() {
     const fName = localStorage.getItem('first_name') || 'Admin';
     const lName = localStorage.getItem('last_name') || '';
     const fullName = `${fName} ${lName}`.trim();
+
     const adminNameDisplay = document.getElementById('adminNameDisplay');
     if (adminNameDisplay) adminNameDisplay.textContent = fullName;
+
+    // Update Header Info
+    const headerName = document.getElementById('headerAdminName');
+    if (headerName) headerName.textContent = fullName;
+
+    const headerAvatar = document.getElementById('headerAvatar');
+    if (headerAvatar) headerAvatar.textContent = fName.charAt(0).toUpperCase();
 
     // Fetch Stats
     try {
