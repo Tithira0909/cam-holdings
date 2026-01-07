@@ -19,6 +19,7 @@ const publicQuotationRoutes = require('./routes/public_quotations');
 const documentTypeRoutes = require('./routes/document_types');
 const projectTaskRoutes = require('./routes/project_tasks');
 const blogRoutes = require('./routes/blogs');
+const publicApiRoutes = require('./routes/public_api');
 const path = require('path');
 const fs = require('fs');
 
@@ -44,6 +45,7 @@ if (!process.env.JWT_SECRET) {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api', publicApiRoutes);
 app.use('/api/admin/projects', adminProjectRoutes);
 app.use('/api/admin/clients', clientRoutes);
 app.use('/api/admin/admins', adminRoutes);
