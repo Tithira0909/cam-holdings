@@ -34,6 +34,21 @@ async function initProjectDetails() {
         setText('pdTitle', project.title);
         setText('pdBadge', project.status || 'Active');
         setText('pdLocation', project.location || 'N/A');
+        setText('pdService', project.service_name || 'General');
+
+        // Category inference or from DB
+        let category = project.category_name;
+        if (!category) {
+            // Fallback inference similar to projects-loader.js
+            const text = (project.title + ' ' + (project.description || '')).toLowerCase();
+            if (text.includes('interior')) category = 'Interior';
+            else if (text.includes('architecture')) category = 'Architecture';
+            else if (text.includes('construction')) category = 'Construction';
+            else if (text.includes('landscape')) category = 'Landscape';
+            else if (text.includes('commercial')) category = 'Commercial';
+            else category = 'Project';
+        }
+        setText('pdCategory', category);
 
         // Formatting Budget
         let budgetDisplay = 'TBD';
