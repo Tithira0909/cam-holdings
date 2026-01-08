@@ -686,7 +686,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gsap.to(targets, {
         autoAlpha: 0,
         y: 10,
-        filter: "blur(6px)",
+        filter: "blur(0px)",
         duration: 0.18,
         ease: "power2.out",
         onComplete: () => {
@@ -701,7 +701,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           gsap.fromTo(
             targets,
-            { autoAlpha: 0, y: 12, filter: "blur(6px)" },
+            { autoAlpha: 0, y: 12, filter: "blur(0px)" },
             { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.36, ease: "power3.out", stagger: 0.03 }
           );
         },
@@ -740,7 +740,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (reduceMotion()) return;
 
     // Auto-mark common elements if not already marked
-    const autoTargets = gsap.utils.toArray(".section-head, .project-card, .pkg, .review, .book-card, .mini, .stat, .plist, .bp");
+    const autoTargets = gsap.utils.toArray(".section-head, .project-card, .pkg, .review, .book-card, .stat, .plist, .bp");
     autoTargets.forEach((el) => {
       if (el.dataset.reveal) return;
       el.dataset.reveal = "up";
