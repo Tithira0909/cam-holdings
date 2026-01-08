@@ -686,7 +686,6 @@ document.addEventListener("DOMContentLoaded", () => {
       gsap.to(targets, {
         autoAlpha: 0,
         y: 10,
-        filter: "blur(0px)",
         duration: 0.18,
         ease: "power2.out",
         onComplete: () => {
@@ -701,8 +700,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           gsap.fromTo(
             targets,
-            { autoAlpha: 0, y: 12, filter: "blur(0px)" },
-            { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.36, ease: "power3.out", stagger: 0.03 }
+            { autoAlpha: 0, y: 12 },
+            { autoAlpha: 1, y: 0, duration: 0.36, ease: "power3.out", stagger: 0.03 }
           );
         },
       });
