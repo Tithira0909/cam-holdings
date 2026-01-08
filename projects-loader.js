@@ -53,7 +53,7 @@ async function initProjects() {
             const imageUrl = getImageUrl(project.image_url);
 
             card.innerHTML = `
-                <a class="card-link" href="#">
+                <a class="card-link" href="project-details.html?id=${project.id}">
                     <div class="media" style="background-image:url('${imageUrl}')"></div>
                     <div class="glass">
                         <div class="badge">${badgeText}</div>
