@@ -40,6 +40,7 @@ if (!fs.existsSync(uploadDir)){
 }
 
 app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -81,6 +82,15 @@ app.get('/', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, async () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
+
+  if (db.ping) {
+    const isConnected = await db.ping();
+    if (isConnected) {
+        console.log('Database connected successfully.');
+    } else {
+        console.error('Database connection failed.');
+    }
+  }
 });

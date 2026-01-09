@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // GET /api/admin/inquiries - Fetch all inquiries
 router.get('/', authenticateToken, async (req, res) => {
