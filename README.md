@@ -33,7 +33,7 @@
    npm run dev
    ```
 
-   The backend runs on `http://localhost:3000`.
+   The backend runs on `http://localhost:4000`.
 
 ### 4. Frontend Setup
 1. Navigate to the root directory (where `vite.config.js` is).
@@ -49,7 +49,7 @@
    The frontend runs on `http://localhost:5173`.
 
 ### Common Issues
-- **Port already in use**: Kill the process using the port (`lsof -i :3000`) or change the port in `.env`.
-- **Database access denied**: Check `DB_USER` and `DB_PASSWORD` in `backend/.env`.
+- **Port already in use**: Kill the process using the port (`lsof -i :4000`) or change the port in `.env`.
+- **Database access denied**: Check `MYSQL_USER` and `MYSQL_PASSWORD` in `backend/.env`.
 - **Backend crash**: Ensure `.env` exists in `backend/` directory and `JWT_SECRET` is set.
 - **Proxy errors**: Ensure backend is running before using frontend API calls.

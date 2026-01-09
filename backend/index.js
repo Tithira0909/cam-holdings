@@ -82,15 +82,6 @@ app.get('/', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
-
-  if (db.ping) {
-    const isConnected = await db.ping();
-    if (isConnected) {
-        console.log('Database connected successfully.');
-    } else {
-        console.error('Database connection failed.');
-    }
-  }
 });
