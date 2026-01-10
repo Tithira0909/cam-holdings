@@ -11,6 +11,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 
+// Expose for loaders
+window.gsap = gsap;
+window.ScrollTrigger = ScrollTrigger;
+
 document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------------------------------
   // 0) ONE INIT GUARD
@@ -68,6 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
     wheelMultiplier: 0.9,
     touchMultiplier: 1.1,
   });
+
+  // Expose Lenis
+  window.lenis = lenis;
 
   // Drive Lenis from RAF + sync ScrollTrigger
   function raf(time) {
@@ -748,22 +755,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       const mode = el.getAttribute("data-reveal") || "up";
+      const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
 
       const from = { autoAlpha: 0 };
-      if (mode === "up") Object.assign(from, { y: 18 });
+      if (mode === "up") Object.assign(from, { y: 24 });
       if (mode === "fade") Object.assign(from, { y: 0 });
-      if (mode === "left") Object.assign(from, { x: -18 });
-      if (mode === "right") Object.assign(from, { x: 18 });
+      if (mode === "left") Object.assign(from, { x: -24 });
+      if (mode === "right") Object.assign(from, { x: 24 });
 
       gsap.fromTo(el, from, {
         autoAlpha: 1,
         x: 0,
         y: 0,
-        duration: 0.8,
+        duration: 0.85,
         ease: "power3.out",
         scrollTrigger: {
           trigger: el,
-          start: "top 86%",
+          // Header triggers earlier (top 92%) than content (top 82%)
+          start: isHead ? "top 92%" : "top 82%",
           end: "top 55%",
           toggleActions: "play none none reverse",
         },
@@ -940,10 +949,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const medias = sec.querySelectorAll(".project-card .pc-media");
         const ctas = sec.querySelectorAll(".projects-cta .btn");
 
-        scrubReveal(tl, head, { at: 0.05, stagger: 0.06 });
+        scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
         scrubReveal(tl, lines, { at: 0.12, stagger: 0.08 });
 
-        scrubReveal(tl, cards, { at: 0.40, stagger: 0.10 });
+        scrubReveal(tl, cards, { at: 0.50, stagger: 0.10 });
         medias.forEach((m, i) => parallaxInPinned(tl, m, { y: 14, at: 0.34 + i * 0.02 }));
 
         scrubReveal(tl, ctas, { at: 0.78, stagger: 0.06 });
@@ -960,8 +969,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const pkgs = sec.querySelectorAll(".pkg");
         const buttons = sec.querySelectorAll(".pkg-actions .btn");
 
-        scrubReveal(tl, head, { at: 0.06, stagger: 0.06 });
-        scrubReveal(tl, pkgs, { at: 0.38, stagger: 0.10 });
+        scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
+        scrubReveal(tl, pkgs, { at: 0.50, stagger: 0.10 });
         scrubReveal(tl, buttons, { at: 0.78, stagger: 0.05 });
 
         pkgs.forEach((card, i) => {
@@ -983,9 +992,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const points = sec.querySelectorAll(".book-points .bp");
         const actions = sec.querySelectorAll(".bc-actions .btn");
 
-        scrubReveal(tl, head, { at: 0.06, stagger: 0.06 });
-        scrubReveal(tl, [card], { at: 0.40, stagger: 0 });
-        scrubReveal(tl, fields, { at: 0.46, stagger: 0.04 });
+        scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
+        scrubReveal(tl, [card], { at: 0.50, stagger: 0 });
+        scrubReveal(tl, fields, { at: 0.56, stagger: 0.04 });
 
         scrubReveal(tl, points, { at: 0.76, stagger: 0.08 });
         scrubReveal(tl, actions, { at: 0.84, stagger: 0.05 });
@@ -1008,8 +1017,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const dots = sec.querySelectorAll(".rv-dot");
         const arrows = sec.querySelectorAll(".rv-nav");
 
-        scrubReveal(tl, head, { at: 0.06, stagger: 0.06 });
-        scrubReveal(tl, reviews, { at: 0.38, stagger: 0.10 });
+        scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
+        scrubReveal(tl, reviews, { at: 0.50, stagger: 0.10 });
         scrubReveal(tl, arrows, { at: 0.78, stagger: 0.04 });
         scrubReveal(tl, dots, { at: 0.84, stagger: 0.02 });
 
@@ -1145,6 +1154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
 // ===============================
 // Premium Hover Tilt (subtle)
 // ===============================
@@ -1184,6 +1194,7 @@ function initTiltCards() {
 document.addEventListener("DOMContentLoaded", () => {
   initTiltCards();
 });
+
 // ===============================
 // Projects Page Animations (GSAP)
 // ===============================
@@ -1230,7 +1241,7 @@ function initProjectsAnimations() {
       stagger: 0.08,
       scrollTrigger: {
         trigger: grid,
-        start: "top 80%",
+        start: "top 75%", // Delayed to allow head to load first
         toggleActions: "play none none reverse",
       },
     });
@@ -1308,117 +1319,3 @@ document.addEventListener("DOMContentLoaded", () => {
   initProjectsAnimations();
   initProjectsTilt();
 });
-  // ===============================
-// Projects Page Enhancements
-// ===============================
-(function initProjectsPage(){
-  if (!document.documentElement.classList.contains("page-projects")) return;
-
-  // Smooth anchor scroll (Lenis supported)
-  document.addEventListener("click", (e) => {
-    const a = e.target.closest('a[href^="#"]');
-    if (!a) return;
-
-    const id = a.getAttribute("href");
-    const el = document.querySelector(id);
-    if (!el) return;
-
-    e.preventDefault();
-    if (window.lenis) window.lenis.scrollTo(el, { offset: -86 });
-    else el.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-
-  // Year
-  const y = document.getElementById("year");
-  if (y) y.textContent = new Date().getFullYear();
-
-  // GSAP reveals (if available)
-  if (window.gsap && window.ScrollTrigger) {
-    // Hero intro
-    gsap.from(".projects-hero [data-reveal='up']", {
-      opacity: 0,
-      y: 18,
-      duration: 0.85,
-      ease: "power3.out",
-      stagger: 0.08,
-      delay: 0.05,
-    });
-
-    // Chips
-    gsap.from(".projects-chips .pchip", {
-      opacity: 0,
-      y: 10,
-      duration: 0.65,
-      ease: "power3.out",
-      stagger: 0.08,
-      scrollTrigger: { trigger: ".projects-chips", start: "top 85%" },
-    });
-
-    // Strip reveal
-    const strip = document.querySelector(".process-strip");
-    if (strip) {
-      gsap.from(strip.children, {
-        opacity: 0,
-        y: 14,
-        duration: 0.75,
-        ease: "power3.out",
-        stagger: 0.10,
-        scrollTrigger: { trigger: strip, start: "top 85%" },
-      });
-    }
-
-    // Projects grids stagger
-    document.querySelectorAll(".projects-grid").forEach((grid) => {
-      const items = grid.querySelectorAll(".project-card");
-      gsap.from(items, {
-        opacity: 0,
-        y: 22,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.08,
-        scrollTrigger: { trigger: grid, start: "top 80%" },
-      });
-    });
-
-    // Reviews stagger
-    const rvGrid = document.querySelector(".reviews-grid");
-    if (rvGrid) {
-      const blocks = rvGrid.querySelectorAll(".review");
-      gsap.from(blocks, {
-        opacity: 0,
-        y: 20,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.10,
-        scrollTrigger: { trigger: rvGrid, start: "top 82%" },
-      });
-    }
-  }
-
-  // Premium hover tilt (only on hover devices)
-  if (window.matchMedia("(hover: hover)").matches) {
-    const cards = document.querySelectorAll(".project-card, .review");
-    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-
-    cards.forEach((card) => {
-      let rect = null;
-
-      const onMove = (e) => {
-        rect = rect || card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        const rx = clamp((0.5 - y) * 5, -5, 5);
-        const ry = clamp((x - 0.5) * 7, -7, 7);
-        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`;
-      };
-
-      const onLeave = () => {
-        rect = null;
-        card.style.transform = "";
-      };
-
-      card.addEventListener("mousemove", onMove);
-      card.addEventListener("mouseleave", onLeave);
-    });
-  }
-})();
