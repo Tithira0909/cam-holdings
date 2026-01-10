@@ -1315,7 +1315,65 @@ function initProjectsTilt() {
   });
 }
 
+// ===============================
+// Services Page Animations (GSAP)
+// ===============================
+function initServicesAnimations() {
+  if (!document.documentElement.classList.contains("page-services") && !document.body.classList.contains("page-services")) return;
+  if (!window.gsap) return;
+
+  // Explicitly stagger the hero elements so title appears FIRST
+  // order: .kicker -> .services-title -> .services-lead -> .services-hero-actions -> .services-metrics
+  const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+  tl.from(".services-hero .kicker", {
+    opacity: 0,
+    y: 14,
+    duration: 0.6,
+    delay: 0.1
+  })
+  .from(".services-hero .services-title", {
+    opacity: 0,
+    y: 18,
+    duration: 0.85
+  }, "-=0.4")
+  .from(".services-hero .services-lead", {
+    opacity: 0,
+    y: 16,
+    duration: 0.8
+  }, "-=0.6")
+  .from(".services-hero .services-hero-actions", {
+    opacity: 0,
+    y: 14,
+    duration: 0.7
+  }, "-=0.6")
+  .from(".services-hero .metric", {
+    opacity: 0,
+    y: 20,
+    duration: 0.8,
+    stagger: 0.1
+  }, "-=0.5");
+
+  // Process strip reveal
+  const strip = document.querySelector(".process-strip");
+  if (strip) {
+    gsap.from(strip.children, {
+      opacity: 0,
+      y: 18,
+      duration: 0.8,
+      ease: "power3.out",
+      stagger: 0.12,
+      scrollTrigger: {
+        trigger: strip,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      },
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initProjectsAnimations();
+  initServicesAnimations();
   initProjectsTilt();
 });
