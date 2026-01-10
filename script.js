@@ -462,22 +462,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const images = new Array(frameCount);
     let lastFrame = -1;
 
-    for (let i = 0; i < frameCount; i++) {
-      const img = new Image();
-      img.src = currentFrame(i);
-      images[i] = img;
-    }
-
-    const drawFrame = (idx) => {
-      if (idx === lastFrame) return;
-      lastFrame = idx;
-
+    // Helper: Draw logic isolated
+    const performDraw = (img) => {
       const cw = innerWidth;
       const ch = innerHeight;
       ctx.clearRect(0, 0, cw, ch);
-
-      const img = images[idx];
-      if (!img || !img.complete || img.naturalWidth === 0) return;
 
       const imgAspect = img.naturalWidth / img.naturalHeight;
       const canvasAspect = cw / ch;
@@ -496,6 +485,36 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       ctx.drawImage(img, x, y, drawW, drawH);
     };
+
+    const drawFrame = (idx) => {
+      if (idx === lastFrame) return;
+      lastFrame = idx;
+
+      const img = images[idx];
+      if (!img) return;
+
+      if (img.complete && img.naturalWidth > 0) {
+        performDraw(img);
+      }
+    };
+
+    // Preload & Init Frame 0
+    for (let i = 0; i < frameCount; i++) {
+      const img = new Image();
+      img.src = currentFrame(i);
+      images[i] = img;
+
+      // Ensure first frame draws as soon as it loads
+      if (i === 0) {
+        if (img.complete) {
+          drawFrame(0);
+        } else {
+          img.onload = () => {
+            if (lastFrame === -1 || lastFrame === 0) drawFrame(0);
+          };
+        }
+      }
+    }
 
     const applyText = (p) => {
       if (!h1 || reduceMotion()) return;
