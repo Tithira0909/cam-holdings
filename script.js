@@ -754,6 +754,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.querySelectorAll("[data-reveal]").forEach((el) => {
+      // Exclude elements inside pinned stages (they are handled by initPinnedSectionsSnapped)
+      if (el.closest("#projects, #packages, #book, #reviews")) return;
+
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
 
@@ -895,16 +898,16 @@ document.addEventListener("DOMContentLoaded", () => {
         sec.appendChild(inner);
       }
 
-      const tl = gsap.timeline({ defaults: { ease: "none" } });
+      const tl = gsap.timeline({ defaults: { ease: "none" }, paused: true });
       onBuild?.({ sec, inner, tl, beats });
 
-      // Mobile fallback: just jump to end when entering
+      // Mobile / Tablet: Just play the animation (no pin)
       if (!desktop) {
         ScrollTrigger.create({
           id: `stage-${id}-mobile`,
           trigger: sec,
-          start: "top 72%",
-          onEnter: () => tl.progress(1),
+          start: "top 65%",
+          onEnter: () => tl.play(),
         });
         return;
       }
