@@ -990,9 +990,9 @@ document.addEventListener("DOMContentLoaded", () => {
       endVh: 210,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
-        const card = sec.querySelector(".book-card");
-        const fields = sec.querySelectorAll(".book-card .field, .book-card label");
-        const points = sec.querySelectorAll(".book-points .bp");
+        const card = sec.querySelector(".book-form");
+        const fields = sec.querySelectorAll(".book-form label, .book-form .bc-row");
+        const points = sec.querySelectorAll(".book-benefits .benefit");
         const actions = sec.querySelectorAll(".bc-actions .btn");
 
         scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
