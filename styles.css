@@ -81,8 +81,14 @@ body{
   inset: 0;
   z-index: -99;
   background: url('/frames/frame_0100.jpg') center center / cover no-repeat;
-  /* Add overlay to match original site darkness/tint */
-  filter: brightness(0.4);
+}
+
+#site-fixed-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7); /* Dark overlay for readability */
+  z-index: -1;
 }
 
 img{ width:100%; height:100%; object-fit:cover; display:block; }

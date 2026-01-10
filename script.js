@@ -506,11 +506,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Ensure first frame draws as soon as it loads
       if (i === 0) {
-        if (img.complete) {
-          drawFrame(0);
+        // Immediate check if already cached/loaded
+        if (img.complete && img.naturalWidth > 0) {
+          performDraw(img);
+          lastFrame = 0;
         } else {
+          // Otherwise wait for load
           img.onload = () => {
-            if (lastFrame === -1 || lastFrame === 0) drawFrame(0);
+            // Only draw if we haven't scrolled yet (lastFrame is still initial)
+            if (lastFrame === -1 || lastFrame === 0) {
+              performDraw(img);
+              lastFrame = 0;
+            }
           };
         }
       }
