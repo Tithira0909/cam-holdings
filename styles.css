@@ -68,15 +68,21 @@ body{
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 
-  background:
-    radial-gradient(1100px 650px at 50% 0%, rgba(214,178,94,0.10), transparent 55%),
-    radial-gradient(900px 600px at 10% 20%, rgba(214,178,94,0.08), transparent 60%),
-    linear-gradient(180deg, var(--bg), var(--bg2));
+  background: transparent;
   color:var(--fg);
 
   max-width:100%;
   overflow-x:hidden; /* horizontal safety */
   overflow-y:visible; /* never block vertical render */
+}
+
+#site-fixed-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -99;
+  background: url('/frames/frame_0100.jpg') center center / cover no-repeat;
+  /* Add overlay to match original site darkness/tint */
+  filter: brightness(0.4);
 }
 
 img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -474,7 +480,7 @@ em{ font-style:normal; color:var(--gold2); }
   position: relative;
   height: 100vh;  /* pinned scene */
   overflow: hidden;
-  background: var(--bg);
+  background: transparent;
 }
 .stage > section.hero,
 .stage > section.iterate{
@@ -575,12 +581,13 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   overflow:hidden;
   border-top:1px solid rgba(214,178,94,0.10);
   border-bottom:1px solid rgba(214,178,94,0.10);
-  background: #070707;
+  background: transparent; /* Reveal fixed bg */
   z-index:2;
 }
 
 /* background layers (inside only) */
-.iterate-bg{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+/* Increased opacity to keep text readable against image */
+.iterate-bg{ position:absolute; inset:0; pointer-events:none; z-index:0; background: rgba(0,0,0,0.65); }
 .it-vignette{
   position:absolute; inset:-40px;
   background:
