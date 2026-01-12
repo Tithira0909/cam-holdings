@@ -5,11 +5,28 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
+const adminProjectRoutes = require('./routes/admin_projects');
 const clientRoutes = require('./routes/clients');
 const adminRoutes = require('./routes/admins');
 const serviceTypeRoutes = require('./routes/service_types');
 const serviceRoutes = require('./routes/services');
 const reviewRoutes = require('./routes/reviews');
+const dashboardRoutes = require('./routes/dashboard');
+const inquiryRoutes = require('./routes/inquiries');
+const contactRoutes = require('./routes/contact');
+const quotationRoutes = require('./routes/quotations');
+const publicQuotationRoutes = require('./routes/public_quotations');
+const documentTypeRoutes = require('./routes/document_types');
+const projectTaskRoutes = require('./routes/project_tasks');
+const blogRoutes = require('./routes/blogs');
+const publicApiRoutes = require('./routes/public_api');
+const propertyDesignRoutes = require('./routes/property_designs');
+const propertyPartRoutes = require('./routes/property_parts');
+const propertyPartItemRoutes = require('./routes/property_part_items');
+const propertyServiceRoutes = require('./routes/property_services');
+const propertyServiceItemRoutes = require('./routes/property_service_items');
+const settingsRoutes = require('./routes/settings');
+const rolesRoutes = require('./routes/roles');
 const path = require('path');
 const fs = require('fs');
 
@@ -35,11 +52,28 @@ if (!process.env.JWT_SECRET) {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api', publicApiRoutes);
+app.use('/api/admin/projects', adminProjectRoutes);
 app.use('/api/admin/clients', clientRoutes);
 app.use('/api/admin/admins', adminRoutes);
 app.use('/api/admin/service-types', serviceTypeRoutes);
 app.use('/api/admin/services', serviceRoutes);
 app.use('/api/admin/reviews', reviewRoutes);
+app.use('/api/admin/dashboard', dashboardRoutes);
+app.use('/api/admin/inquiries', inquiryRoutes);
+app.use('/api/inquiries', contactRoutes);
+app.use('/api/admin/quotations', quotationRoutes);
+app.use('/api/quotations', publicQuotationRoutes);
+app.use('/api/admin/document-types', documentTypeRoutes);
+app.use('/api/admin/project-tasks', projectTaskRoutes);
+app.use('/api/admin/blogs', blogRoutes);
+app.use('/api/admin/property-designs', propertyDesignRoutes);
+app.use('/api/admin/property-parts', propertyPartRoutes);
+app.use('/api/admin/property-part-items', propertyPartItemRoutes);
+app.use('/api/admin/property-services', propertyServiceRoutes);
+app.use('/api/admin/property-service-items', propertyServiceItemRoutes);
+app.use('/api/admin/settings', settingsRoutes);
+app.use('/api/admin/roles', rolesRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

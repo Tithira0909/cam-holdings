@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
+        :root {
+            --sidebar-bg: #012e32;
+            --sidebar-hover: #02464c;
+            --text-color: #ffffff;
+            --text-muted: #b0c4c5;
+            --accent: #D6B25E;
+            --main-bg: #f4f7f6;
+        }
+
         body {
-            background-color: #070708;
-            color: white;
-            font-family: Arial, sans-serif;
+            background-color: var(--main-bg);
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -16,703 +25,1358 @@
             overflow: hidden;
         }
 
-        /* Sidebar Styles */
+        /* --- Sidebar Styles --- */
         .sidebar {
-            width: 250px;
-            background-color: #1a1a1a;
-            border-right: 1px solid #333;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
-            padding: 1rem;
+            height: 100vh;
+            transition: width 0.3s ease;
+            flex-shrink: 0;
+            overflow-y: auto;
         }
 
-        .sidebar h2 {
-            color: #D6B25E;
-            text-align: center;
-            margin-bottom: 2rem;
+        /* Collapsed Sidebar State */
+        body.collapsed .sidebar {
+            width: 70px;
+        }
+        body.collapsed .sidebar .menu-text,
+        body.collapsed .sidebar .chevron,
+        body.collapsed .sidebar-logo span {
+            display: none;
+        }
+        body.collapsed .sidebar .menu-link {
+            padding: 1rem 0;
+            justify-content: center;
+        }
+        body.collapsed .sidebar .menu-icon {
+            margin: 0;
+        }
+        body.collapsed .sidebar-logo h2 {
+            display: none;
+        }
+        body.collapsed .sidebar-logo::after {
+            content: 'R'; /* Small logo */
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
         }
 
-        .nav-btn {
-            background: none;
+        body.collapsed .logout-text {
+            display: none;
+        }
+        body.collapsed .logout-btn {
             border: none;
-            color: #ccc;
-            padding: 1rem;
-            text-align: left;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-bottom: 0.5rem;
-            transition: background-color 0.2s, color 0.2s;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background-color: rgba(255, 77, 77, 0.1);
+        }
+        body.collapsed .logout-btn svg {
+            margin-right: 0;
         }
 
-        .nav-btn:hover, .nav-btn.active {
-            background-color: #333;
-            color: #D6B25E;
+        .sidebar-logo {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo h2 {
+            margin: 0;
+            color: var(--text-color); /* White logo as per user request/screenshot contrast */
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .sidebar-logo span {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .menu-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .menu-link:hover, .menu-link.active {
+            background-color: var(--sidebar-hover);
+            color: var(--text-color);
+        }
+
+        .menu-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            fill: currentColor;
+        }
+
+        .menu-text {
+            flex: 1;
+        }
+
+        .chevron {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.3s;
+            fill: currentColor;
+        }
+
+        .menu-item.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Submenu */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        .menu-item.open .submenu {
+            max-height: 500px; /* Arbitrary large height */
+            transition: max-height 0.5s ease-in;
+        }
+
+        .submenu-link {
+            display: block;
+            padding: 0.8rem 1rem 0.8rem 3.5rem; /* Indented */
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .submenu-link:hover, .submenu-link.active {
+            color: var(--accent);
+        }
+
+        /* Logout */
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .logout-btn {
-            margin-top: auto;
-            background-color: transparent;
-            color: #ff4d4d;
-            border: 1px solid #ff4d4d;
+            display: flex;
+            align-items: center;
+            width: 100%;
             padding: 0.75rem;
+            background: transparent;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
             border-radius: 4px;
             cursor: pointer;
-            text-align: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .logout-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            margin-right: 8px;
         }
 
         .logout-btn:hover {
-            background-color: #ff4d4d;
+            background: #ff4d4d;
             color: white;
         }
 
-        /* Main Content Styles */
+        /* --- Main Content --- */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-header {
+            background-color: white;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Header Icons */
+        .header-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        .header-btn:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .user-profile:hover {
+            background-color: #f5f5f5;
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
         .main-content {
             flex: 1;
             padding: 2rem;
             overflow-y: auto;
+            background-color: var(--main-bg);
         }
 
+        /* Views */
         .view-section {
             display: none;
         }
-
         .view-section.active {
             display: block;
+            animation: fadeIn 0.3s;
         }
 
-        h1 {
-            color: #D6B25E;
-            margin-top: 0;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 1rem;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Dark Form Styles (Projects) */
-        .admin-form-dark {
-            background-color: #1a1a1a;
-            padding: 2rem;
-            border-radius: 8px;
-            max-width: 800px;
-        }
+        /* --- Legacy Styles (Tables, Forms, Modals) --- */
+        /* Preserving your existing styles for content */
+        .admin-form-dark { background-color: #1a1a1a; padding: 2rem; border-radius: 8px; max-width: 800px; color: white; }
+        .admin-form-dark label { display: block; margin-bottom: 0.5rem; color: #ccc; }
+        .admin-form-dark input, .admin-form-dark textarea { width: 100%; padding: 0.75rem; border: 1px solid #444; border-radius: 4px; background-color: #2a2a2a; color: white; box-sizing: border-box; }
+        .admin-form-dark input:focus { border-color: var(--accent); outline: none; }
 
-        .admin-form-dark label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #ccc;
-        }
+        .light-view-container { background-color: white; padding: 2rem; border-radius: 8px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); min-height: 80vh; }
 
-        .admin-form-dark input, .admin-form-dark textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background-color: #2a2a2a;
-            color: white;
-            box-sizing: border-box;
-        }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .page-header h2 { margin: 0; color: #000; }
+        .breadcrumb { font-size: 0.9rem; color: #666; }
 
-        .admin-form-dark input:focus, .admin-form-dark textarea:focus {
-            border-color: #D6B25E;
-            outline: none;
-        }
+        .search-container { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+        .search-input { padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; width: 300px; }
 
-        /* Light Container (Shared) */
-        .light-view-container {
-            background-color: #f4f4f4; /* Light background */
-            padding: 2rem;
-            border-radius: 8px;
-            color: #333; /* Dark text */
-            min-height: 80vh;
-        }
+        .clients-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .clients-table th, .clients-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        .clients-table th { font-size: 0.85rem; color: #888; font-weight: bold; text-transform: uppercase; }
+        .clients-table td:last-child { white-space: nowrap; }
 
-        /* Registered Clients Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .page-header h2 {
-            margin: 0;
-            color: #000;
-        }
-
-        .breadcrumb {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* Search Bar */
-        .search-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 1rem;
-        }
-
-        .search-input {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 400px;
-            font-size: 0.9rem;
-        }
-
-        /* Clients Table */
-        .clients-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .clients-table th, .clients-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .clients-table th {
-            font-size: 0.85rem;
-            color: #888;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        /* Badges */
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border-radius: 4px;
-            color: white;
-            margin-right: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-
+        .badge { display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; color: white; margin-right: 0.25rem; }
         .badge-reg { background-color: #2c3e50; }
         .badge-active { background-color: #2ecc71; }
         .badge-inactive { background-color: #95a5a6; }
-        .badge-approved { background-color: #2ecc71; } /* Dark Blue check? User said Green */
+        .badge-approved { background-color: #2ecc71; }
         .badge-not-approved { background-color: #e74c3c; }
 
-        .client-name-cell div {
-            margin-top: 0.25rem;
-        }
+        .btn-sm { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; }
+        .btn-edit { background-color: #3498db; }
+        .btn-deactivate { background-color: #e74c3c; }
+        .btn-approve { background-color: #2c3e50; }
 
-        /* Action Buttons */
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-right: 0.25rem;
-        }
-
-        .btn-edit { background-color: #00cec9; } /* Cyan/Blue */
-        .btn-deactivate { background-color: #e74c3c; } /* Red */
-        .btn-approve { background-color: #2c3e50; } /* Dark Blue */
-
-
-        /* Forms */
-        .admin-form-light {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 900px;
-        }
-
-        .admin-form-light h2 {
-            color: #2c3e50;
-            margin-top: 0;
-        }
-
-        .admin-form-light label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .admin-form-light input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: white;
-            color: #333;
-            box-sizing: border-box;
-        }
-
-        .admin-form-light input:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-
-        button.action-btn {
-            background-color: #D6B25E;
-            color: black;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        button.action-btn:hover {
-            background-color: #c4a04e;
-        }
-
-        button.submit-client-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        button.submit-client-btn:hover {
-            background-color: #2980b9;
-        }
-
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        /* Specific Styles for Client Registration (Grid Layout) */
-        .client-form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .client-form-grid .full-width {
-            grid-column: span 2;
-        }
-
-        /* Modal Styles */
+        /* Modal */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
         }
-
         .modal-overlay.active {
-            display: flex;
+            opacity: 1;
+            pointer-events: auto;
         }
-
         .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 800px;
-            color: #333;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
+            background-color: white; padding: 2rem; border-radius: 8px;
+            width: 90%; max-width: 600px; color: #333;
+            max-height: 90vh; overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 1rem;
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
         }
-
-        .modal-header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #333;
-        }
-
-        .close-modal-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
-        }
-
-        .file-input-group {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-        }
-
-        .file-input-group input[type="file"] {
-             border: none;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn-secondary {
-            background-color: #ddd;
-            color: #333;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-primary {
-            background-color: #0056b3; /* Dark blue matching screenshot */
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Service Types List */
-        .service-types-list {
-             display: grid;
-             gap: 1rem;
-        }
-
-        .service-type-item {
-            background: white;
-            border: 1px solid #eee;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-radius: 4px;
-        }
-
-        .service-type-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .service-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            background-color: #f0f0f0;
-        }
-
-        /* Projects List */
-        .projects-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .project-card {
-            background-color: #1a1a1a;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-
-        .project-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background-color: #333;
-        }
-
-        .project-content {
-            padding: 1rem;
-        }
-
-        .project-title {
-            margin-top: 0;
-            color: #D6B25E;
-        }
-
-        .delete-btn {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 1rem;
-            float: right;
-        }
-
-        .message {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 4px;
-            display: none;
-        }
-        .success { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
-        .error { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
 
         /* Star Rating */
-        .star-rating span {
-            font-size: 1.5rem;
+        .star-rating {
+            display: inline-flex;
+            gap: 5px;
             cursor: pointer;
-            color: #ccc;
+        }
+        .star-rating span {
+            font-size: 2rem;
+            color: #ddd;
+            transition: color 0.2s, transform 0.1s;
         }
         .star-rating span.filled {
-            color: #f1c40f; /* Gold */
+            color: #f1c40f;
+        }
+        .star-rating span.hover {
+            color: #f39c12;
+        }
+        .star-rating span:hover {
+            transform: scale(1.1);
         }
 
+        /* Form & Validation */
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            display: none;
+        }
+        .input-error {
+            border-color: #e74c3c !important;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        .close-modal-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-primary { background-color: #0056b3; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-secondary { background-color: #ddd; color: #333; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        /* Responsive Sidebar */
+        @media (max-width: 768px) {
+            .sidebar { width: 0; overflow: hidden; }
+            .sidebar.active { width: 260px; }
+            .main-content { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <h2>Admin Panel</h2>
-        <button class="nav-btn active" data-view="projects">Projects</button>
-        <button class="nav-btn" data-view="clients">Registered Clients</button>
-        <button class="nav-btn" data-view="admins">Registered Admins</button>
-        <button class="nav-btn" data-view="service-types">Services Type</button>
-        <button class="nav-btn" data-view="services">All Services</button>
-        <button class="nav-btn" data-view="reviews">Customer Reviews</button>
-        <button class="nav-btn" data-view="add-client">Register Client</button>
-        <button id="logoutBtn" class="logout-btn">Logout</button>
-    </nav>
-
-    <main class="main-content">
-        <!-- Projects View -->
-        <div id="view-projects" class="view-section active">
-            <h1>Manage Projects</h1>
-
-            <div class="admin-form-dark">
-                <h3>Add New Project</h3>
-                <form id="addProjectForm">
-                    <div class="form-group">
-                        <label for="proj_title">Title</label>
-                        <input type="text" id="proj_title" name="title" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="proj_desc">Description</label>
-                        <textarea id="proj_desc" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="proj_img">Image URL</label>
-                        <input type="text" id="proj_img" name="imageUrl" placeholder="https://example.com/image.jpg">
-                    </div>
-                    <button type="submit" class="action-btn">Add Project</button>
-                </form>
-            </div>
-
-            <div id="projectsList" class="projects-list">
-                <!-- Projects Loaded Here -->
-                <p>Loading...</p>
-            </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h2>CAM <span>Admin</span></h2>
         </div>
 
-        <!-- Registered Clients View -->
-        <div id="view-clients" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>Registered Clients</h2>
-                <span class="breadcrumb">Admin / Registered Clients</span>
-            </div>
+        <ul class="sidebar-menu">
+            <!-- Dashboard -->
+            <li class="menu-item">
+                <div class="menu-link nav-btn active" data-view="dashboard">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                    <span class="menu-text">Dashboard</span>
+                </div>
+            </li>
 
-            <div class="search-container">
-                <input type="text" id="clientSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
-            </div>
+            <!-- Users -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <span class="menu-text">Users</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="admins">Registered Admins</a>
+                    <a class="submenu-link nav-btn" data-view="clients">Registered Clients</a>
+                    <a class="submenu-link nav-btn" data-view="add-client">Register Client</a>
+                </div>
+            </li>
 
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Status</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="clientsTableBody">
-                    <!-- Rows loaded via JS -->
-                    <tr><td colspan="7">Loading...</td></tr>
-                </tbody>
-            </table>
+            <!-- Services -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                    <span class="menu-text">Services</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="services">All Services</a>
+                    <a class="submenu-link nav-btn" data-view="service-types">Services Type</a>
+                </div>
+            </li>
+
+            <!-- Blogs -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>
+                    <span class="menu-text">Blogs</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="blogs">All Blogs</a>
+                </div>
+            </li>
+
+            <!-- Projects -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    <span class="menu-text">Projects</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="projects">All Projects</a>
+                    <a class="submenu-link nav-btn" data-view="project-tasks">Project Tasks List</a>
+                </div>
+            </li>
+
+            <!-- Customer Reviews -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg>
+                    <span class="menu-text">Customer Reviews</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="reviews">All Reviews</a>
+                </div>
+            </li>
+
+            <!-- Inquiries -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                    <span class="menu-text">Inquiries</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="inquiries">All Inquiries</a>
+                </div>
+            </li>
+
+            <!-- Customer Quotations -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span class="menu-text">Customer Quotations</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="quotations">All Quotations</a>
+                </div>
+            </li>
+
+            <!-- Quotation Settings -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
+                    <span class="menu-text">Quotation Settings</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="property-designs">Property Designs</a>
+                    <a class="submenu-link nav-btn" data-view="property-parts">Property Parts</a>
+                    <a class="submenu-link nav-btn" data-view="property-part-items">Property Part Items</a>
+                    <a class="submenu-link nav-btn" data-view="property-services">Property Services</a>
+                    <a class="submenu-link nav-btn" data-view="property-service-items">Property Service Items</a>
+                </div>
+            </li>
+
+            <!-- Settings -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    <span class="menu-text">Settings</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="settings-permissions">Permission Settings</a>
+                    <a class="submenu-link nav-btn" data-view="settings-analytics">Analytics Settings</a>
+                    <a class="submenu-link nav-btn" data-view="settings-site">Site Settings</a>
+                    <a class="submenu-link nav-btn" data-view="settings-email">Email Settings</a>
+                </div>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button id="logoutBtn" class="logout-btn">
+                <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+                <span class="logout-text">Logout</span>
+            </button>
         </div>
+    </aside>
 
-        <!-- Registered Admins View -->
-        <div id="view-admins" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>Registered Admins</h2>
-                <span class="breadcrumb">Admin / Registered Admins</span>
+    <div class="main-wrapper">
+        <header class="top-header">
+            <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
+                <button id="sidebarToggle" class="header-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+                <h3 style="margin:0; font-size: 1.25rem;">Dashboard</h3>
             </div>
 
-            <div class="search-container">
-                <input type="text" id="adminSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+            <div class="header-right">
+                <a href="/" target="_blank" class="header-btn" title="Visit Site" style="text-decoration:none;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                </a>
+                <button class="header-btn" title="Notifications">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+                </button>
+                <button class="header-btn" title="Apps">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+                </button>
+                <div class="user-profile" id="userProfileDropdown">
+                    <div class="user-avatar" id="headerAvatar">A</div>
+                    <span id="headerAdminName" style="font-size: 0.9rem; font-weight: 500;">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- All Inquiries View -->
+            <div id="view-inquiries" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Inquiries</h2>
+                    <span class="breadcrumb">Admin / All Inquiries</span>
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Subject</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inquiriesTableBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Status</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="adminsTableBody">
-                    <!-- Rows loaded via JS -->
-                    <tr><td colspan="7">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
+            <!-- Customer Quotations View -->
+            <div id="view-quotations" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Customer Quotations</h2>
+                    <span class="breadcrumb">Admin / Customer Quotations</span>
+                </div>
 
-        <!-- Service Types View -->
-        <div id="view-service-types" class="view-section light-view-container">
-             <div class="page-header">
-                <h2>Services Type</h2>
-                <button id="openServiceTypeModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ Add New Service Type</button>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Reference ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotationsTableBody">
+                        <tr><td colspan="9">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div id="serviceTypesList" class="service-types-list">
-                <!-- Loaded via JS -->
-                <p>Loading service types...</p>
-            </div>
-        </div>
+            <!-- Dashboard Overview -->
+            <div id="view-dashboard" class="view-section active light-view-container">
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                    <span class="breadcrumb">Home / Dashboard</span>
+                </div>
 
-        <!-- All Services View -->
-        <div id="view-services" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>All Services</h2>
-                <span class="breadcrumb">Admin / All Services</span>
-            </div>
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="margin: 0; color: #2c3e50; font-size: 1.5rem;">Welcome back, <span id="adminNameDisplay">Admin</span></h3>
+                    <p style="color: #666; margin-top: 0.5rem;">Get a quick overview of your company's current status below, or click into one of the sections for a more detailed breakdown.</p>
+                </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <button id="openServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add New Service</button>
-                <input type="text" id="serviceSearch" class="search-input" placeholder="Search Services" style="width: 300px;">
-            </div>
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <!-- Registered Users Card -->
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                        <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Registered Users</div>
+                        <div id="count-registered-users" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                    </div>
 
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Image</th>
-                        <th>Service Type</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="servicesTableBody">
-                    <!-- Rows loaded via JS -->
-                    <tr><td colspan="5">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
+                    <!-- Total Posts Card -->
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                        <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Total Posts</div>
+                        <div id="count-total-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                    </div>
 
-        <!-- Customer Reviews View -->
-        <div id="view-reviews" class="view-section light-view-container">
-            <div class="page-header">
-                <h2>All Customer Reviews</h2>
-                <span class="breadcrumb">Admin / All Customer Reviews</span>
+                    <!-- Not Approved Posts Card -->
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 250px; border: 1px solid #eee;">
+                        <div style="font-size: 0.8rem; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">Not Approved Posts</div>
+                        <div id="count-not-approved-posts" style="font-size: 3rem; font-weight: bold; color: #000;">-</div>
+                    </div>
+                </div>
             </div>
 
-            <div style="margin-bottom: 2rem;">
-                <button id="openReviewModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add Review</button>
+            <!-- Blogs View -->
+            <div id="view-blogs" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Blogs</h2>
+                    <span class="breadcrumb">Admin / All Blogs</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="addBlogNavBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Blog</button>
+                    <input type="text" id="blogSearch" class="search-input" placeholder="Blog Title" style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Blog Title</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogsTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
-            <table class="clients-table">
-                <thead>
-                    <tr>
-                        <th>Client Name</th>
-                        <th>Review</th>
-                        <th>Rating</th>
-                        <th>Review Source</th>
-                        <th>Is_Approved</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="reviewsTableBody">
-                    <tr><td colspan="7">Loading...</td></tr>
-                </tbody>
-            </table>
-        </div>
+            <!-- Add Blog View -->
+            <div id="view-add-blog" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>New Blog</h2>
+                    <span class="breadcrumb">Admin / New Blog</span>
+                </div>
 
-        <!-- Add Client View -->
-        <div id="view-add-client" class="view-section light-view-container">
-            <h1 style="color: #2c3e50; border-bottom-color: #ccc;" id="clientFormTitle">Register New Client</h1>
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="addBlogForm" enctype="multipart/form-data">
+                        <div class="client-form-grid">
+                            <div class="form-group">
+                                <label for="new_blog_type">Blog Type</label>
+                                <select id="new_blog_type" name="type" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="News Content">News Content</option>
+                                    <option value="Article">Article</option>
+                                    <option value="Tutorial">Tutorial</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_title">Blog Title *</label>
+                                <input type="text" id="new_blog_title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_banner">Banner</label>
+                                <input type="file" id="new_blog_banner" name="banner" accept="image/*">
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_featured">Featured Image *</label>
+                                <input type="file" id="new_blog_featured" name="featuredImage" accept="image/*" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="new_blog_gallery">Gallery Images *</label>
+                                <input type="file" id="new_blog_gallery" name="galleryImages" accept="image/*" multiple required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="new_blog_content">Content</label>
+                                <div id="editor" style="color: black;"></div>
+                                <input type="hidden" name="content" id="new_blog_content_hidden">
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_status">Published Status</label>
+                                <select id="new_blog_status" name="publishedStatus" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Published">Published</option>
+                                    <option value="Unpublished">Unpublished</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_is_featured">Featured Blog</label>
+                                <select id="new_blog_is_featured" name="featuredBlog" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                        </div>
 
-            <div class="admin-form-light">
-                <form id="registerClientForm" class="client-form-grid">
-                    <div class="form-group">
-                        <label for="first_name">First Name *</label>
-                        <input type="text" id="first_name" name="first_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="last_name">Last Name *</label>
-                        <input type="text" id="last_name" name="last_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_number">Contact Number</label>
-                        <input type="tel" id="contact_number" name="contact_number">
-                    </div>
-                    <div class="form-group">
-                        <label for="postal_code">Postal Code</label>
-                        <input type="text" id="postal_code" name="postal_code">
-                    </div>
-                    <div class="form-group">
-                        <label for="site_address">Site Address</label>
-                        <input type="text" id="site_address" name="site_address">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="correspondence_address">Correspondence Address</label>
-                        <input type="text" id="correspondence_address" name="correspondence_address">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password * (min 8 chars)</label>
-                        <input type="password" id="password" name="password" minlength="8" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm Password *</label>
-                        <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
-                    </div>
-
-                    <div class="full-width">
-                        <div id="clientMsg" class="message"></div>
-                        <button type="submit" id="submitClientBtn" class="submit-client-btn">Create Client Account</button>
-                    </div>
-                </form>
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Create Blog</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-    </main>
+
+            <!-- Property Designs View -->
+            <div id="view-property-designs" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Design</h2>
+                    <span class="breadcrumb">Admin / Property Design</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyDesignModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Design</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Design Name</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyDesignsTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Parts View -->
+            <div id="view-property-parts" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Parts</h2>
+                    <span class="breadcrumb">Admin / Property Parts</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyPartModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Part</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Part Name</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyPartsTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Part Items View -->
+            <div id="view-property-part-items" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Part Items</h2>
+                    <span class="breadcrumb">Admin / Property Part Items</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyPartItemModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Part Item</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Property Part</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyPartItemsTableBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Services View -->
+            <div id="view-property-services" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Services</h2>
+                    <span class="breadcrumb">Admin / Property Services</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Service</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyServicesTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Property Service Items View -->
+            <div id="view-property-service-items" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Property Service Items</h2>
+                    <span class="breadcrumb">Admin / Property Service Items</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openPropertyServiceItemModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ New Property Service Item</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Property Service</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="propertyServiceItemsTableBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add New Project View -->
+            <div id="view-add-project" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>New Project</h2>
+                    <span class="breadcrumb">Admin / New Project</span>
+                </div>
+
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="addProjectForm" enctype="multipart/form-data">
+                        <div class="client-form-grid">
+                            <div class="form-group">
+                                <label for="np_client">Select Client *</label>
+                                <select id="np_client" name="client_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_title">Title *</label>
+                                <input type="text" id="np_title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_slug">Slug</label>
+                                <input type="text" id="np_slug" name="slug">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_location">Location</label>
+                                <input type="text" id="np_location" name="location">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_budget">Budget</label>
+                                <input type="text" id="np_budget" name="budget">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="np_description">Description</label>
+                                <div id="projectEditor" style="color: black;"></div>
+                                <input type="hidden" name="description" id="np_description_hidden">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_service">Service</label>
+                                <select id="np_service" name="service_id" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_project_status">Project Status</label>
+                                <select id="np_project_status" name="project_status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Quotation">Quotation</option>
+                                    <option value="Booking">Booking</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_start_date">Project Start Date</label>
+                                <input type="date" id="np_start_date" name="start_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_end_date">Estimated End Date</label>
+                                <input type="date" id="np_end_date" name="end_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="np_status">Status</label>
+                                <select id="np_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_featured">Featured</label>
+                                <select id="np_featured" name="is_featured" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_drawing">Drawing *</label>
+                                <input type="file" id="np_drawing" name="drawing" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="np_project_file">Project *</label>
+                                <input type="file" id="np_project_file" name="project" required>
+                            </div>
+                        </div>
+
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Create Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Project Tasks View -->
+            <div id="view-project-tasks" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Project Tasks List</h2>
+                    <span class="breadcrumb">Admin / Project Tasks List</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openProjectTaskModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; New Task</button>
+                    <input type="text" id="projectTaskSearch" class="search-input" placeholder="Search Task" style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectTasksTableBody">
+                        <tr><td colspan="3">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Projects View -->
+            <div id="view-projects" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Projects</h2>
+                    <span class="breadcrumb">Admin / All Projects</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openProjectModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Project</button>
+                    <input type="text" id="projectSearch" class="search-input" placeholder="Search Projects" style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Location</th>
+                            <th>Budget</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Registered Clients View -->
+            <div id="view-clients" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Registered Clients</h2>
+                    <span class="breadcrumb">Admin / Registered Clients</span>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="clientSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="7">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Registered Admins View -->
+            <div id="view-admins" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Registered Admins</h2>
+                    <span class="breadcrumb">Admin / Registered Admins</span>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="adminSearch" class="search-input" placeholder="First Name / Last Name / Email / Phone">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminsTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="7">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Service Types View -->
+            <div id="view-service-types" class="view-section light-view-container">
+                 <div class="page-header">
+                    <h2>Services Type</h2>
+                    <button id="openServiceTypeModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ Add New Service Type</button>
+                </div>
+
+                <div id="serviceTypesList" class="service-types-list">
+                    <!-- Loaded via JS -->
+                    <p>Loading service types...</p>
+                </div>
+            </div>
+
+            <!-- All Services View -->
+            <div id="view-services" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Services</h2>
+                    <span class="breadcrumb">Admin / All Services</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openServiceModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add New Service</button>
+                    <input type="text" id="serviceSearch" class="search-input" placeholder="Search Services" style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Image</th>
+                            <th>Service Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Customer Reviews View -->
+            <div id="view-reviews" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>All Customer Reviews</h2>
+                    <span class="breadcrumb">Admin / All Customer Reviews</span>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <button id="openReviewModalBtn" class="btn-primary" style="font-size: 0.9rem;">&plus; Add Review</button>
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Review</th>
+                            <th>Rating</th>
+                            <th>Review Source</th>
+                            <th>Is_Approved</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewsTableBody">
+                        <tr><td colspan="7">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Client View -->
+            <div id="view-add-client" class="view-section light-view-container">
+                <h1 style="color: #2c3e50; border-bottom-color: #ccc;" id="clientFormTitle">Register New Client</h1>
+
+                <div class="admin-form-light">
+                    <form id="registerClientForm" class="client-form-grid">
+                        <div class="form-group">
+                            <label for="first_name">First Name *</label>
+                            <input type="text" id="first_name" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name *</label>
+                            <input type="text" id="last_name" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact_number">Contact Number</label>
+                            <input type="tel" id="contact_number" name="contact_number">
+                        </div>
+                        <div class="form-group">
+                            <label for="postal_code">Postal Code</label>
+                            <input type="text" id="postal_code" name="postal_code">
+                        </div>
+                        <div class="form-group">
+                            <label for="site_address">Site Address</label>
+                            <input type="text" id="site_address" name="site_address">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="correspondence_address">Correspondence Address</label>
+                            <input type="text" id="correspondence_address" name="correspondence_address">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password * (min 8 chars)</label>
+                            <input type="password" id="password" name="password" minlength="8" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password *</label>
+                            <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
+                        </div>
+
+                        <div class="full-width">
+                            <div id="clientMsg" class="message"></div>
+                            <button type="submit" id="submitClientBtn" class="submit-client-btn">Create Client Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Permission Settings View (Roles) -->
+            <div id="view-settings-permissions" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Permission Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Permissions</span>
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <button id="openRoleModalBtn" class="btn-primary" style="font-size: 0.9rem;">+ Add New Role</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Permissions</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rolesTableBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Analytics Settings View -->
+            <div id="view-settings-analytics" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Analytics Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Analytics</span>
+                </div>
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="analyticsSettingsForm">
+                        <div class="form-group full-width">
+                            <label>Google Analytics ID</label>
+                            <input type="text" name="google_analytics_id" placeholder="UA-XXXXX-Y or G-XXXXXXX">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Facebook Pixel ID</label>
+                            <input type="text" name="facebook_pixel_id">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Custom Header Scripts</label>
+                            <textarea name="custom_header_scripts" rows="5" placeholder="<script>...</script>"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Custom Footer Scripts</label>
+                            <textarea name="custom_footer_scripts" rows="5" placeholder="<script>...</script>"></textarea>
+                        </div>
+                        <div class="full-width">
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Site Settings View -->
+            <div id="view-settings-site" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Site Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Site</span>
+                </div>
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="siteSettingsForm" class="client-form-grid">
+                        <div class="form-group">
+                            <label>Site Title</label>
+                            <input type="text" name="site_title">
+                        </div>
+                        <div class="form-group">
+                            <label>Site Tagline</label>
+                            <input type="text" name="site_tagline">
+                        </div>
+                        <div class="form-group">
+                            <label>Site Email</label>
+                            <input type="email" name="site_email">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Phone</label>
+                            <input type="text" name="contact_phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Maintenance Mode</label>
+                            <select name="maintenance_mode" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="false">Off</option>
+                                <option value="true">On</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Address</label>
+                            <textarea name="address" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Logo URL</label>
+                            <input type="text" name="logo_url">
+                        </div>
+                        <div class="form-group">
+                            <label>Favicon URL</label>
+                            <input type="text" name="favicon_url">
+                        </div>
+
+                        <!-- Social Links -->
+                        <div class="form-group full-width">
+                            <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: #555;">Social Links</h3>
+                        </div>
+                        <div class="form-group">
+                            <label>Facebook URL</label>
+                            <input type="text" name="social_facebook">
+                        </div>
+                        <div class="form-group">
+                            <label>Twitter/X URL</label>
+                            <input type="text" name="social_twitter">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram URL</label>
+                            <input type="text" name="social_instagram">
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn URL</label>
+                            <input type="text" name="social_linkedin">
+                        </div>
+                        <div class="form-group">
+                            <label>YouTube URL</label>
+                            <input type="text" name="social_youtube">
+                        </div>
+
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Email Settings View -->
+            <div id="view-settings-email" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Email Settings</h2>
+                    <span class="breadcrumb">Admin / Settings / Email</span>
+                </div>
+                <div class="admin-form-light" style="max-width: 800px;">
+                    <form id="emailSettingsForm" class="client-form-grid">
+                        <div class="form-group">
+                            <label>Mail Driver</label>
+                            <input type="text" name="mail_driver" value="smtp">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Host</label>
+                            <input type="text" name="mail_host">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Port</label>
+                            <input type="text" name="mail_port">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Username</label>
+                            <input type="text" name="mail_username">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Password</label>
+                            <input type="password" name="mail_password">
+                        </div>
+                        <div class="form-group">
+                            <label>Mail Encryption</label>
+                            <select name="mail_encryption" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="tls">TLS</option>
+                                <option value="ssl">SSL</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>From Address</label>
+                            <input type="email" name="from_address">
+                        </div>
+                        <div class="form-group">
+                            <label>From Name</label>
+                            <input type="text" name="from_name">
+                        </div>
+                        <div class="full-width" style="margin-top: 1rem;">
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <!-- New Service Type Modal -->
     <div id="serviceTypeModal" class="modal-overlay">
@@ -765,6 +1429,337 @@
         </div>
     </div>
 
+    <!-- Project Task Modal -->
+    <div id="projectTaskModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Task</h2>
+                <button class="close-modal-btn" id="closeProjectTaskModal">&times;</button>
+            </div>
+
+            <form id="projectTaskForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label for="pt_name">Task Name *</label>
+                        <input type="text" id="pt_name" name="task_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pt_status">Status</label>
+                        <select id="pt_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelProjectTaskBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="projectModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Project</h2>
+                <button class="close-modal-btn" id="closeProjectModal">&times;</button>
+            </div>
+
+            <form id="projectForm">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="proj_title_input">Title *</label>
+                        <input type="text" id="proj_title_input" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_loc">Location</label>
+                        <input type="text" id="proj_loc" name="location">
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_budget">Budget</label>
+                        <input type="text" id="proj_budget" name="budget">
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_status">Status</label>
+                        <select id="proj_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="proj_desc_input">Description</label>
+                        <textarea id="proj_desc_input" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_image">Image</label>
+                        <div class="file-input-group">
+                            <input type="file" id="proj_image" name="image" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelProjectBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Design Modal -->
+    <div id="propertyDesignModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Design</h2>
+                <button class="close-modal-btn" id="closePropertyDesignModal">&times;</button>
+            </div>
+            <form id="propertyDesignForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyDesignBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Part Modal -->
+    <div id="propertyPartModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Part</h2>
+                <button class="close-modal-btn" id="closePropertyPartModal">&times;</button>
+            </div>
+            <form id="propertyPartForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Part Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyPartBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Part Item Modal -->
+    <div id="propertyPartItemModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Part Item</h2>
+                <button class="close-modal-btn" id="closePropertyPartItemModal">&times;</button>
+            </div>
+            <form id="propertyPartItemForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Item Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Property Part *</label>
+                        <select name="part_id" id="ppi_part_id" required>
+                            <option value="">Select Part</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyPartItemBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Service Modal -->
+    <div id="propertyServiceModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Service</h2>
+                <button class="close-modal-btn" id="closePropertyServiceModal">&times;</button>
+            </div>
+            <form id="propertyServiceForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Service Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyServiceBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Service Item Modal -->
+    <div id="propertyServiceItemModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property Service Item</h2>
+                <button class="close-modal-btn" id="closePropertyServiceItemModal">&times;</button>
+            </div>
+            <form id="propertyServiceItemForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Item Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Property Service *</label>
+                        <select name="service_id" id="psi_service_id" required>
+                            <option value="">Select Service</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPropertyServiceItemBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Progress Modal -->
+    <div id="projectProgressModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Update Progress</h2>
+                <button class="close-modal-btn" id="closeProgressModal">&times;</button>
+            </div>
+
+            <form id="progressForm">
+                <div class="form-group">
+                    <label for="prog_status">Progress Status / Value</label>
+                    <input type="text" id="prog_status" name="progress_status" placeholder="e.g. 50% or In Progress" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelProgressBtn">Close</button>
+                    <button type="submit" class="btn-primary">Update Progress</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Message Modal -->
+    <div id="messageModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Inquiry Details</h2>
+                <button class="close-modal-btn" id="closeMessageModal">&times;</button>
+            </div>
+
+            <div id="messageDetails" style="color: #333;">
+                <p><strong>Client Name:</strong> <span id="msgName"></span></p>
+                <p><strong>Email:</strong> <span id="msgEmail"></span></p>
+                <p><strong>Phone:</strong> <span id="msgPhone"></span></p>
+                <p><strong>Subject:</strong> <span id="msgSubject"></span></p>
+                <p><strong>Received On:</strong> <span id="msgDate"></span></p>
+                <div style="margin-top: 1rem;">
+                    <strong>Message:</strong>
+                    <div id="msgBody" style="background: #f9f9f9; padding: 1rem; border-radius: 4px; border: 1px solid #eee; margin-top: 0.5rem; white-space: pre-wrap;"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="closeMessageBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotation Preview Modal -->
+    <div id="quoteModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Quotation Details</h2>
+                <button class="close-modal-btn" id="closeQuoteModal">&times;</button>
+            </div>
+
+            <div id="quoteDetails" style="color: #333;">
+                <p><strong>Ref ID:</strong> <span id="qRef"></span></p>
+                <p><strong>Name:</strong> <span id="qName"></span></p>
+                <p><strong>Email:</strong> <span id="qEmail"></span></p>
+                <p><strong>Contact:</strong> <span id="qPhone"></span></p>
+                <p><strong>Type:</strong> <span id="qType"></span></p>
+                <p><strong>Date/Time:</strong> <span id="qDateTime"></span></p>
+                <div style="margin-top: 1rem;">
+                    <strong>Details:</strong>
+                    <div id="qBody" style="background: #f9f9f9; padding: 1rem; border-radius: 4px; border: 1px solid #eee; margin-top: 0.5rem; white-space: pre-wrap;"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="closeQuoteBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- New Service Modal -->
     <div id="serviceModal" class="modal-overlay">
         <div class="modal-content">
@@ -812,6 +1807,45 @@
         </div>
     </div>
 
+    <!-- Blog Modal -->
+    <div id="blogModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Blog</h2>
+                <button class="close-modal-btn" id="closeBlogModal">&times;</button>
+            </div>
+
+            <form id="blogForm">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="blog_title">Blog Title *</label>
+                        <input type="text" id="blog_title" name="document_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="blog_category">Category</label>
+                        <input type="text" id="blog_category" name="type" value="General">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="blog_excerpt">Excerpt</label>
+                        <textarea id="blog_excerpt" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="blog_status">Status</label>
+                        <select id="blog_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelBlogBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Add Review Modal -->
     <div id="reviewModal" class="modal-overlay">
         <div class="modal-content">
@@ -820,42 +1854,84 @@
                 <button class="close-modal-btn" id="closeReviewModal">&times;</button>
             </div>
 
-            <form id="reviewForm">
+            <form id="reviewForm" novalidate>
                 <div class="form-group">
                     <label for="rev_name">Name</label>
-                    <input type="text" id="rev_name" name="client_name" required>
+                    <input type="text" id="rev_name" name="client_name" placeholder="Name" required>
+                    <div class="error-msg" id="rev_name_error">Name is required</div>
                 </div>
                 <div class="form-group">
                     <label for="rev_desc">Description</label>
-                    <textarea id="rev_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    <textarea id="rev_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Review Source</label>
-                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; color: #333;">
-                        <label><input type="radio" name="source" value="Google" checked> Google</label>
-                        <label><input type="radio" name="source" value="Trustpilot"> Trustpilot</label>
+                    <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; color: #333; align-items: center;">
+                        <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <input type="radio" name="source" value="Google" checked> Google
+                        </label>
+                        <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <input type="radio" name="source" value="Trustpilot"> Trustpilot
+                        </label>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Rating</label>
                     <div class="star-rating" id="starRating">
-                        <span data-val="1">&#9734;</span>
-                        <span data-val="2">&#9734;</span>
-                        <span data-val="3">&#9734;</span>
-                        <span data-val="4">&#9734;</span>
-                        <span data-val="5">&#9734;</span>
+                        <span data-val="1">&#9733;</span>
+                        <span data-val="2">&#9733;</span>
+                        <span data-val="3">&#9733;</span>
+                        <span data-val="4">&#9733;</span>
+                        <span data-val="5">&#9733;</span>
                     </div>
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 4px;">Selected: <span id="ratingValueDisplay">5</span>/5</div>
                     <input type="hidden" id="rev_rating" name="rating" value="5">
+                    <div class="error-msg" id="rev_rating_error">Please select a rating</div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelReviewBtn">Close</button>
-                    <button type="submit" class="btn-primary">Add Review</button>
+                    <button type="submit" class="btn-primary" id="submitReviewBtn">Add Review</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Role Modal -->
+    <div id="roleModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Role Details</h2>
+                <button class="close-modal-btn" id="closeRoleModal">&times;</button>
+            </div>
+            <form id="roleForm">
+                <div class="client-form-grid">
+                    <div class="form-group full-width">
+                        <label>Role Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <!-- Simplified permissions input for now, could be checkboxes -->
+                    <div class="form-group full-width">
+                        <label>Permissions (comma separated, e.g., read,write)</label>
+                        <input type="text" name="permissions" placeholder="e.g. read_projects, write_blogs">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelRoleBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>

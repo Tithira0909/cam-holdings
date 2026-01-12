@@ -686,7 +686,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gsap.to(targets, {
         autoAlpha: 0,
         y: 10,
-        filter: "blur(6px)",
+        filter: "blur(2px)",
         duration: 0.18,
         ease: "power2.out",
         onComplete: () => {
@@ -701,7 +701,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           gsap.fromTo(
             targets,
-            { autoAlpha: 0, y: 12, filter: "blur(6px)" },
+            { autoAlpha: 0, y: 12, filter: "blur(2px)" },
             { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.36, ease: "power3.out", stagger: 0.03 }
           );
         },
@@ -858,7 +858,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const desktop = isBigDesktop();
     const makeEndPx = (vh) => Math.max(260, vhToPx(vh));
 
-    function scrubReveal(tl, els, { fromY = 18, fromBlur = 10, stagger = 0.08, at = 0.08 } = {}) {
+    function scrubReveal(tl, els, { fromY = 18, fromBlur = 4, stagger = 0.08, at = 0.08 } = {}) {
       const arr = gsap.utils.toArray(els).filter(Boolean);
       if (!arr.length) return;
       gsap.set(arr, { autoAlpha: 0, y: fromY, filter: `blur(${fromBlur}px)` });
@@ -1126,7 +1126,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const targets = [brand, ...cols, bottom].filter(Boolean);
     if (!targets.length) return;
 
-    gsap.set(targets, { autoAlpha: 0, y: 22, filter: "blur(10px)" });
+    gsap.set(targets, { autoAlpha: 0, y: 22, filter: "blur(4px)" });
 
     gsap.to(targets, {
       autoAlpha: 1,
@@ -1197,7 +1197,7 @@ function initProjectsAnimations() {
   gsap.from(".projects-hero .kicker, .projects-hero .projects-title, .projects-hero .projects-lead, .projects-hero .projects-hero-actions", {
     opacity: 0,
     y: 18,
-    filter: "blur(10px)",
+    filter: "blur(4px)",
     duration: 0.85,
     ease: "power3.out",
     stagger: 0.08,
@@ -1210,7 +1210,7 @@ function initProjectsAnimations() {
     gsap.from(strip.children, {
       opacity: 0,
       y: 14,
-      filter: "blur(8px)",
+      filter: "blur(3px)",
       duration: 0.75,
       ease: "power3.out",
       stagger: 0.10,
@@ -1228,7 +1228,7 @@ function initProjectsAnimations() {
     gsap.from(items, {
       opacity: 0,
       y: 22,
-      filter: "blur(10px)",
+      filter: "blur(4px)",
       duration: 0.8,
       ease: "power3.out",
       stagger: 0.08,
@@ -1247,7 +1247,7 @@ function initProjectsAnimations() {
     gsap.from(blocks, {
       opacity: 0,
       y: 20,
-      filter: "blur(10px)",
+      filter: "blur(4px)",
       duration: 0.8,
       ease: "power3.out",
       stagger: 0.10,
@@ -1343,7 +1343,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.from(".projects-hero [data-reveal='up']", {
       opacity: 0,
       y: 18,
-      filter: "blur(10px)",
+      filter: "blur(4px)",
       duration: 0.85,
       ease: "power3.out",
       stagger: 0.08,
@@ -1354,7 +1354,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.from(".projects-chips .pchip", {
       opacity: 0,
       y: 10,
-      filter: "blur(8px)",
+      filter: "blur(3px)",
       duration: 0.65,
       ease: "power3.out",
       stagger: 0.08,
@@ -1367,7 +1367,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gsap.from(strip.children, {
         opacity: 0,
         y: 14,
-        filter: "blur(8px)",
+        filter: "blur(3px)",
         duration: 0.75,
         ease: "power3.out",
         stagger: 0.10,
@@ -1381,7 +1381,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gsap.from(items, {
         opacity: 0,
         y: 22,
-        filter: "blur(10px)",
+        filter: "blur(4px)",
         duration: 0.8,
         ease: "power3.out",
         stagger: 0.08,
@@ -1396,7 +1396,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gsap.from(blocks, {
         opacity: 0,
         y: 20,
-        filter: "blur(10px)",
+        filter: "blur(4px)",
         duration: 0.8,
         ease: "power3.out",
         stagger: 0.10,

@@ -17,7 +17,12 @@ router.get('/', authenticateToken, async (req, res) => {
 // POST new review
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { client_name, description, rating, source } = req.body;
+        let { client_name, name, description, rating, source } = req.body;
+
+        // Accept 'name' as alias for client_name
+        if (!client_name && name) {
+            client_name = name;
+        }
 
         if (!client_name || !rating) {
             return res.status(400).json({ message: 'Name and Rating are required' });

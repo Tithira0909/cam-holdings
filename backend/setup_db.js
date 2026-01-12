@@ -63,13 +63,45 @@ async function setupDatabase() {
       CREATE TABLE IF NOT EXISTS projects (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
+        location VARCHAR(255),
+        budget VARCHAR(255),
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        progress_status VARCHAR(255) DEFAULT 'Not Started',
         description TEXT,
         image_url VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('Projects table created or already exists.');
+
+    // Migration for Projects Table
+    const projectMigrationQueries = [
+        "ALTER TABLE projects ADD COLUMN location VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN budget VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN status ENUM('Active', 'Inactive') DEFAULT 'Active'",
+        "ALTER TABLE projects ADD COLUMN progress_status VARCHAR(255) DEFAULT 'Not Started'",
+        "ALTER TABLE projects ADD COLUMN client_id INT",
+        "ALTER TABLE projects ADD COLUMN slug VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN description_html TEXT",
+        "ALTER TABLE projects ADD COLUMN service_id INT",
+        "ALTER TABLE projects ADD COLUMN project_status VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN start_date DATE",
+        "ALTER TABLE projects ADD COLUMN end_date DATE",
+        "ALTER TABLE projects ADD COLUMN is_featured BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE projects ADD COLUMN drawing_url VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)"
+    ];
+
+    for (const query of projectMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060) { // 1060: Duplicate column
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
+    console.log('Projects table created or updated.');
 
     // Create Clients Table
     await db.query(`
@@ -160,6 +192,202 @@ async function setupDatabase() {
     `);
     console.log('Reviews table created or already exists.');
 
+    // Create Inquiries Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS inquiries (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(20),
+        subject VARCHAR(255),
+        message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Inquiries table created or already exists.');
+
+    // Create Quotations Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS quotations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        reference_id VARCHAR(50) UNIQUE NOT NULL,
+        first_name VARCHAR(255) NOT NULL,
+        last_name VARCHAR(255),
+        email VARCHAR(255) NOT NULL,
+        contact VARCHAR(20),
+        type ENUM('Quotation', 'Booking') DEFAULT 'Quotation',
+        date DATE,
+        time TIME,
+        details_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Quotations table created or already exists.');
+
+    // Create Document Types Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS document_types (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        document_name VARCHAR(255) NOT NULL,
+        description TEXT,
+        type VARCHAR(255) DEFAULT 'Project Document',
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Document Types table created or already exists.');
+
+    // Create Project Tasks Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS project_tasks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        task_name VARCHAR(255) NOT NULL,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Project Tasks table created or already exists.');
+
+    // Create Blogs Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS blogs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type VARCHAR(255) DEFAULT 'News Content',
+        title VARCHAR(255) NOT NULL,
+        banner_url VARCHAR(255),
+        featured_image_url VARCHAR(255),
+        gallery_json TEXT,
+        content_html TEXT,
+        published_status ENUM('Published', 'Unpublished') DEFAULT 'Unpublished',
+        is_featured BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Blogs table created or already exists.');
+
+    // Quotation Settings Tables
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_designs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_parts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_part_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        part_id INT,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (part_id) REFERENCES property_parts(id) ON DELETE SET NULL
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_services (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS property_service_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        service_id INT,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (service_id) REFERENCES property_services(id) ON DELETE SET NULL
+      )
+    `);
+    console.log('Quotation Settings tables created or already exists.');
+
+    // --- New Settings Tables ---
+
+    // Roles (Permission Settings)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS roles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        permissions TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Roles table created or already exists.');
+
+    // Analytics Settings
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS analytics_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        google_analytics_id VARCHAR(255),
+        facebook_pixel_id VARCHAR(255),
+        custom_header_scripts TEXT,
+        custom_footer_scripts TEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Analytics Settings table created or already exists.');
+
+    // Site Settings
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS site_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        site_title VARCHAR(255),
+        site_tagline VARCHAR(255),
+        site_email VARCHAR(255),
+        contact_phone VARCHAR(255),
+        address TEXT,
+        logo_url VARCHAR(255),
+        favicon_url VARCHAR(255),
+        maintenance_mode BOOLEAN DEFAULT FALSE,
+        social_facebook VARCHAR(255),
+        social_twitter VARCHAR(255),
+        social_instagram VARCHAR(255),
+        social_linkedin VARCHAR(255),
+        social_youtube VARCHAR(255),
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Site Settings table created or already exists.');
+
+    // Email Settings
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS email_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        mail_driver VARCHAR(50) DEFAULT 'smtp',
+        mail_host VARCHAR(255),
+        mail_port VARCHAR(50),
+        mail_username VARCHAR(255),
+        mail_password VARCHAR(255),
+        mail_encryption VARCHAR(50) DEFAULT 'tls',
+        from_address VARCHAR(255),
+        from_name VARCHAR(255),
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Email Settings table created or already exists.');
+
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {
@@ -169,8 +397,6 @@ async function setupDatabase() {
         ['admin', hashedPassword, 'ADMIN', 'admin@example.com', 'Super', 'Admin', true]);
       console.log('Default admin user created: admin / password123');
     } else {
-        // Update default admin to have email if missing (Optional fix)
-        // await db.query("UPDATE users SET email='admin@example.com', first_name='Super', last_name='Admin' WHERE username='admin' AND email IS NULL");
         console.log('Admin user already exists.');
     }
 
