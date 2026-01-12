@@ -160,6 +160,65 @@ async function setupDatabase() {
     `);
     console.log('Reviews table created or already exists.');
 
+    // Create Analytics Settings Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS analytics_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        google_analytics_id VARCHAR(255),
+        facebook_pixel_id VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    const [analyticsRows] = await db.query('SELECT * FROM analytics_settings LIMIT 1');
+    if (analyticsRows.length === 0) {
+        await db.query('INSERT INTO analytics_settings (google_analytics_id) VALUES (NULL)');
+    }
+    console.log('Analytics settings table created or already exists.');
+
+    // Create Site Settings Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS site_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        site_title VARCHAR(255) DEFAULT 'CAM Dashboard',
+        site_tagline VARCHAR(255),
+        contact_email VARCHAR(255),
+        contact_phone VARCHAR(50),
+        address TEXT,
+        logo_url VARCHAR(255),
+        facebook_url VARCHAR(255),
+        twitter_url VARCHAR(255),
+        instagram_url VARCHAR(255),
+        linkedin_url VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    const [siteRows] = await db.query('SELECT * FROM site_settings LIMIT 1');
+    if (siteRows.length === 0) {
+        await db.query("INSERT INTO site_settings (site_title) VALUES ('CAM Dashboard')");
+    }
+    console.log('Site settings table created or already exists.');
+
+    // Create Email Settings Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS email_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        smtp_host VARCHAR(255),
+        smtp_port INT DEFAULT 587,
+        smtp_user VARCHAR(255),
+        smtp_password VARCHAR(255),
+        from_email VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    const [emailRows] = await db.query('SELECT * FROM email_settings LIMIT 1');
+    if (emailRows.length === 0) {
+        await db.query('INSERT INTO email_settings (smtp_port) VALUES (587)');
+    }
+    console.log('Email settings table created or already exists.');
+
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (rows.length === 0) {
