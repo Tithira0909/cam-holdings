@@ -44,7 +44,7 @@
   --radius:18px;
 
   /* nav */
-  --navH: 76px;
+  --navH: 122px;
 
   /* global container system (single truth) */
   --pageMax: 1240px;
@@ -234,8 +234,12 @@ em{ font-style:normal; color:var(--gold2); }
   flex: 0 0 auto;
 }
 .brand-mark{
-  width:2.1rem; height:2.1rem; object-fit:contain;
+  width:auto; height:90px; object-fit:contain;
   filter: drop-shadow(0 6px 18px rgba(214,178,94,0.22));
+}
+@media (max-width: 860px) {
+  .brand-mark { height: 56px; }
+  :root { --navH: 88px; }
 }
 .brand-text{
   font-family:"Josefin Sans","Warband Stencil","Batchan",sans-serif;
@@ -2331,7 +2335,6 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   --gold2:#f3de9b;
   --shadow:0 18px 60px rgba(0,0,0,0.55);
   --radius:18px;
-  --navH:76px;
   --pageMax:1240px;
   --pagePad: clamp(18px, 3vw, 36px);
 }
@@ -5073,4 +5076,12 @@ select:-webkit-autofill:focus {
 ::selection {
   background: rgba(214, 178, 94, 0.3) !important;
   color: #fff !important;
+}
+
+.mega-hdr-link {
+  text-decoration: none;
+  display: block;
+}
+.mega-hdr-link:hover h4 {
+  color: #f3de9b !important; /* Gold hover for header */
 }
