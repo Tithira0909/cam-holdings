@@ -5085,3 +5085,109 @@ select:-webkit-autofill:focus {
 .mega-hdr-link:hover h4 {
   color: #f3de9b !important; /* Gold hover for header */
 }
+
+/* --- REVIEWS UI --- */
+.reviews-header-actions {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.modal-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content.review-modal-content {
+    background: #111;
+    border: 1px solid rgba(214, 178, 94, 0.3);
+    padding: 2rem;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.review-modal-content h3 {
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-head);
+}
+.review-modal-content p {
+    color: #ccc;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: none; border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.review-form .form-row {
+    margin-bottom: 1rem;
+}
+.review-form label span {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.review-form input,
+.review-form textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 0.8rem;
+    border-radius: 4px;
+    font-family: inherit;
+}
+.review-form input:focus,
+.review-form textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+
+.star-rating-input {
+    display: flex;
+    gap: 5px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.star-rating-input span {
+    color: #444;
+    transition: color 0.2s;
+}
+.star-rating-input span.selected,
+.star-rating-input span.hover {
+    color: var(--gold);
+}
+
+.form-msg {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+.form-msg.success { color: #2ecc71; }
+.form-msg.error { color: #e74c3c; }

@@ -1,5 +1,16 @@
 
-  VITE v7.3.0  ready in 274 ms
+> cg-adaline-scroll-animation@1.0.0 dev
+> vite
+
+
+  VITE v7.3.0  ready in 584 ms
 
   ➜  Local:   http://localhost:5173/
-  ➜  Network: http://192.168.0.2:5173/
+  ➜  Network: use --host to expose
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+2309 |    }
+2310 |  }
+2311 |  @import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap");
+     |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2312 |
+2313 |  @font-face{

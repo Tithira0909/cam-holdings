@@ -1140,26 +1140,28 @@ async function loadReviews() {
 
         tbody.innerHTML = '';
         if (reviews.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No reviews found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No reviews found</td></tr>';
             return;
         }
 
         reviews.forEach(review => {
-            const isApproved = review.is_approved === 1 || review.is_approved === true;
-            const status = review.status || 'Active';
+            const isActive = review.is_active === 1 || review.is_active === true;
+            const isPublished = review.is_published === 1 || review.is_published === true;
             const ratingStars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            const dateStr = review.created_at ? new Date(review.created_at).toLocaleDateString() : '-';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${review.client_name}</td>
-                <td><div style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${review.description || ''}">${review.description || '-'}</div></td>
+                <td>${safe(review.name)}</td>
+                <td><span class="badge" style="background-color: #95a5a6;">${safe(review.source || 'Unknown')}</span></td>
                 <td style="color:#f1c40f; font-size:1.2rem;">${ratingStars}</td>
-                <td><span class="badge" style="background-color: #95a5a6;">${review.source || 'Unknown'}</span></td>
-                <td><span class="badge ${isApproved ? 'badge-approved' : 'badge-not-approved'}">${isApproved ? 'Approved' : 'Not Approved'}</span></td>
-                <td><span class="badge ${status === 'Active' ? 'badge-active' : 'badge-inactive'}">${status}</span></td>
+                <td><div style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${safe(review.message || '')}">${safe(review.message || '-')}</div></td>
+                <td><span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span></td>
+                <td><span class="badge ${isPublished ? 'badge-approved' : 'badge-not-approved'}">${isPublished ? 'Published' : 'Draft'}</span></td>
+                <td>${dateStr}</td>
                 <td>
-                    ${!isApproved ? `<button class="btn-sm btn-approve" onclick="approveReview(${review.id})">Approve</button>` : ''}
-                    <button class="btn-sm btn-edit" style="background-color:#2c3e50;" onclick="toggleReviewStatus(${review.id})">Change Status</button>
+                    <button class="btn-sm btn-edit" style="background-color:#2c3e50;" onclick="toggleReviewActive(${review.id}, ${isActive})">${isActive ? 'Deactivate' : 'Activate'}</button>
+                    <button class="btn-sm btn-approve" onclick="toggleReviewPublished(${review.id}, ${isPublished})">${isPublished ? 'Unpublish' : 'Publish'}</button>
                     <button class="btn-sm btn-edit" onclick="editReview(${review.id})">Edit</button>
                     <button class="btn-sm btn-deactivate" onclick="deleteReview(${review.id})">Delete</button>
                 </td>
@@ -1168,7 +1170,7 @@ async function loadReviews() {
         });
     } catch (error) {
         console.error('Error loading reviews:', error);
-        tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Error loading reviews</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">Error loading reviews</td></tr>';
     }
 }
 
@@ -1196,6 +1198,10 @@ function closeReviewModal() {
     document.getElementById('rev_rating').value = 5;
     const ratingDisp = document.getElementById('ratingValueDisplay');
     if(ratingDisp) ratingDisp.textContent = '5';
+
+    // Default checked for add
+    document.getElementById('rev_active').checked = false;
+    document.getElementById('rev_published').checked = false;
 }
 
 if(openReviewModalBtn) openReviewModalBtn.addEventListener('click', openReviewModal);
@@ -1268,13 +1274,13 @@ window.editReview = async (id) => {
         if(btn) btn.textContent = 'Update Review';
 
         const form = document.getElementById('reviewForm');
-        form.querySelector('#rev_name').value = review.client_name;
-        form.querySelector('#rev_desc').value = review.description || '';
+        form.querySelector('#rev_name').value = review.name;
+        form.querySelector('#rev_email').value = review.email || '';
+        form.querySelector('#rev_message').value = review.message || '';
+        form.querySelector('#rev_source').value = review.source || 'Google';
 
-        const sourceRadios = form.querySelectorAll('input[name="source"]');
-        sourceRadios.forEach(radio => {
-            if (radio.value === review.source) radio.checked = true;
-        });
+        document.getElementById('rev_active').checked = (review.is_active === 1 || review.is_active === true);
+        document.getElementById('rev_published').checked = (review.is_published === 1 || review.is_published === true);
 
         const rating = review.rating || 5;
         document.getElementById('rev_rating').value = rating;
@@ -1289,27 +1295,35 @@ window.editReview = async (id) => {
 };
 
 // Actions
-window.approveReview = async (id) => {
+window.toggleReviewActive = async (id, currentStatus) => {
     try {
-        const response = await fetch(`/api/admin/reviews/${id}/approve`, {
+        const response = await fetch(`/api/admin/reviews/${id}`, {
             method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ is_active: !currentStatus })
         });
         if (response.ok) loadReviews();
-        else alert('Failed to approve');
+        else alert('Failed to update status');
     } catch (error) {
         console.error(error);
     }
 };
 
-window.toggleReviewStatus = async (id) => {
+window.toggleReviewPublished = async (id, currentStatus) => {
     try {
-        const response = await fetch(`/api/admin/reviews/${id}/status`, {
+        const response = await fetch(`/api/admin/reviews/${id}`, {
             method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ is_published: !currentStatus })
         });
         if (response.ok) loadReviews();
-        else alert('Failed to update status');
+        else alert('Failed to update published status');
     } catch (error) {
         console.error(error);
     }
@@ -1335,6 +1349,7 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
 
     // Validation
     const nameInput = document.getElementById('rev_name');
+    const messageInput = document.getElementById('rev_message');
     const ratingInput = document.getElementById('rev_rating');
     let valid = true;
 
@@ -1344,6 +1359,10 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
     if (!nameInput.value.trim()) {
         document.getElementById('rev_name_error').style.display = 'block';
         nameInput.classList.add('input-error');
+        valid = false;
+    }
+    if (!messageInput.value.trim()) {
+        messageInput.classList.add('input-error');
         valid = false;
     }
     if (!ratingInput.value || ratingInput.value < 1) {
@@ -1360,15 +1379,18 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
     submitBtn.disabled = true;
 
     const formData = new FormData(e.target);
+    // FormData doesn't capture unchecked checkboxes
     const data = Object.fromEntries(formData.entries());
+    data.is_active = document.getElementById('rev_active').checked;
+    data.is_published = document.getElementById('rev_published').checked;
 
     try {
         let url = '/api/admin/reviews';
-        let method = 'POST';
+        let method = 'POST'; // Currently admin POST maps to manual creation
 
         if (editingReviewId) {
             url = `/api/admin/reviews/${editingReviewId}`;
-            method = 'PUT';
+            method = 'PATCH'; // We changed PUT to PATCH for updates in backend
         }
 
         const response = await fetch(url, {

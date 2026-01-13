@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3000/api';
+// Use relative path to leverage Vite proxy
+const API_BASE = '/api';
 
 export async function fetchPublic(endpoint) {
     try {
@@ -14,13 +15,32 @@ export async function fetchPublic(endpoint) {
     }
 }
 
+export async function postPublic(endpoint, data) {
+    try {
+        const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || `API Error: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Post error:', error);
+        throw error;
+    }
+}
+
 export function getImageUrl(path) {
     if (!path) return 'https://via.placeholder.com/300';
     if (path.startsWith('http')) return path;
-    // Ensure path uses forward slashes
     const cleanPath = path.replace(/\\/g, '/');
-    // If path already starts with uploads/, we prepend base.
-    // If path starts with backend/uploads/, strip backend/.
-    // Usually it is uploads/filename.
-    return `http://localhost:3000/${cleanPath}`;
+    // Use relative path for uploads too
+    return `/uploads/${cleanPath.split('/').pop()}`;
 }
