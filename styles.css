@@ -44,7 +44,7 @@
   --radius:18px;
 
   /* nav */
-  --navH: 76px;
+  --navH: 84px;
 
   /* global container system (single truth) */
   --pageMax: 1240px;
@@ -234,8 +234,11 @@ em{ font-style:normal; color:var(--gold2); }
   flex: 0 0 auto;
 }
 .brand-mark{
-  width:2.1rem; height:2.1rem; object-fit:contain;
+  width:auto; height:52px; object-fit:contain;
   filter: drop-shadow(0 6px 18px rgba(214,178,94,0.22));
+}
+@media (max-width: 860px) {
+  .brand-mark { height: 40px; }
 }
 .brand-text{
   font-family:"Josefin Sans","Warband Stencil","Batchan",sans-serif;
@@ -4204,7 +4207,7 @@ em{ font-style:normal; color:var(--gold2); }
 
 .cam-brand{
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   text-decoration: none;
   color: white;
