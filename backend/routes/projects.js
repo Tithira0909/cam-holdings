@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // GET all projects
 router.get('/', async (req, res) => {
@@ -16,7 +16,15 @@ router.get('/', async (req, res) => {
 // GET one project
 router.get('/:id', async (req, res) => {
   try {
-    const [projects] = await db.query('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+    const query = `
+      SELECT p.*, s.name as service_name, st.name as category_name, c.name as client_name
+      FROM projects p
+      LEFT JOIN services s ON p.service_id = s.id
+      LEFT JOIN service_types st ON s.service_type_id = st.id
+      LEFT JOIN clients c ON p.client_id = c.id
+      WHERE p.id = ?
+    `;
+    const [projects] = await db.query(query, [req.params.id]);
     if (projects.length === 0) return res.status(404).json({ message: 'Project not found' });
     res.json(projects[0]);
   } catch (error) {
