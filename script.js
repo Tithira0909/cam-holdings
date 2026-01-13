@@ -575,6 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chip = document.getElementById("ipChip");
     const sub = document.getElementById("ipSub");
     const glow = document.getElementById("itGlow");
+    const previewImg = document.getElementById("itPreviewImg");
 
     const tabs = Array.from(document.querySelectorAll(".itab"));
     const stack = document.getElementById("ipStack");
@@ -591,6 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sub: "Blueprint clarity",
         foot: ["Phased delivery", "Spec compliance", "Weekly reporting"],
         images: ["/assets/iterate/plan-1.jpg", "/assets/iterate/plan-2.jpg", "/assets/iterate/plan-3.jpg", "/assets/iterate/plan-4.jpg"],
+        mainImage: "/iterate/plan.jpg",
       },
       {
         badge: "02",
@@ -602,6 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sub: "Concept → approvals",
         foot: ["3D visualisation", "Material selection", "Budget alignment"],
         images: ["/assets/iterate/design-1.jpg", "/assets/iterate/design-2.jpg", "/assets/iterate/design-3.jpg", "/assets/iterate/design-4.jpg"],
+        mainImage: "/iterate/design.jpg",
       },
       {
         badge: "03",
@@ -613,6 +616,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sub: "Execution discipline",
         foot: ["Site coordination", "Quality checks", "Progress updates"],
         images: ["/assets/iterate/build-1.jpg", "/assets/iterate/build-2.jpg", "/assets/iterate/build-3.jpg", "/assets/iterate/build-4.jpg"],
+        mainImage: "/iterate/build.jpg",
       },
       {
         badge: "04",
@@ -624,8 +628,15 @@ document.addEventListener("DOMContentLoaded", () => {
         sub: "Signature finishing",
         foot: ["Detail execution", "Snag resolution", "Handover readiness"],
         images: ["/assets/iterate/finish-1.jpg", "/assets/iterate/finish-2.jpg", "/assets/iterate/finish-3.jpg", "/assets/iterate/finish-4.jpg"],
+        mainImage: "/iterate/finish.jpg",
       },
     ];
+
+    // Preload main images
+    steps.forEach(s => {
+      const i = new Image();
+      i.src = s.mainImage;
+    });
 
     if (totalEl) totalEl.textContent = String(steps.length);
 
@@ -694,6 +705,24 @@ document.addEventListener("DOMContentLoaded", () => {
       setDots(index);
       setTabs(index);
 
+      // --- NEW: Update main card image with crossfade ---
+      if (previewImg && s.mainImage) {
+        gsap.to(previewImg, {
+          autoAlpha: 0,
+          scale: 1.05,
+          duration: 0.20,
+          ease: "power2.inOut",
+          onComplete: () => {
+            previewImg.src = s.mainImage;
+            gsap.fromTo(
+              previewImg,
+              { autoAlpha: 0, scale: 1.05 },
+              { autoAlpha: 1, scale: 1, duration: 0.40, ease: "power2.out" }
+            );
+          },
+        });
+      }
+
       if (cards.length) {
         cards.forEach((c, i) => {
           const img = s.images[i] || s.images[0];
@@ -713,6 +742,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (footA) footA.textContent = s.foot[0];
         if (footB) footB.textContent = s.foot[1];
         if (footC) footC.textContent = s.foot[2];
+        if (previewImg) previewImg.src = s.mainImage;
         return;
       }
 
