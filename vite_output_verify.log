@@ -22,3 +22,12 @@
      |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 2306 |
 2307 |  @font-face{
+3:58:11 AM [vite] (client) page reload index.html
+3:59:14 AM [vite] (client) hmr update /styles.css?direct
+[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+2303 |    }
+2304 |  }
+2305 |  @import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap");
+     |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2306 |
+2307 |  @font-face{

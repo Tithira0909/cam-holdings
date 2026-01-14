@@ -5169,28 +5169,57 @@ select:-webkit-autofill:focus {
 .form-msg.success { color: #2ecc71; }
 .form-msg.error { color: #e74c3c; }
 
-/* --- LEAVE REVIEW SECTION --- */
-.section-light {
-    background-color: #fff;
-    color: #333;
+/* --- LEAVE REVIEW SECTION (Updated Dark Theme) --- */
+#leave-review {
+    background:
+      radial-gradient(900px 520px at 50% 35%, rgba(0,0,0,0.20), rgba(0,0,0,0.80) 72%),
+      linear-gradient(180deg, #070707, #0b0b0b);
     padding-top: 4rem;
     padding-bottom: 4rem;
+    border-top: 1px solid rgba(214,178,94,0.10);
+    position: relative;
+    overflow: hidden;
 }
-.section-light .h2 {
-    color: #222;
+
+#leave-review .h2 {
+    color: #fff;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    display: inline-block;
+}
+#leave-review .h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: #d6b25e;
+    margin: 8px auto 0;
+    border-radius: 2px;
 }
 
 .lr-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 3rem;
-    max-width: 900px;
+    gap: 2rem;
+    max-width: 1000px;
     margin: 0 auto;
+    padding: 2rem;
+
+    /* Glass Panel */
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(214,178,94,0.25);
+    border-radius: 24px;
+    backdrop-filter: blur(10px); /* Soft blur on background only */
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
+
 @media (min-width: 768px) {
     .lr-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 3rem;
         align-items: start;
+        padding: 3rem;
     }
 }
 
@@ -5205,76 +5234,105 @@ select:-webkit-autofill:focus {
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    color: #fff;
-    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    font-weight: 500;
     text-transform: none;
     letter-spacing: 0.5px;
-    border-radius: 4px;
+    border-radius: 12px;
     text-decoration: none;
-    transition: opacity 0.2s;
-    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 .btn-review:hover {
-    opacity: 0.9;
     color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 .btn-review .icon {
-    margin-right: 10px;
+    margin-right: 12px;
     font-size: 1.2rem;
-    font-weight: bold;
 }
 
-.btn-google { background-color: #DB4437; }
-.btn-facebook { background-color: #4267B2; }
-.btn-twitter { background-color: #1DA1F2; }
-.btn-trustpilot { background-color: #00b67a; }
+/* Darker, less saturated brand colors */
+.btn-google { background-color: #a8332a; border-color: rgba(255,255,255,0.1); }
+.btn-google:hover { background-color: #c5392f; box-shadow: 0 0 15px rgba(219,68,55,0.3); }
+
+.btn-facebook { background-color: #2d4679; border-color: rgba(255,255,255,0.1); }
+.btn-facebook:hover { background-color: #3b5998; box-shadow: 0 0 15px rgba(66,103,178,0.3); }
+
+.btn-twitter { background-color: #126694; border-color: rgba(255,255,255,0.1); }
+.btn-twitter:hover { background-color: #1da1f2; box-shadow: 0 0 15px rgba(29,161,242,0.3); }
+
+.btn-trustpilot { background-color: #007f56; border-color: rgba(255,255,255,0.1); }
+.btn-trustpilot:hover { background-color: #00b67a; box-shadow: 0 0 15px rgba(0,182,122,0.3); }
+
 
 /* Right Form */
 .lr-form-wrap {
-    /* No bg needed if section is white, or maybe slight grey */
+    /* Transparent, inside grid */
 }
 .lr-form .form-row {
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
 }
 .lr-form label {
     display: block;
-    margin-bottom: 0.3rem;
-    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    color: #555;
+    color: rgba(255,255,255,0.7); /* Muted */
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 .lr-form input,
 .lr-form textarea,
 .lr-form select {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #fff;
-    color: #333;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(214,178,94,0.25);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.lr-form input::placeholder,
+.lr-form textarea::placeholder {
+    color: rgba(255,255,255,0.3);
 }
 .lr-form input:focus,
 .lr-form textarea:focus,
 .lr-form select:focus {
-    border-color: var(--gold);
-    outline: none;
+    border-color: #d6b25e;
+    background: rgba(0,0,0,0.5);
+    box-shadow: 0 0 0 3px rgba(214,178,94,0.15);
 }
 
-/* Override star rating color for light bg if needed */
+/* Stars */
+.lr-form .star-rating-input {
+    display: flex;
+    gap: 6px;
+}
 .lr-form .star-rating-input span {
-    color: #ccc;
-    font-size: 1.8rem;
+    color: rgba(255,255,255,0.2); /* Muted gray empty */
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: color 0.2s;
 }
 .lr-form .star-rating-input span.selected,
 .lr-form .star-rating-input span.hover {
-    color: #f1c40f; /* Gold/Yellow */
+    color: #d6b25e; /* Gold filled */
+    text-shadow: 0 0 15px rgba(214,178,94,0.4);
 }
 
 /* Success/Error Msg */
 .lr-form .form-msg {
     text-align: center;
     margin-top: 1rem;
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-height: 1.4em;
 }
