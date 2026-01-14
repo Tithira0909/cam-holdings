@@ -520,10 +520,6 @@
       <p>Clients trust our process — from planning clarity to premium finishing.</p>
     </div>
 
-    <div class="reviews-header-actions">
-      <button class="btn ghost" id="openReviewBtn">Leave a Review</button>
-    </div>
-
     <div class="reviews-grid">
       <!-- Reviews will be loaded here dynamically -->
       <p>Loading reviews...</p>
@@ -531,56 +527,73 @@
   </div>
 </section>
 
-<!-- REVIEW MODAL -->
-<div class="modal-backdrop" id="publicReviewModal" aria-hidden="true">
-  <div class="modal-content review-modal-content">
-    <button class="modal-close" id="closeReviewBtn" aria-label="Close modal">✕</button>
-    <h3>Share Your Experience</h3>
-    <p>Your feedback helps us deliver better premium spaces.</p>
-
-    <form id="publicReviewForm" class="review-form">
-      <div class="form-row">
-        <label>
-          <span>Name *</span>
-          <input type="text" name="name" required placeholder="Your Name">
-        </label>
+<!-- LEAVE A REVIEW SECTION -->
+<section class="section section-light" id="leave-review">
+  <div class="wrap">
+    <h2 class="h2 center" style="color:#000; margin-bottom: 2rem;">LEAVE US A REVIEW!</h2>
+    <div class="lr-grid">
+      <!-- Left: Buttons -->
+      <div class="lr-buttons">
+        <a href="https://google.com" target="_blank" class="btn-review btn-google">
+          <span class="icon">G</span> Review us on Google
+        </a>
+        <a href="https://facebook.com" target="_blank" class="btn-review btn-facebook">
+          <span class="icon">f</span> Review us on Facebook
+        </a>
+        <a href="https://twitter.com" target="_blank" class="btn-review btn-twitter">
+          <span class="icon">🐦</span> Review us on Twitter
+        </a>
+        <a href="https://trustpilot.com" target="_blank" class="btn-review btn-trustpilot">
+          <span class="icon">★</span> Review us on Trustpilot
+        </a>
       </div>
 
-      <div class="form-row">
-        <label>
-          <span>Email (Private) *</span>
-          <input type="email" name="email" required placeholder="We won't publish this">
-        </label>
-      </div>
-
-      <div class="form-row">
-        <label>
-          <span>Rating *</span>
-          <div class="star-rating-input" id="starRatingInput">
-            <span data-val="1">★</span>
-            <span data-val="2">★</span>
-            <span data-val="3">★</span>
-            <span data-val="4">★</span>
-            <span data-val="5" class="selected">★</span>
+      <!-- Right: Form -->
+      <div class="lr-form-wrap">
+        <form id="leaveReviewForm" class="lr-form">
+          <div class="form-row">
+            <label>Name</label>
+            <input type="text" name="name" required>
           </div>
-          <input type="hidden" name="rating" id="ratingInput" value="5">
-        </label>
-      </div>
+          <div class="form-row">
+            <label>Email</label>
+            <input type="email" name="email">
+          </div>
+          <div class="form-row">
+            <label>Message</label>
+            <textarea name="message" rows="4" required></textarea>
+          </div>
+          <div class="form-row">
+             <label>Rating</label>
+             <div class="star-rating-input" id="starRatingInput">
+                <span data-val="1">★</span>
+                <span data-val="2">★</span>
+                <span data-val="3">★</span>
+                <span data-val="4">★</span>
+                <span data-val="5" class="selected">★</span>
+             </div>
+             <input type="hidden" name="rating" id="ratingInput" value="5">
+          </div>
+          <div class="form-row">
+             <label>Source (Optional)</label>
+             <select name="source">
+                <option value="Website">Website (Direct)</option>
+                <option value="Google">Google</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Twitter">Twitter</option>
+                <option value="Trustpilot">Trustpilot</option>
+             </select>
+          </div>
 
-      <div class="form-row">
-        <label>
-          <span>Message *</span>
-          <textarea name="message" rows="4" required placeholder="Tell us about your project..."></textarea>
-        </label>
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Submit Review</button>
+          </div>
+          <p class="form-msg" id="reviewMsg"></p>
+        </form>
       </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn primary">Submit Review</button>
-      </div>
-      <p class="form-msg" id="reviewMsg"></p>
-    </form>
+    </div>
   </div>
-</div>
+</section>
 
 
         <!-- FOOTER -->

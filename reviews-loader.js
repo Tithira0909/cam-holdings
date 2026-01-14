@@ -64,32 +64,12 @@ async function initReviews() {
     }
 }
 
-// --- MODAL & FORM LOGIC ---
+// --- FORM LOGIC ---
 function initReviewForm() {
-    const openBtn = document.getElementById('openReviewBtn');
-    const closeBtn = document.getElementById('closeReviewBtn');
-    const modal = document.getElementById('publicReviewModal');
-    const form = document.getElementById('publicReviewForm');
+    const form = document.getElementById('leaveReviewForm');
     const msgEl = document.getElementById('reviewMsg');
 
-    if (!openBtn || !modal || !form) return;
-
-    // Toggle Modal
-    openBtn.addEventListener('click', () => {
-        modal.classList.add('active');
-        modal.setAttribute('aria-hidden', 'false');
-    });
-
-    const closeModal = () => {
-        modal.classList.remove('active');
-        modal.setAttribute('aria-hidden', 'true');
-        form.reset();
-        msgEl.textContent = '';
-        msgEl.className = 'form-msg';
-        updateStars(5);
-    };
-
-    closeBtn.addEventListener('click', closeModal);
+    if (!form) return;
 
     // Star Rating UI
     const starContainer = document.getElementById('starRatingInput');
@@ -102,7 +82,7 @@ function initReviewForm() {
             if (v <= val) s.classList.add('selected');
             else s.classList.remove('selected');
         });
-        ratingInput.value = val;
+        if(ratingInput) ratingInput.value = val;
     }
 
     if (starContainer) {
@@ -127,40 +107,49 @@ function initReviewForm() {
         e.preventDefault();
         const btn = form.querySelector('button[type="submit"]');
         btn.disabled = true;
+        const originalText = btn.textContent;
         btn.textContent = 'Submitting...';
-        msgEl.textContent = '';
+        if(msgEl) msgEl.textContent = '';
 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
         // Basic validation
         if (!data.name || !data.message) {
-            msgEl.textContent = 'Please fill in all required fields.';
-            msgEl.className = 'form-msg error';
+            if(msgEl) {
+                msgEl.textContent = 'Please fill in all required fields.';
+                msgEl.className = 'form-msg error';
+            }
             btn.disabled = false;
-            btn.textContent = 'Submit Review';
+            btn.textContent = originalText;
             return;
         }
 
         try {
             // POST to /public/reviews
-            const result = await postPublic('/public/reviews', data);
+            await postPublic('/public/reviews', data);
 
-            msgEl.textContent = 'Review submitted! Pending approval.';
-            msgEl.className = 'form-msg success';
+            if(msgEl) {
+                msgEl.textContent = 'Thanks! Your review is pending approval.';
+                msgEl.className = 'form-msg success';
+            }
+            form.reset();
+            updateStars(5); // Reset stars
 
             setTimeout(() => {
-                closeModal();
                 btn.disabled = false;
-                btn.textContent = 'Submit Review';
-            }, 2000);
+                btn.textContent = originalText;
+                if(msgEl) msgEl.textContent = '';
+            }, 5000);
 
         } catch (error) {
             console.error(error);
-            msgEl.textContent = 'Failed to submit review. Please try again.';
-            msgEl.className = 'form-msg error';
+            if(msgEl) {
+                msgEl.textContent = 'Failed to submit review. Please try again.';
+                msgEl.className = 'form-msg error';
+            }
             btn.disabled = false;
-            btn.textContent = 'Submit Review';
+            btn.textContent = originalText;
         }
     });
 }
