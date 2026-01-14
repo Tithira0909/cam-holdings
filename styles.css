@@ -5234,39 +5234,39 @@ select:-webkit-autofill:focus {
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    color: rgba(255,255,255,0.9);
+
+    /* CAM Luxury Style */
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(214, 178, 94, 0.35);
+    color: #f3de9b; /* Goldish text */
+    border-radius: 16px;
+
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0.5px;
-    border-radius: 12px;
     text-decoration: none;
-    transition: all 0.3s ease;
     font-size: 1rem;
-    border: 1px solid transparent;
+
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+
+    transition: all 0.3s ease;
 }
+
 .btn-review:hover {
-    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(214, 178, 94, 0.7);
+    box-shadow: 0 0 18px rgba(214, 178, 94, 0.25);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    color: #fff; /* Optional: brighten text slightly on hover */
 }
+
 .btn-review .icon {
     margin-right: 12px;
     font-size: 1.2rem;
+    color: #f3de9b; /* Monochrome gold icon */
 }
-
-/* Darker, less saturated brand colors */
-.btn-google { background-color: #a8332a; border-color: rgba(255,255,255,0.1); }
-.btn-google:hover { background-color: #c5392f; box-shadow: 0 0 15px rgba(219,68,55,0.3); }
-
-.btn-facebook { background-color: #2d4679; border-color: rgba(255,255,255,0.1); }
-.btn-facebook:hover { background-color: #3b5998; box-shadow: 0 0 15px rgba(66,103,178,0.3); }
-
-.btn-twitter { background-color: #126694; border-color: rgba(255,255,255,0.1); }
-.btn-twitter:hover { background-color: #1da1f2; box-shadow: 0 0 15px rgba(29,161,242,0.3); }
-
-.btn-trustpilot { background-color: #007f56; border-color: rgba(255,255,255,0.1); }
-.btn-trustpilot:hover { background-color: #00b67a; box-shadow: 0 0 15px rgba(0,182,122,0.3); }
 
 
 /* Right Form */
