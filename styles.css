@@ -234,11 +234,11 @@ em{ font-style:normal; color:var(--gold2); }
   flex: 0 0 auto;
 }
 .brand-mark{
-  width:auto; height:56px; object-fit:contain;
+  width:auto; height:64px; object-fit:contain;
   filter: drop-shadow(0 6px 18px rgba(214,178,94,0.22));
 }
 @media (max-width: 860px) {
-  .brand-mark { height: 42px; }
+  .brand-mark { height: 48px; }
   :root { --navH: 88px; }
 }
 .brand-text{
@@ -1560,7 +1560,7 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 /* Columns */
 .footer-cols{
   display:grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 22px;
 }
 

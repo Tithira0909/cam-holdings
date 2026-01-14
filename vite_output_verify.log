@@ -2,35 +2,16 @@
 > cg-adaline-scroll-animation@1.0.0 dev
 > vite
 
+Port 5173 is in use, trying another one...
 
-  VITE v7.3.0  ready in 665 ms
+  VITE v7.3.0  ready in 875 ms
 
-  ➜  Local:   http://localhost:5173/
+  ➜  Local:   http://localhost:5174/
   ➜  Network: use --host to expose
 [vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
-2309 |    }
-2310 |  }
-2311 |  @import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap");
-     |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2312 |
-2313 |  @font-face{
-2:38:26 AM [vite] (client) hmr update /styles.css?direct
-[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
 2303 |    }
 2304 |  }
 2305 |  @import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap");
      |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 2306 |
 2307 |  @font-face{
-3:58:11 AM [vite] (client) page reload index.html
-3:59:14 AM [vite] (client) hmr update /styles.css?direct
-[vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
-2303 |    }
-2304 |  }
-2305 |  @import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap");
-     |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2306 |
-2307 |  @font-face{
-4:38:23 AM [vite] (client) hmr update /styles.css?direct
-4:39:09 AM [vite] (client) page reload index.html
-4:39:09 AM [vite] (client) page reload index.html
