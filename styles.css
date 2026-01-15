@@ -5354,3 +5354,116 @@ select:-webkit-autofill:focus {
     font-size: 0.9rem;
     min-height: 1.4em;
 }
+
+/* =========================
+   REAL ESTATE PREVIEW (Inserted)
+========================== */
+.re-preview {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: var(--secPadY) var(--pagePad) 40px;
+  background: var(--bg);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.re-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(20,20,20,1), var(--bg));
+  z-index: -1;
+}
+
+.re-wrap {
+  width: 100%; max-width: 1400px;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+
+.re-head {
+  flex: 0 0 auto;
+  margin-bottom: 2rem;
+  text-align: center;
+  transform: translateY(20px); opacity: 0;
+}
+
+.re-title {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  color: var(--fg);
+  margin-bottom: 0.5rem;
+}
+
+.re-sub {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.re-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  align-content: center;
+  perspective: 1000px;
+}
+
+.re-card {
+  position: relative;
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  aspect-ratio: 4/5;
+  opacity: 0;
+  transform: translateY(30px) rotateX(5deg);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.re-card:hover {
+  transform: translateY(0) rotateX(0);
+  border-color: var(--gold);
+}
+
+.re-media {
+  width: 100%; height: 65%;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(20%);
+  transition: filter 0.4s ease;
+}
+
+.re-card:hover .re-media {
+  filter: grayscale(0%);
+}
+
+.re-info {
+  padding: 1rem;
+  display: flex; flex-direction: column;
+  gap: 0.25rem;
+}
+
+.re-price {
+  font-family: var(--font-mono);
+  color: var(--gold);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.re-name {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  color: var(--fg);
+}
+
+.re-loc {
+  font-size: 0.85rem;
+  color: var(--muted);
+}

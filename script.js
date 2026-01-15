@@ -99,8 +99,12 @@ document.addEventListener("DOMContentLoaded", () => {
   initMobileDrawer();
 
   // -------------------------------------------------------
-  // 7) STAGE PIN: HERO -> XFADE -> ITERATE (single pin)
+  // 7) STAGE PIN: HERO -> XFADE -> RE -> ITERATE
   // -------------------------------------------------------
+  fetchRealEstateProjects().then(() => {
+     // Wait for fetch to ensure DOM is ready?
+     // Actually initStage works on containers, content can load later.
+  });
   initStageHeroIterate();
 
   // -------------------------------------------------------
@@ -356,25 +360,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------------------------
-  // Stage: Hero -> Crossfade -> Iterate
+  // Stage: Hero -> RE -> Iterate
   // -------------------------
   function initStageHeroIterate() {
-    const hero = document.querySelector("section.hero#hero") || document.querySelector("section.hero");
-    const iterate = document.querySelector("section.iterate#iterate") || document.querySelector("section.iterate");
-    if (!hero || !iterate) return;
+    const hero = document.getElementById("hero");
+    const rePreview = document.getElementById("re-preview");
+    const iterate = document.getElementById("iterate");
 
-    const stage = wrapIntoStage(hero, iterate);
+    // Fallback if RE missing (legacy safety)
+    if (!hero || !iterate) return;
+    if (!rePreview) {
+        // ... (Old logic could go here, but for now we assume structure exists)
+        return;
+    }
+
+    const stage = wrapIntoStage(hero, rePreview, iterate);
 
     gsap.set(hero, { autoAlpha: 1, pointerEvents: "auto" });
+    gsap.set(rePreview, { autoAlpha: 0, pointerEvents: "none", y: 18 });
     gsap.set(iterate, { autoAlpha: 0, pointerEvents: "none", y: 18 });
 
     const heroEngine = createHeroEngine(hero, HERO_FRAME_COUNT);
     const iterateEngine = createIterateEngine(iterate, { snap: ITERATE_SNAP });
 
     const heroLen = vhToPx(HERO_SCROLL_VH);
-    const xfadeLen = vhToPx(XFADE_SCROLL_VH);
+    const xfade1Len = vhToPx(XFADE_SCROLL_VH);
+    const reLen = vhToPx(140); // RE Scroll duration
+    const xfade2Len = vhToPx(XFADE_SCROLL_VH);
     const iterLen = vhToPx(ITER_SCROLL_VH);
-    const totalLen = heroLen + xfadeLen + iterLen;
+
+    const totalLen = heroLen + xfade1Len + reLen + xfade2Len + iterLen;
 
     ScrollTrigger.create({
       id: "CAM_STAGE_PIN",
@@ -390,47 +405,164 @@ document.addEventListener("DOMContentLoaded", () => {
         const p = self.progress;
         const t = p * totalLen;
 
-        const inHero = t <= heroLen;
-        const inXfade = t > heroLen && t <= heroLen + xfadeLen;
-        const inIter = t > heroLen + xfadeLen;
+        const endHero = heroLen;
+        const endX1 = endHero + xfade1Len;
+        const endRe = endX1 + reLen;
+        const endX2 = endRe + xfade2Len;
 
-        // HERO frames
-        if (inHero) heroEngine.render(t / heroLen);
-        else heroEngine.render(1);
-
-        // CROSSFADE
-        if (inXfade) {
-          const x = (t - heroLen) / xfadeLen;
-          gsap.set(hero, { autoAlpha: 1 - x, pointerEvents: "none" });
-          gsap.set(iterate, { autoAlpha: x, y: (1 - x) * 18, pointerEvents: x > 0.65 ? "auto" : "none" });
-        } else if (inIter) {
-          gsap.set(hero, { autoAlpha: 0, pointerEvents: "none" });
-          gsap.set(iterate, { autoAlpha: 1, y: 0, pointerEvents: "auto" });
-        } else {
-          gsap.set(hero, { autoAlpha: 1, pointerEvents: "auto" });
-          gsap.set(iterate, { autoAlpha: 0, y: 18, pointerEvents: "none" });
+        // 1. HERO
+        if (t <= endHero) {
+           heroEngine.render(t / heroLen);
+           gsap.set(hero, { autoAlpha: 1, pointerEvents: "auto" });
+           gsap.set(rePreview, { autoAlpha: 0, pointerEvents: "none" });
+           gsap.set(iterate, { autoAlpha: 0, pointerEvents: "none" });
         }
+        // 2. HERO -> RE
+        else if (t > endHero && t <= endX1) {
+           heroEngine.render(1);
+           const x = (t - endHero) / xfade1Len;
+           gsap.set(hero, { autoAlpha: 1 - x, pointerEvents: "none" });
+           gsap.set(rePreview, { autoAlpha: x, y: (1-x)*18, pointerEvents: "none" });
+           gsap.set(iterate, { autoAlpha: 0, pointerEvents: "none" });
+        }
+        // 3. RE PREVIEW (Fill Up)
+        else if (t > endX1 && t <= endRe) {
+           gsap.set(hero, { autoAlpha: 0, pointerEvents: "none" });
+           gsap.set(rePreview, { autoAlpha: 1, y: 0, pointerEvents: "auto" });
+           gsap.set(iterate, { autoAlpha: 0, pointerEvents: "none" });
 
-        // ITERATE driven segment
-        if (inIter) iterateEngine.render((t - (heroLen + xfadeLen)) / iterLen);
-        else iterateEngine.render(0);
+           // Stagger Reveal Logic
+           const reProg = (t - endX1) / reLen; // 0..1
+           const cards = rePreview.querySelectorAll('.re-card');
+           const head = rePreview.querySelector('.re-head');
+
+           // Head
+           const headP = Math.min(1, reProg / 0.15);
+           if(head) {
+             head.style.opacity = headP;
+             head.style.transform = `translateY(${(1-headP)*20}px)`;
+           }
+
+           // Cards
+           if(cards.length > 0){
+             const startT = 0.15;
+             const endT = 0.95;
+             const step = (endT - startT) / cards.length;
+             cards.forEach((c, i) => {
+                const s = startT + (i * step);
+                const local = Math.max(0, Math.min(1, (reProg - s) / 0.15));
+                c.style.opacity = local;
+                c.style.transform = `translateY(${(1-local)*30}px) rotateX(${(1-local)*8}deg)`;
+             });
+           }
+        }
+        // 4. RE -> ITERATE
+        else if (t > endRe && t <= endX2) {
+           const x = (t - endRe) / xfade2Len;
+           gsap.set(rePreview, { autoAlpha: 1 - x, pointerEvents: "none", y: -x*18 });
+           gsap.set(iterate, { autoAlpha: x, y: (1-x)*18, pointerEvents: "none" });
+        }
+        // 5. ITERATE
+        else {
+           gsap.set(rePreview, { autoAlpha: 0, pointerEvents: "none" });
+           gsap.set(iterate, { autoAlpha: 1, y: 0, pointerEvents: "auto" });
+           iterateEngine.render((t - endX2) / iterLen);
+        }
       },
     });
   }
 
-  function wrapIntoStage(heroEl, iterateEl) {
+  function wrapIntoStage(...els) {
     const existing = document.querySelector(".stage");
-    if (existing && existing.contains(heroEl) && existing.contains(iterateEl)) return existing;
+    if (existing) return existing;
 
     const stage = document.createElement("div");
     stage.className = "stage";
     stage.id = "stage";
 
-    heroEl.parentNode.insertBefore(stage, heroEl);
-    stage.appendChild(heroEl);
-    stage.appendChild(iterateEl);
-
+    // Insert before the first element
+    if(els[0] && els[0].parentNode) {
+        els[0].parentNode.insertBefore(stage, els[0]);
+        els.forEach(el => stage.appendChild(el));
+    }
     return stage;
+  }
+
+  async function fetchRealEstateProjects() {
+    const grid = document.getElementById('reGrid');
+    if(!grid) return;
+    try {
+      const res = await fetch('/api/projects');
+      if(!res.ok) throw new Error('Failed to load projects');
+      const data = await res.json();
+
+      // Filter logic: Look for 'Real Estate' in service/category or fallback
+      const reProjects = data.filter(p => {
+          const s = (p.service_name || "").toLowerCase();
+          const c = (p.category_name || "").toLowerCase();
+          return s.includes('real estate') || c.includes('real estate') || (p.title||"").toLowerCase().includes("residence");
+      }).slice(0, 3);
+
+      if(reProjects.length === 0) {
+          // Fallback dummy data for visualization if DB is empty/down
+          const dummy = [
+            { id: 991, title: "Ocean View Residence", budget: "$1.2M", location: "Colombo 03", image_url: "/assets/projects/p1.jpg" },
+            { id: 992, title: "Hilltop Villa", budget: "$850k", location: "Kandy", image_url: "/assets/projects/p2.jpg" },
+            { id: 993, title: "City Apartment", budget: "$450k", location: "Colombo 07", image_url: "/assets/projects/p3.jpg" }
+          ];
+          grid.innerHTML = dummy.map(p => {
+             const img = p.image_url;
+             return `
+              <a href="/project-details.html?id=${p.id}" class="re-card">
+                 <div class="re-media" style="background-image:url('${img}')"></div>
+                 <div class="re-info">
+                    <div class="re-price">${p.budget}</div>
+                    <div class="re-name">${p.title}</div>
+                    <div class="re-loc">${p.location}</div>
+                 </div>
+              </a>
+             `;
+          }).join('');
+          return;
+      }
+
+      grid.innerHTML = reProjects.map(p => {
+          // ensure valid image
+          const img = p.image_url ? (p.image_url.startsWith('/') ? p.image_url : '/uploads/' + p.image_url) : '/assets/projects/p1.jpg';
+          return `
+          <a href="/project-details.html?id=${p.id}" class="re-card">
+             <div class="re-media" style="background-image:url('${img}')"></div>
+             <div class="re-info">
+                <div class="re-price">${p.budget || 'Price on Request'}</div>
+                <div class="re-name">${p.title}</div>
+                <div class="re-loc">${p.location || 'Colombo, Sri Lanka'}</div>
+             </div>
+          </a>
+          `;
+      }).join('');
+
+    } catch(e) {
+      console.error("RE Fetch Error:", e);
+      // Fallback on error
+      const dummy = [
+        { id: 991, title: "Ocean View Residence", budget: "$1.2M", location: "Colombo 03", image_url: "/iterate/plan.jpg" },
+        { id: 992, title: "Hilltop Villa", budget: "$850k", location: "Kandy", image_url: "/iterate/design.jpg" },
+        { id: 993, title: "City Apartment", budget: "$450k", location: "Colombo 07", image_url: "/iterate/build.jpg" }
+      ];
+      grid.innerHTML = dummy.map(p => {
+         const img = p.image_url;
+         return `
+          <a href="/project-details.html?id=${p.id}" class="re-card">
+             <div class="re-media" style="background-image:url('${img}')"></div>
+             <div class="re-info">
+                <div class="re-price">${p.budget}</div>
+                <div class="re-name">${p.title}</div>
+                <div class="re-loc">${p.location}</div>
+             </div>
+          </a>
+         `;
+      }).join('');
+    }
   }
 
   // -------------------------

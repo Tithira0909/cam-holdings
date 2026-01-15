@@ -6,7 +6,13 @@ const { authenticateToken } = require('../middleware/auth');
 // GET all projects
 router.get('/', async (req, res) => {
   try {
-    const [projects] = await db.query('SELECT * FROM projects');
+    const query = `
+      SELECT p.*, s.name as service_name, st.name as category_name
+      FROM projects p
+      LEFT JOIN services s ON p.service_id = s.id
+      LEFT JOIN service_types st ON s.service_type_id = st.id
+    `;
+    const [projects] = await db.query(query);
     res.json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });
