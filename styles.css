@@ -33,10 +33,10 @@
    Theme + Layout Tokens
 ================================ */
 :root{
-  --bg:#070707;
-  --bg2:#0b0b0b;
+  --bg:#0e0e0e;
+  --bg2:#121212;
   --fg:#ffffff;
-  --muted:rgba(255,255,255,0.85);
+  --muted:rgba(255,255,255,0.90);
   --muted2:rgba(255,255,255,0.65);
   --gold:#d6b25e;
   --gold2:#f3de9b;
@@ -49,7 +49,7 @@
   /* global container system (single truth) */
   --pageMax: 1240px;
   --pagePad: clamp(18px, 3vw, 36px);
-  --secPadY: clamp(90px, 10vh, 140px);
+  --secPadY: clamp(calc(var(--navH) + 20px), 10vh, 140px);
   --secGap: clamp(16px, 2.2vw, 28px);
 
   /* iterate max */
@@ -457,7 +457,7 @@ em{ font-style:normal; color:var(--gold2); }
 .section-dark{
   background:
     radial-gradient(900px 520px at 50% 0%, rgba(214,178,94,0.08), transparent 55%),
-    linear-gradient(180deg, rgba(0,0,0,0.00), rgba(0,0,0,0.40), rgba(0,0,0,0.00));
+    linear-gradient(180deg, rgba(0,0,0,0.00), rgba(0,0,0,0.20), rgba(0,0,0,0.00));
   border-top:1px solid rgba(214,178,94,0.06);
   border-bottom:1px solid rgba(214,178,94,0.06);
 }
@@ -498,8 +498,8 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 .hero-overlay{
   position:absolute; inset:0;
   background:
-    radial-gradient(900px 520px at 50% 42%, rgba(0,0,0,0.25), rgba(0,0,0,0.72) 70%),
-    linear-gradient(180deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.22) 45%, rgba(0,0,0,0.78) 100%);
+    radial-gradient(900px 520px at 50% 42%, rgba(0,0,0,0.25), rgba(0,0,0,0.55) 70%),
+    linear-gradient(180deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.22) 45%, rgba(0,0,0,0.60) 100%);
   z-index:1;
   pointer-events:none;
 }
@@ -591,7 +591,7 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 
 /* background layers (inside only) */
 /* Increased opacity to keep text readable against image */
-.iterate-bg{ position:absolute; inset:0; pointer-events:none; z-index:0; background: rgba(0,0,0,0.65); }
+.iterate-bg{ position:absolute; inset:0; pointer-events:none; z-index:0; background: rgba(0,0,0,0.45); }
 .it-vignette{
   position:absolute; inset:-40px;
   background:
@@ -642,7 +642,6 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   display:flex;
   align-items:center;
   justify-content:space-between;
-  backdrop-filter: blur(4px);
 }
 .iterate-left{ display:flex; gap:14px; align-items:flex-start; }
 .iterate-badge{
@@ -679,7 +678,7 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   gap: clamp(18px, 2.2vw, 34px);
   align-items: start;
 
-  padding: clamp(92px, 10vh, 140px) 0 clamp(58px, 8vh, 90px);
+  padding: calc(var(--navH) + 40px) 0 clamp(58px, 8vh, 90px);
   position: relative; /* ✅ NOT sticky */
   z-index: 2;
 }
@@ -1062,12 +1061,12 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   content:"";
   position:absolute; inset:-2px;
   background:
-    linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
     radial-gradient(1200px 600px at 20% 20%, rgba(214,178,94,.14), transparent 60%),
     radial-gradient(900px 500px at 80% 50%, rgba(214,178,94,.10), transparent 55%),
     radial-gradient(700px 400px at 50% 100%, rgba(255,255,255,.06), transparent 55%);
   pointer-events:none;
-  opacity:.9;
+  opacity:.7;
 }
 
 #book .book-grid{
@@ -2325,10 +2324,10 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 }
 
 :root{
-  --bg:#070707;
-  --bg2:#0b0b0b;
+  --bg:#0e0e0e;
+  --bg2:#121212;
   --fg:#fff;
-  --muted:rgba(255,255,255,0.85);
+  --muted:rgba(255,255,255,0.90);
   --muted2:rgba(255,255,255,0.65);
   --gold:#d6b25e;
   --gold2:#f3de9b;
@@ -4148,12 +4147,12 @@ em{ font-style:normal; color:var(--gold2); }
    ========================================================= */
 
 :root{
-  --bg: #070707;
+  --bg: #0e0e0e;
   --panel: rgba(255,255,255,0.16);
   --panel2: rgba(255,255,255,0.04);
   --stroke: rgba(255,255,255,0.20);
-  --text: rgba(255,255,255,0.88);
-  --muted: rgba(255,255,255,0.82);
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.88);
   --gold: #d6b25e;
   --gold2: #f3de9b;
   --shadow: 0 18px 60px rgba(0,0,0,0.55);
