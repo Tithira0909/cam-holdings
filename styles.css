@@ -5369,7 +5369,7 @@ select:-webkit-autofill:focus {
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 20;
 }
 
 .re-bg {
@@ -5379,14 +5379,14 @@ select:-webkit-autofill:focus {
 }
 
 .re-wrap {
-  width: 100%; max-width: 1400px;
+  width: 100%; max-width: 1200px;
   height: 100%;
   display: flex; flex-direction: column;
 }
 
 .re-head {
   flex: 0 0 auto;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1rem, 3vh, 2rem);
   text-align: center;
   transform: translateY(20px); opacity: 0;
 }
@@ -5406,9 +5406,10 @@ select:-webkit-autofill:focus {
 .re-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(1rem, 2vw, 2rem);
   align-content: center;
+  justify-content: center;
   perspective: 1000px;
 }
 
@@ -5419,6 +5420,9 @@ select:-webkit-autofill:focus {
   border-radius: 4px;
   overflow: hidden;
   aspect-ratio: 4/5;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
   opacity: 0;
   transform: translateY(30px) rotateX(5deg);
   transition: transform 0.3s ease, border-color 0.3s ease;

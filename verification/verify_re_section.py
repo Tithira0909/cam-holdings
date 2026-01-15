@@ -1,37 +1,47 @@
-import time
+
 from playwright.sync_api import sync_playwright
+import time
 
 def verify_re_section():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        page.set_viewport_size({"width": 1280, "height": 800})
+        # Set viewport to a common laptop size to test "oversized" claim
+        page = browser.new_page(viewport={"width": 1366, "height": 768})
+
+        # Load local index.html. Assumes server is running at localhost:5173 or similar,
+        # but since we are in a sandbox without a running dev server, we rely on `npm run dev`
+        # being backgrounded or just checking static if possible.
+        # However, Playwright needs a URL.
+        # We will assume the dev server is NOT running and we need to start it,
+        # OR we assume the user/env handles it.
+        # Given the tools, I should assume I need to start it if I want to verify real rendering.
+        # But I'll try localhost:5173 first.
 
         try:
-            print("Navigating to home...")
-            page.goto("http://localhost:5173", timeout=60000)
-            time.sleep(3)
+            page.goto("http://localhost:5173")
+        except:
+            print("Server not found, skipping interactive verification.")
+            return
 
-            print("Scrolling to trigger RE section...")
-            # Simulate scroll behavior for pinned section
-            # Hero takes ~280vh.
-            # We need to scroll enough to pass Hero and enter RE phase.
+        # Wait for load
+        page.wait_for_timeout(2000)
 
-            # Scroll in steps to allow scrub
-            for i in range(10):
-                page.mouse.wheel(0, 300)
-                time.sleep(0.5)
+        # Scroll to trigger RE section
+        # RE starts after Hero (280vh) + Xfade (60vh) = 340vh.
+        # 340vh * 768 = 2611px.
+        # Plus some buffer into the section.
 
-            # Additional scroll to reveal cards
-            page.mouse.wheel(0, 1000)
-            time.sleep(2)
+        target_scroll = 3000
+        page.mouse.wheel(0, target_scroll)
+        page.wait_for_timeout(1000)
+        page.mouse.wheel(0, 500)
+        page.wait_for_timeout(2000) # Wait for GSAP scrub/tick
 
-            page.screenshot(path="verification/re_section.png")
-            print("Screenshot saved to verification/re_section.png")
-        except Exception as e:
-            print(f"Error: {e}")
-        finally:
-            browser.close()
+        # Take screenshot
+        page.screenshot(path="verification/re_section_fixed.png")
+        print("Screenshot saved to verification/re_section_fixed.png")
+
+        browser.close()
 
 if __name__ == "__main__":
     verify_re_section()
