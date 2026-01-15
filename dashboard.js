@@ -72,6 +72,7 @@ navLinks.forEach(link => {
         if (viewName === 'services') loadServices();
         if (viewName === 'service-types') loadServiceTypes();
         if (viewName === 'projects') loadProjects();
+        if (viewName === 'real-estate') loadRealEstate();
         if (viewName === 'project-tasks') loadProjectTasks();
         if (viewName === 'blogs') loadBlogs();
         if (viewName === 'reviews') loadReviews();
@@ -360,7 +361,10 @@ async function loadProjects(query = '') {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${safe(proj.title)}</td>
+                <td>
+                    ${safe(proj.title)}
+                    <div style="font-size:0.8em; color:#666;">${safe(proj.service_name || '-')}</div>
+                </td>
                 <td>${safe(proj.location || '-')}</td>
                 <td>${safe(proj.budget || '-')}</td>
                 <td><span class="badge ${statusClass}">${safe(proj.status || 'Active')}</span></td>
@@ -377,6 +381,168 @@ async function loadProjects(query = '') {
         tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading projects</td></tr>';
     }
 }
+
+// --- REAL ESTATE LOGIC ---
+let editingRealEstateId = null;
+let reSearchTimeout;
+
+document.getElementById('realEstateSearch')?.addEventListener('input', (e) => {
+    clearTimeout(reSearchTimeout);
+    reSearchTimeout = setTimeout(() => loadRealEstate(e.target.value), 300);
+});
+
+async function loadRealEstate(query = '') {
+    const tbody = document.getElementById('realEstateTableBody');
+    if (!tbody) return;
+
+    try {
+        const url = query ? `/api/admin/projects?search=${encodeURIComponent(query)}` : '/api/admin/projects';
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const projects = await response.json();
+
+        // Filter for "Real Estate" service or similar
+        const reProjects = projects.filter(p => {
+            const sName = (p.service_name || '').toLowerCase();
+            return sName.includes('real estate') || sName.includes('property');
+        });
+
+        tbody.innerHTML = '';
+        if (reProjects.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No properties found</td></tr>';
+            return;
+        }
+
+        reProjects.forEach(proj => {
+            const statusClass = proj.status === 'Active' ? 'badge-active' : 'badge-inactive';
+            const imgUrl = proj.image_url ? (proj.image_url.startsWith('/') ? proj.image_url : '/uploads/' + proj.image_url.split(/[/\\]/).pop()) : 'https://via.placeholder.com/60';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><img src="${imgUrl}" alt="Img" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
+                <td>${safe(proj.title)}</td>
+                <td>${safe(proj.location || '-')}</td>
+                <td>${safe(proj.budget || '-')}</td>
+                <td><span class="badge ${statusClass}">${safe(proj.status || 'Active')}</span></td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editRealEstate(${proj.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteRealEstate(${proj.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error loading real estate:', error);
+        tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Error loading properties</td></tr>';
+    }
+}
+
+// Real Estate Modal Logic
+const reModal = document.getElementById('realEstateModal');
+const openReModalBtn = document.getElementById('openRealEstateModalBtn');
+const closeReModalBtn = document.getElementById('closeRealEstateModal');
+const cancelReBtn = document.getElementById('cancelRealEstateBtn');
+
+async function openRealEstateModal() {
+    reModal.classList.add('active');
+    document.getElementById('realEstateForm').reset();
+    editingRealEstateId = null;
+    document.querySelector('#realEstateModal h2').textContent = 'New Property Card';
+
+    // Auto-fetch Real Estate Service ID
+    try {
+        const response = await fetch('/api/admin/services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const services = await response.json();
+        // Find service with 'Real Estate' in name
+        const reService = services.find(s => s.name.toLowerCase().includes('real estate'));
+        if (reService) {
+            document.getElementById('re_service_id').value = reService.id;
+        } else {
+            console.warn('Real Estate service not found. Defaulting to empty.');
+            // Ideally prompt to create it, but for now we assume it exists or backend handles null
+        }
+    } catch(e) {
+        console.error('Failed to fetch services for RE auto-select', e);
+    }
+}
+
+function closeRealEstateModal() {
+    reModal.classList.remove('active');
+}
+
+if(openReModalBtn) openReModalBtn.addEventListener('click', openRealEstateModal);
+if(closeReModalBtn) closeReModalBtn.addEventListener('click', closeRealEstateModal);
+if(cancelReBtn) cancelReBtn.addEventListener('click', closeRealEstateModal);
+
+window.editRealEstate = async (id) => {
+    try {
+        const response = await fetch('/api/admin/projects', { headers: { 'Authorization': `Bearer ${token}` } });
+        const projects = await response.json();
+        const item = projects.find(p => p.id === id);
+        if(!item) return;
+
+        editingRealEstateId = id;
+        document.querySelector('#realEstateModal h2').textContent = 'Edit Property Card';
+
+        const form = document.getElementById('realEstateForm');
+        form.querySelector('#re_title').value = item.title;
+        form.querySelector('#re_location').value = item.location || '';
+        form.querySelector('#re_budget').value = item.budget || '';
+        form.querySelector('#re_status').value = item.status || 'Active';
+        form.querySelector('#re_service_id').value = item.service_id || '';
+
+        reModal.classList.add('active');
+    } catch(e) { console.error(e); }
+};
+
+document.getElementById('realEstateForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    // Default description if missing (backend might require it)
+    if (!formData.get('description')) {
+        formData.append('description', 'Real Estate Property');
+    }
+
+    try {
+        let url = '/api/admin/projects';
+        let method = 'POST'; // Backend admin_projects.js uses POST for create
+
+        if (editingRealEstateId) {
+            url = `/api/admin/projects/${editingRealEstateId}`;
+            method = 'PUT'; // Backend admin_projects.js uses PUT for update
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+
+        if (response.ok) {
+            closeRealEstateModal();
+            loadRealEstate();
+            alert(editingRealEstateId ? 'Property updated!' : 'Property added!');
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Failed to save property');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error saving property');
+    }
+});
+
+window.deleteRealEstate = async (id) => {
+    if (!confirm('Are you sure?')) return;
+    try {
+        const response = await fetch(`/api/admin/projects/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) loadRealEstate();
+        else alert('Failed to delete');
+    } catch (e) { console.error(e); }
+};
 
 // --- NEW PROJECT PAGE LOGIC ---
 let projectEditorInstance;

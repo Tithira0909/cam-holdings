@@ -22,15 +22,19 @@ const upload = multer({ storage: storage });
 router.get('/', authenticateToken, async (req, res) => {
     const { search } = req.query;
     try {
-        let query = 'SELECT * FROM projects';
+        let query = `
+            SELECT p.*, s.name as service_name
+            FROM projects p
+            LEFT JOIN services s ON p.service_id = s.id
+        `;
         const params = [];
 
         if (search) {
-            query += ' WHERE title LIKE ? OR location LIKE ?';
+            query += ' WHERE p.title LIKE ? OR p.location LIKE ?';
             params.push(`%${search}%`, `%${search}%`);
         }
 
-        query += ' ORDER BY created_at DESC';
+        query += ' ORDER BY p.created_at DESC';
 
         const [projects] = await db.query(query, params);
         res.json(projects);
