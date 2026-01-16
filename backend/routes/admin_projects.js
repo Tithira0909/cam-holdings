@@ -76,12 +76,22 @@ router.post('/', authenticateToken, upload.fields([{ name: 'image', maxCount: 1 
 
 // PUT update project
 router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
-    const { title, location, budget, status, description, progress_status } = req.body;
+    const {
+        title, location, budget, status, description, progress_status,
+        client_id, slug, service_id, project_status, start_date, end_date, is_featured
+    } = req.body;
     const id = req.params.id;
 
     try {
-        let query = 'UPDATE projects SET title=?, location=?, budget=?, status=?, description=?, progress_status=?';
-        let params = [title, location, budget, status, description, progress_status];
+        let query = `UPDATE projects SET
+            title=?, location=?, budget=?, status=?, description=?, progress_status=?,
+            client_id=?, slug=?, service_id=?, project_status=?, start_date=?, end_date=?, is_featured=?`;
+
+        let params = [
+            title, location, budget, status, description, progress_status,
+            client_id || null, slug || null, service_id || null, project_status || null,
+            start_date || null, end_date || null, is_featured === 'Yes'
+        ];
 
         if (req.file) {
             query += ', image_url=?';

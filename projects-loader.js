@@ -7,12 +7,17 @@ async function initProjects() {
     // Show loading state or clear
     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading projects...</p>';
 
+    // Parse query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('cat') || urlParams.get('pillar') || '';
+
     try {
-        // We use the existing /api/projects endpoint which is public
-        // However, api.js fetchPublic uses /api/ prefix.
-        // backend/routes/projects.js is mounted at /api/projects.
-        // So endpoint is /projects.
-        const projects = await fetchPublic('/projects');
+        let endpoint = '/projects';
+        if (category) {
+            endpoint += `?pillar=${encodeURIComponent(category)}`;
+        }
+
+        const projects = await fetchPublic(endpoint);
 
         if (projects.length === 0) {
             grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No projects found.</p>';
@@ -27,15 +32,18 @@ async function initProjects() {
             const card = document.createElement('article');
             card.className = 'card';
 
-            // Infer tags from title/description for filtering
-            const text = (project.title + ' ' + project.description).toLowerCase();
+            // Infer tags from service_slug or title/description for filtering
             const tags = [];
+            const slug = (project.service_slug || '').toLowerCase();
+            const text = (project.title + ' ' + (project.description || '')).toLowerCase();
+
+            if (slug) tags.push(slug);
             if (text.includes('interior')) tags.push('interior');
             if (text.includes('architecture')) tags.push('architecture');
             if (text.includes('construction')) tags.push('construction');
             if (text.includes('landscape')) tags.push('landscape');
             if (text.includes('commercial')) tags.push('commercial');
-            // If no tags found, maybe default to 'all' (logic handles 'all' separately)
+            if (text.includes('real estate') || slug.includes('real-estate')) tags.push('real-estate');
 
             card.dataset.tags = tags.join(' ');
             card.dataset.title = project.title;
@@ -47,8 +55,8 @@ async function initProjects() {
             if (project.progress_status) metaParts.push(project.progress_status);
             const metaText = metaParts.join(' • ');
 
-            // Badge: First tag or 'Project'
-            const badgeText = tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project';
+            // Badge: Category or First tag or 'Project'
+            const badgeText = project.category_name || (tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project');
 
             const imageUrl = getImageUrl(project.image_url);
 
@@ -70,7 +78,7 @@ async function initProjects() {
         });
 
         // Initialize filtering logic after cards are added
-        initFiltering();
+        initFiltering(category);
 
         // Initialize animations if needed (from script.js?)
         // script.js uses ScrollTrigger on elements. If we add them late, we might need refresh.
@@ -87,7 +95,7 @@ async function initProjects() {
     }
 }
 
-function initFiltering() {
+function initFiltering(initialCategory) {
     const q = document.getElementById("q");
     const chips = document.getElementById("chips");
     const sort = document.getElementById("sort");
@@ -95,7 +103,30 @@ function initFiltering() {
     const empty = document.getElementById("empty");
     const resetBtn = document.getElementById("reset");
 
-    let activeTag = "all";
+    // Add Real Estate chip if missing
+    if (chips && !chips.querySelector('[data-tag="real-estate"]')) {
+        const btn = document.createElement('button');
+        btn.className = 'chip';
+        btn.dataset.tag = 'real-estate';
+        btn.textContent = 'Real Estate';
+        chips.appendChild(btn);
+    }
+
+    let activeTag = initialCategory || "all";
+
+    // Set initial active chip
+    if (activeTag !== "all" && chips) {
+        chips.querySelectorAll(".chip").forEach(b => {
+            if(b.dataset.tag === activeTag) {
+                b.classList.add("active");
+                // Remove active from 'all'
+                const allBtn = chips.querySelector('[data-tag="all"]');
+                if(allBtn) allBtn.classList.remove("active");
+            } else {
+                b.classList.remove("active");
+            }
+        });
+    }
 
     function getCards(){
       return Array.from(cardsWrap.querySelectorAll(".card"));
@@ -109,7 +140,8 @@ function initFiltering() {
       let filtered = cards.filter(c => {
         const tags = (c.dataset.tags || "").toLowerCase();
         const title = (c.dataset.title || "").toLowerCase();
-        const tagOk = (activeTag === "all") || tags.includes(activeTag);
+        // Exact match or includes? Includes is safer for multi-tag
+        const tagOk = (activeTag === "all") || tags.includes(activeTag.toLowerCase());
         const termOk = !term || title.includes(term) || tags.includes(term);
         return tagOk && termOk;
       });

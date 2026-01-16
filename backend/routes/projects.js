@@ -6,29 +6,57 @@ const { authenticateToken } = require('../middleware/auth');
 // GET all projects
 router.get('/', async (req, res) => {
   try {
-    const query = `
-      SELECT p.*, s.name as service_name, st.name as category_name
+    let query = `
+      SELECT p.*, s.name as service_name, st.name as category_name, st.slug as service_slug
       FROM projects p
       LEFT JOIN services s ON p.service_id = s.id
       LEFT JOIN service_types st ON s.service_type_id = st.id
+      WHERE 1=1
     `;
-    const [projects] = await db.query(query);
+
+    const params = [];
+    const { pillar, featured, sort, limit } = req.query;
+
+    if (pillar) {
+      query += ' AND st.slug = ?';
+      params.push(pillar);
+    }
+
+    if (featured === 'true') {
+      query += ' AND p.is_featured = 1';
+    }
+
+    if (sort === 'featured') {
+      query += ' ORDER BY p.is_featured DESC, p.created_at DESC';
+    } else {
+      query += ' ORDER BY p.created_at DESC';
+    }
+
+    if (limit) {
+      query += ' LIMIT ?';
+      params.push(parseInt(limit));
+    }
+
+    const [projects] = await db.query(query, params);
     res.json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// GET one project
+// GET one project (ID or Slug)
 router.get('/:id', async (req, res) => {
   try {
+    const isId = /^\d+$/.test(req.params.id);
+    const whereClause = isId ? 'p.id = ?' : 'p.slug = ?';
+
     const query = `
       SELECT p.*, s.name as service_name, st.name as category_name, c.name as client_name
       FROM projects p
       LEFT JOIN services s ON p.service_id = s.id
       LEFT JOIN service_types st ON s.service_type_id = st.id
       LEFT JOIN clients c ON p.client_id = c.id
-      WHERE p.id = ?
+      WHERE ${whereClause}
     `;
     const [projects] = await db.query(query, [req.params.id]);
     if (projects.length === 0) return res.status(404).json({ message: 'Project not found' });

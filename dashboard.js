@@ -490,6 +490,10 @@ window.editRealEstate = async (id) => {
         form.querySelector('#re_status').value = item.status || 'Active';
         form.querySelector('#re_service_id').value = item.service_id || '';
 
+        // Handle boolean is_featured (1/0) mapped to Yes/No
+        const isFeat = (item.is_featured === 1 || item.is_featured === true || item.is_featured === 'Yes');
+        form.querySelector('#re_featured').value = isFeat ? 'Yes' : 'No';
+
         reModal.classList.add('active');
     } catch(e) { console.error(e); }
 };

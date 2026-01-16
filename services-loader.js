@@ -51,6 +51,44 @@ async function initServices() {
                 <a class="service-link" href="/contact.html">Discuss this service →</a>
             `;
 
+            // If this is the "Real Estate" card, fetch and append a mini preview
+            if (type.slug.includes('real-estate') || type.name.toLowerCase().includes('real estate')) {
+                // Change link to real-estate.html
+                const link = card.querySelector('.service-link');
+                if (link) {
+                    link.href = '/real-estate.html';
+                    link.textContent = 'View Exclusive Properties →';
+                }
+
+                // Fetch previews
+                fetchPublic('/projects?pillar=real-estate&featured=true&limit=3')
+                    .then(projects => {
+                        if (projects && projects.length > 0) {
+                            const previewDiv = document.createElement('div');
+                            previewDiv.className = 'service-preview-list';
+                            previewDiv.style.marginTop = '1rem';
+                            previewDiv.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+                            previewDiv.style.paddingTop = '1rem';
+
+                            let html = '<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px; color:rgba(255,255,255,0.5);">Latest</div>';
+
+                            const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
+
+                            projects.forEach(p => {
+                                const link = p.slug ? `/project-details.html?slug=${safe(p.slug)}` : `/project-details.html?id=${p.id}`;
+                                html += `
+                                    <a href="${link}" style="display:block; font-size:0.9rem; color:rgba(255,255,255,0.85); margin-bottom:4px; text-decoration:none;">
+                                        • ${safe(p.title)}
+                                    </a>
+                                `;
+                            });
+                            previewDiv.innerHTML = html;
+                            card.appendChild(previewDiv);
+                        }
+                    })
+                    .catch(err => console.error(err));
+            }
+
             grid.appendChild(card);
         });
 
