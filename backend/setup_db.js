@@ -181,16 +181,38 @@ async function setupDatabase() {
     await db.query(`
       CREATE TABLE IF NOT EXISTS reviews (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        client_name VARCHAR(255) NOT NULL,
-        description TEXT,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        message TEXT,
         rating INT DEFAULT 5,
-        source VARCHAR(50) DEFAULT 'unknown',
-        is_approved BOOLEAN DEFAULT FALSE,
-        status VARCHAR(20) DEFAULT 'Active',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        source VARCHAR(50) DEFAULT 'Google',
+        is_active BOOLEAN DEFAULT FALSE,
+        is_published BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('Reviews table created or already exists.');
+
+    // Migration for Reviews Table
+    const reviewMigrationQueries = [
+        "ALTER TABLE reviews CHANGE COLUMN client_name name VARCHAR(255) NOT NULL",
+        "ALTER TABLE reviews CHANGE COLUMN description message TEXT",
+        "ALTER TABLE reviews ADD COLUMN email VARCHAR(255)",
+        "ALTER TABLE reviews ADD COLUMN is_active BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE reviews ADD COLUMN is_published BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE reviews ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    ];
+
+    for (const query of reviewMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060 && error.errno !== 1054) { // 1060: Duplicate column, 1054: Unknown column (if renaming already done)
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
+    console.log('Reviews table created or updated.');
 
     // Create Inquiries Table
     await db.query(`

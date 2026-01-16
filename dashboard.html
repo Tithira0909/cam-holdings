@@ -1128,17 +1128,18 @@
                 <table class="clients-table">
                     <thead>
                         <tr>
-                            <th>Client Name</th>
-                            <th>Review</th>
+                            <th>Name</th>
+                            <th>Source</th>
                             <th>Rating</th>
-                            <th>Review Source</th>
-                            <th>Is_Approved</th>
+                            <th>Message</th>
                             <th>Status</th>
+                            <th>Published</th>
+                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="reviewsTableBody">
-                        <tr><td colspan="7">Loading...</td></tr>
+                        <tr><td colspan="8">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1856,24 +1857,26 @@
 
             <form id="reviewForm" novalidate>
                 <div class="form-group">
-                    <label for="rev_name">Name</label>
-                    <input type="text" id="rev_name" name="client_name" placeholder="Name" required>
+                    <label for="rev_name">Name *</label>
+                    <input type="text" id="rev_name" name="name" placeholder="Name" required>
                     <div class="error-msg" id="rev_name_error">Name is required</div>
                 </div>
                 <div class="form-group">
-                    <label for="rev_desc">Description</label>
-                    <textarea id="rev_desc" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+                    <label for="rev_email">Email</label>
+                    <input type="email" id="rev_email" name="email" placeholder="Email (Optional)">
+                </div>
+                <div class="form-group">
+                    <label for="rev_message">Message *</label>
+                    <textarea id="rev_message" name="message" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; resize: vertical;" required></textarea>
                 </div>
                 <div class="form-group">
                     <label>Review Source</label>
-                    <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; color: #333; align-items: center;">
-                        <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <input type="radio" name="source" value="Google" checked> Google
-                        </label>
-                        <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <input type="radio" name="source" value="Trustpilot"> Trustpilot
-                        </label>
-                    </div>
+                    <select name="source" id="rev_source" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="Google">Google</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Trustpilot">Trustpilot</option>
+                        <option value="Website">Website</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Rating</label>
@@ -1887,6 +1890,15 @@
                     <div style="font-size: 0.9rem; color: #666; margin-top: 4px;">Selected: <span id="ratingValueDisplay">5</span>/5</div>
                     <input type="hidden" id="rev_rating" name="rating" value="5">
                     <div class="error-msg" id="rev_rating_error">Please select a rating</div>
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 2rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="rev_active" name="is_active"> Active
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="rev_published" name="is_published"> Published
+                    </label>
                 </div>
 
                 <div class="modal-footer">

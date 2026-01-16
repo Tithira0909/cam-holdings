@@ -57,7 +57,6 @@
 
         <a class="brand" href="/index.html" aria-label="CAM Holdings Home">
           <img class="brand-mark" src="/cam-logo.png" alt="CAM Holdings Logo" />
-          <span class="brand-text">CAM <em>Holdings</em></span>
         </a>
 
         <div class="nav-right">
@@ -73,9 +72,11 @@
         <div class="mega" aria-hidden="true">
           <div class="mega-inner">
             <div class="mega-col">
-              <h4 data-step="01" data-title="Real Estate & Development" data-img="/assets/mega/realestate.jpg">
-                Real Estate & Property Development
-              </h4>
+              <a href="/real-estate.html" class="mega-hdr-link">
+                <h4 data-step="01" data-title="Real Estate & Development" data-img="/assets/mega/realestate.jpg">
+                  Real Estate & Property Development
+                </h4>
+              </a>
               <a data-step="01" data-title="Land Projects / Gated Communities" data-img="/assets/mega/realestate.jpg" href="/services.html">
                 Land Projects / Gated Communities
               </a>
@@ -91,7 +92,9 @@
             </div>
 
             <div class="mega-col">
-              <h4 data-step="01" data-title="Design & Architecture" data-img="/assets/mega/design.jpg">Design & Architecture</h4>
+              <a href="/architecture.html" class="mega-hdr-link">
+                <h4 data-step="01" data-title="Design & Architecture" data-img="/assets/mega/design.jpg">Design & Architecture</h4>
+              </a>
               <a data-step="02" data-title="Design Packages" data-img="/assets/mega/design.jpg" href="#packages">
                 Design Packages (Basic / Premium / Luxury)
               </a>
@@ -101,9 +104,11 @@
             </div>
 
             <div class="mega-col">
-              <h4 data-step="01" data-title="Construction & Management" data-img="/assets/mega/construction.jpg">
-                Construction & Project Management
-              </h4>
+              <a href="/construction.html" class="mega-hdr-link">
+                <h4 data-step="01" data-title="Construction & Management" data-img="/assets/mega/construction.jpg">
+                  Construction & Project Management
+                </h4>
+              </a>
               <a data-step="02" data-title="Full Build Services" data-img="/assets/mega/fullbuild.jpg" href="/services.html">
                 Full Build Services
               </a>
@@ -116,7 +121,9 @@
             </div>
 
             <div class="mega-col">
-              <h4 data-step="01" data-title="Interiors & Finishing" data-img="/assets/mega/interiors.jpg">Interiors & Finishing</h4>
+              <a href="/interiors.html" class="mega-hdr-link">
+                <h4 data-step="01" data-title="Interiors & Finishing" data-img="/assets/mega/interiors.jpg">Interiors & Finishing</h4>
+              </a>
               <a data-step="02" data-title="Full Interior Packages" data-img="/assets/mega/interiorpack.jpg" href="#packages">
                 Full Interior Packages
               </a>
@@ -158,10 +165,6 @@
             <div class="drawer-top">
               <div class="drawer-brand">
                 <img src="/cam-logo.png" alt="" />
-                <div>
-                  <strong>CAM Holdings</strong>
-                  <span>(PVT) LTD</span>
-                </div>
               </div>
               <button class="drawer-close" type="button" aria-label="Close menu">✕</button>
             </div>
@@ -524,6 +527,74 @@
   </div>
 </section>
 
+<!-- LEAVE A REVIEW SECTION -->
+<section class="section" id="leave-review">
+  <div class="wrap">
+    <h2 class="h2 center" style="margin-bottom: 2rem; text-align: center;">LEAVE US A REVIEW!</h2>
+    <div class="lr-grid">
+      <!-- Left: Buttons -->
+      <div class="lr-buttons">
+        <a href="https://google.com" target="_blank" class="btn-review btn-google">
+          <span class="icon">G</span> Review us on Google
+        </a>
+        <a href="https://facebook.com" target="_blank" class="btn-review btn-facebook">
+          <span class="icon">f</span> Review us on Facebook
+        </a>
+        <a href="https://twitter.com" target="_blank" class="btn-review btn-twitter">
+          <span class="icon">𝕏</span> Review us on Twitter
+        </a>
+        <a href="https://trustpilot.com" target="_blank" class="btn-review btn-trustpilot">
+          <span class="icon">★</span> Review us on Trustpilot
+        </a>
+      </div>
+
+      <!-- Right: Form -->
+      <div class="lr-form-wrap">
+        <form id="leaveReviewForm" class="lr-form">
+          <div class="form-row">
+            <label>Name</label>
+            <input type="text" name="name" required>
+          </div>
+          <div class="form-row">
+            <label>Email</label>
+            <input type="email" name="email">
+          </div>
+          <div class="form-row">
+            <label>Message</label>
+            <textarea name="message" rows="4" required></textarea>
+          </div>
+          <div class="form-row">
+             <label>Rating</label>
+             <div class="star-rating-input" id="starRatingInput">
+                <span data-val="1">★</span>
+                <span data-val="2">★</span>
+                <span data-val="3">★</span>
+                <span data-val="4">★</span>
+                <span data-val="5" class="selected">★</span>
+             </div>
+             <input type="hidden" name="rating" id="ratingInput" value="5">
+          </div>
+          <div class="form-row">
+             <label>Source (Optional)</label>
+             <select name="source">
+                <option value="Website">Website (Direct)</option>
+                <option value="Google">Google</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Twitter">Twitter</option>
+                <option value="Trustpilot">Trustpilot</option>
+             </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Submit Review</button>
+          </div>
+          <p class="form-msg" id="reviewMsg"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
 
         <!-- FOOTER -->
    <footer class="adaline-footer">
@@ -543,14 +614,6 @@
 
     <!-- Columns -->
     <div class="footer-cols">
-      <div class="footer-col">
-        <h4 class="footer-title">PILLARS</h4>
-        <a class="footer-link" href="#iterate">Iterate</a>
-        <a class="footer-link" href="#evaluate">Evaluate</a>
-        <a class="footer-link" href="#deploy">Deploy</a>
-        <a class="footer-link" href="#monitor">Monitor</a>
-      </div>
-
       <div class="footer-col">
         <h4 class="footer-title">PRODUCTS</h4>
         <a class="footer-link" href="#editor">Editor</a>

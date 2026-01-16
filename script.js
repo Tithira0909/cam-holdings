@@ -27,9 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------------------------------
   // 1) TUNABLES
   // -------------------------------------------------------
-  const HERO_SCROLL_VH = 420;
-  const XFADE_SCROLL_VH = 90;
-  const ITER_SCROLL_VH = 320;
+  const HERO_SCROLL_VH = 280;
+  const XFADE_SCROLL_VH = 60;
+  const ITER_SCROLL_VH = 200;
   const HERO_FRAME_COUNT = 100;
 
   const ITERATE_SNAP = true;
@@ -1000,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "projects",
       beats: 3,
-      endVh: 240,
+      endVh: 140,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const lines = sec.querySelectorAll("[data-project-lines] .plist, .projects-list .plist");
@@ -1022,7 +1022,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "packages",
       beats: 3,
-      endVh: 220,
+      endVh: 130,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const pkgs = sec.querySelectorAll(".pkg");
@@ -1043,7 +1043,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "book",
       beats: 3,
-      endVh: 210,
+      endVh: 130,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const card = sec.querySelector(".book-form");
@@ -1069,7 +1069,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "reviews",
       beats: 3,
-      endVh: 200,
+      endVh: 130,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const reviews = sec.querySelectorAll(".review");
