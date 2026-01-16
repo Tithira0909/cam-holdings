@@ -502,25 +502,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const reProjects = data; // API handles filtering
 
       if(reProjects.length === 0) {
-          // Fallback dummy data for visualization if DB is empty
-          const dummy = [
-            { id: 991, title: "Ocean View Residence", price_budget: "$1.2M", location: "Colombo 03", cover_image_url: "/assets/projects/p1.jpg" },
-            { id: 992, title: "Hilltop Villa", price_budget: "$850k", location: "Kandy", cover_image_url: "/assets/projects/p2.jpg" },
-            { id: 993, title: "City Apartment", price_budget: "$450k", location: "Colombo 07", cover_image_url: "/assets/projects/p3.jpg" }
-          ];
-          grid.innerHTML = dummy.map(p => {
-             const img = p.cover_image_url;
-             return `
-              <a href="/property.html?slug=${p.id}" class="re-card">
-                 <div class="re-media" style="background-image:url('${safe(img)}')"></div>
-                 <div class="re-info">
-                    <div class="re-price">${safe(p.price_budget)}</div>
-                    <div class="re-name">${safe(p.title)}</div>
-                    <div class="re-loc">${safe(p.location)}</div>
-                 </div>
-              </a>
-             `;
-          }).join('');
+          grid.innerHTML = '<p class="muted" style="text-align:center; width:100%;">No exclusive properties listed at the moment.</p>';
           return;
       }
 
@@ -541,25 +523,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch(e) {
       console.error("RE Fetch Error:", e);
-      // Fallback on error
-      const dummy = [
-        { id: 991, title: "Ocean View Residence", price_budget: "$1.2M", location: "Colombo 03", cover_image_url: "/iterate/plan.jpg" },
-        { id: 992, title: "Hilltop Villa", price_budget: "$850k", location: "Kandy", cover_image_url: "/iterate/design.jpg" },
-        { id: 993, title: "City Apartment", price_budget: "$450k", location: "Colombo 07", cover_image_url: "/iterate/build.jpg" }
-      ];
-      grid.innerHTML = dummy.map(p => {
-         const img = p.cover_image_url;
-         return `
-          <a href="/property.html?id=${p.id}" class="re-card">
-             <div class="re-media" style="background-image:url('${img}')"></div>
-             <div class="re-info">
-                <div class="re-price">${p.price_budget}</div>
-                <div class="re-name">${p.title}</div>
-                <div class="re-loc">${p.location}</div>
-             </div>
-          </a>
-         `;
-      }).join('');
+      grid.innerHTML = '<p class="muted" style="text-align:center; width:100%;">Unable to load properties.</p>';
     }
   }
 

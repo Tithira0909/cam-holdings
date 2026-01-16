@@ -28,3 +28,25 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+5:28:16 PM [vite] (client) page reload script.js
+5:28:17 PM [vite] (client) page reload property.html
+5:29:38 PM [vite] http proxy error: /api/real-estate/properties?featured=true&limit=3
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+5:29:38 PM [vite] http proxy error: /api/public/reviews
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+5:29:42 PM [vite] http proxy error: /api/real-estate/properties
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+5:29:47 PM [vite] http proxy error: /api/admin/dashboard/stats
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+5:29:48 PM [vite] http proxy error: /api/admin/real-estate/properties
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)

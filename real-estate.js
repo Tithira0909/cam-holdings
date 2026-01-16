@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
     try {
-        // Fetch from new Real Estate API
-        const response = await fetch('/api/real-estate/properties?featured=true');
+        // Fetch from new Real Estate API (active properties)
+        const response = await fetch('/api/real-estate/properties');
         const projects = await response.json();
 
         if (!projects || projects.length === 0) {
