@@ -1496,21 +1496,41 @@
                     </div>
                     <div class="form-group">
                         <label for="re_budget">Price / Budget</label>
-                        <input type="text" id="re_budget" name="budget" placeholder="e.g. $1.2M">
+                        <input type="text" id="re_budget" name="priceBudget" placeholder="e.g. $1.2M">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="re_short_desc">Short Description *</label>
+                        <textarea id="re_short_desc" name="shortDescription" rows="2" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;" required></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="re_desc">Full Description</label>
+                        <textarea id="re_desc" name="description" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="re_status">Status</label>
                         <select id="re_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="re_featured">Featured</label>
+                        <select id="re_featured" name="featured" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
                         </select>
                     </div>
                     <div class="form-group full-width">
-                        <label for="re_image">Property Image *</label>
+                        <label for="re_image">Cover Image *</label>
                         <div class="file-input-group">
-                            <input type="file" id="re_image" name="image" accept="image/*">
+                            <input type="file" id="re_image" name="coverImage" accept="image/*">
                         </div>
-                        <p style="font-size: 0.8rem; color: #666; margin-top: 4px;">For best results, use a portrait or square image.</p>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="re_gallery">Gallery Images</label>
+                        <div class="file-input-group">
+                            <input type="file" id="re_gallery" name="galleryImages" accept="image/*" multiple>
+                        </div>
                     </div>
                 </div>
 

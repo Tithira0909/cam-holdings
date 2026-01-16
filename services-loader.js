@@ -60,8 +60,8 @@ async function initServices() {
                     link.textContent = 'View Exclusive Properties →';
                 }
 
-                // Fetch previews
-                fetchPublic('/projects?pillar=real-estate&featured=true&limit=3')
+                // Fetch previews from new API
+                fetchPublic('/real-estate/properties?featured=true&limit=3')
                     .then(projects => {
                         if (projects && projects.length > 0) {
                             const previewDiv = document.createElement('div');
@@ -75,7 +75,7 @@ async function initServices() {
                             const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
                             projects.forEach(p => {
-                                const link = p.slug ? `/project-details.html?slug=${safe(p.slug)}` : `/project-details.html?id=${p.id}`;
+                                const link = `/property.html?slug=${safe(p.slug)}`;
                                 html += `
                                     <a href="${link}" style="display:block; font-size:0.9rem; color:rgba(255,255,255,0.85); margin-bottom:4px; text-decoration:none;">
                                         • ${safe(p.title)}

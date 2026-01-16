@@ -396,36 +396,31 @@ async function loadRealEstate(query = '') {
     if (!tbody) return;
 
     try {
-        const url = query ? `/api/admin/projects?search=${encodeURIComponent(query)}` : '/api/admin/projects';
+        const url = query ? `/api/admin/real-estate/properties?search=${encodeURIComponent(query)}` : '/api/admin/real-estate/properties';
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-        const projects = await response.json();
-
-        // Filter for "Real Estate" service or similar
-        const reProjects = projects.filter(p => {
-            const sName = (p.service_name || '').toLowerCase();
-            return sName.includes('real estate') || sName.includes('property');
-        });
+        const properties = await response.json();
 
         tbody.innerHTML = '';
-        if (reProjects.length === 0) {
+        if (properties.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No properties found</td></tr>';
             return;
         }
 
-        reProjects.forEach(proj => {
-            const statusClass = proj.status === 'Active' ? 'badge-active' : 'badge-inactive';
-            const imgUrl = proj.image_url ? (proj.image_url.startsWith('/') ? proj.image_url : '/uploads/' + proj.image_url.split(/[/\\]/).pop()) : 'https://via.placeholder.com/60';
+        properties.forEach(prop => {
+            const statusClass = (prop.status === 1 || prop.status === true) ? 'badge-active' : 'badge-inactive';
+            const statusText = (prop.status === 1 || prop.status === true) ? 'Active' : 'Inactive';
+            const imgUrl = prop.cover_image_url || 'https://via.placeholder.com/60';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${imgUrl}" alt="Img" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
-                <td>${safe(proj.title)}</td>
-                <td>${safe(proj.location || '-')}</td>
-                <td>${safe(proj.budget || '-')}</td>
-                <td><span class="badge ${statusClass}">${safe(proj.status || 'Active')}</span></td>
+                <td>${safe(prop.title)}</td>
+                <td>${safe(prop.location || '-')}</td>
+                <td>${safe(prop.price_budget || '-')}</td>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>
-                    <button class="btn-sm btn-edit" onclick="editRealEstate(${proj.id})">Edit</button>
-                    <button class="btn-sm btn-deactivate" onclick="deleteRealEstate(${proj.id})">Delete</button>
+                    <button class="btn-sm btn-edit" onclick="editRealEstate(${prop.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteRealEstate(${prop.id})">Delete</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -447,22 +442,6 @@ async function openRealEstateModal() {
     document.getElementById('realEstateForm').reset();
     editingRealEstateId = null;
     document.querySelector('#realEstateModal h2').textContent = 'New Property Card';
-
-    // Auto-fetch Real Estate Service ID
-    try {
-        const response = await fetch('/api/admin/services', { headers: { 'Authorization': `Bearer ${token}` } });
-        const services = await response.json();
-        // Find service with 'Real Estate' in name
-        const reService = services.find(s => s.name.toLowerCase().includes('real estate'));
-        if (reService) {
-            document.getElementById('re_service_id').value = reService.id;
-        } else {
-            console.warn('Real Estate service not found. Defaulting to empty.');
-            // Ideally prompt to create it, but for now we assume it exists or backend handles null
-        }
-    } catch(e) {
-        console.error('Failed to fetch services for RE auto-select', e);
-    }
 }
 
 function closeRealEstateModal() {
@@ -475,9 +454,10 @@ if(cancelReBtn) cancelReBtn.addEventListener('click', closeRealEstateModal);
 
 window.editRealEstate = async (id) => {
     try {
-        const response = await fetch('/api/admin/projects', { headers: { 'Authorization': `Bearer ${token}` } });
-        const projects = await response.json();
-        const item = projects.find(p => p.id === id);
+        const response = await fetch('/api/admin/real-estate/properties', { headers: { 'Authorization': `Bearer ${token}` } });
+        const props = await response.json();
+        const item = props.find(p => p.id === id);
+
         if(!item) return;
 
         editingRealEstateId = id;
@@ -486,13 +466,11 @@ window.editRealEstate = async (id) => {
         const form = document.getElementById('realEstateForm');
         form.querySelector('#re_title').value = item.title;
         form.querySelector('#re_location').value = item.location || '';
-        form.querySelector('#re_budget').value = item.budget || '';
-        form.querySelector('#re_status').value = item.status || 'Active';
-        form.querySelector('#re_service_id').value = item.service_id || '';
-
-        // Handle boolean is_featured (1/0) mapped to Yes/No
-        const isFeat = (item.is_featured === 1 || item.is_featured === true || item.is_featured === 'Yes');
-        form.querySelector('#re_featured').value = isFeat ? 'Yes' : 'No';
+        form.querySelector('#re_budget').value = item.price_budget || '';
+        form.querySelector('#re_short_desc').value = item.short_description || '';
+        form.querySelector('#re_desc').value = item.description || '';
+        form.querySelector('#re_status').value = (item.status === 1 || item.status === true) ? '1' : '0';
+        form.querySelector('#re_featured').value = (item.featured === 1 || item.featured === true) ? '1' : '0';
 
         reModal.classList.add('active');
     } catch(e) { console.error(e); }
@@ -502,18 +480,13 @@ document.getElementById('realEstateForm')?.addEventListener('submit', async (e) 
     e.preventDefault();
     const formData = new FormData(e.target);
 
-    // Default description if missing (backend might require it)
-    if (!formData.get('description')) {
-        formData.append('description', 'Real Estate Property');
-    }
-
     try {
-        let url = '/api/admin/projects';
-        let method = 'POST'; // Backend admin_projects.js uses POST for create
+        let url = '/api/admin/real-estate/properties';
+        let method = 'POST';
 
         if (editingRealEstateId) {
-            url = `/api/admin/projects/${editingRealEstateId}`;
-            method = 'PUT'; // Backend admin_projects.js uses PUT for update
+            url = `/api/admin/real-estate/properties/${editingRealEstateId}`;
+            method = 'PUT';
         }
 
         const response = await fetch(url, {
@@ -539,7 +512,7 @@ document.getElementById('realEstateForm')?.addEventListener('submit', async (e) 
 window.deleteRealEstate = async (id) => {
     if (!confirm('Are you sure?')) return;
     try {
-        const response = await fetch(`/api/admin/projects/${id}`, {
+        const response = await fetch(`/api/admin/real-estate/properties/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

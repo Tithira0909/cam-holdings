@@ -357,6 +357,30 @@ async function setupDatabase() {
     `);
     console.log('Roles table created or already exists.');
 
+    // Real Estate Properties Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS real_estate_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        location VARCHAR(255) NOT NULL,
+        price_budget VARCHAR(255) NOT NULL,
+        status TINYINT(1) DEFAULT 1,
+        featured TINYINT(1) DEFAULT 0,
+        short_description VARCHAR(500) NOT NULL,
+        description TEXT,
+        cover_image VARCHAR(255) NOT NULL,
+        gallery_images TEXT,
+        bedrooms INT,
+        bathrooms INT,
+        area_sqft VARCHAR(100),
+        property_type VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Real Estate Properties table created or already exists.');
+
     // Analytics Settings
     await db.query(`
       CREATE TABLE IF NOT EXISTS analytics_settings (

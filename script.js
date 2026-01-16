@@ -491,34 +491,32 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchRealEstateProjects() {
     const grid = document.getElementById('reGrid');
     if(!grid) return;
+
+    const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
+
     try {
-      const res = await fetch('/api/projects');
-      if(!res.ok) throw new Error('Failed to load projects');
+      const res = await fetch('/api/real-estate/properties?featured=true&limit=3');
+      if(!res.ok) throw new Error('Failed to load properties');
       const data = await res.json();
 
-      // Filter logic: Look for 'Real Estate' in service/category or fallback
-      const reProjects = data.filter(p => {
-          const s = (p.service_name || "").toLowerCase();
-          const c = (p.category_name || "").toLowerCase();
-          return s.includes('real estate') || c.includes('real estate') || (p.title||"").toLowerCase().includes("residence");
-      }).slice(0, 3);
+      const reProjects = data; // API handles filtering
 
       if(reProjects.length === 0) {
-          // Fallback dummy data for visualization if DB is empty/down
+          // Fallback dummy data for visualization if DB is empty
           const dummy = [
-            { id: 991, title: "Ocean View Residence", budget: "$1.2M", location: "Colombo 03", image_url: "/assets/projects/p1.jpg" },
-            { id: 992, title: "Hilltop Villa", budget: "$850k", location: "Kandy", image_url: "/assets/projects/p2.jpg" },
-            { id: 993, title: "City Apartment", budget: "$450k", location: "Colombo 07", image_url: "/assets/projects/p3.jpg" }
+            { id: 991, title: "Ocean View Residence", price_budget: "$1.2M", location: "Colombo 03", cover_image_url: "/assets/projects/p1.jpg" },
+            { id: 992, title: "Hilltop Villa", price_budget: "$850k", location: "Kandy", cover_image_url: "/assets/projects/p2.jpg" },
+            { id: 993, title: "City Apartment", price_budget: "$450k", location: "Colombo 07", cover_image_url: "/assets/projects/p3.jpg" }
           ];
           grid.innerHTML = dummy.map(p => {
-             const img = p.image_url;
+             const img = p.cover_image_url;
              return `
-              <a href="/project-details.html?id=${p.id}" class="re-card">
-                 <div class="re-media" style="background-image:url('${img}')"></div>
+              <a href="/property.html?slug=${p.id}" class="re-card">
+                 <div class="re-media" style="background-image:url('${safe(img)}')"></div>
                  <div class="re-info">
-                    <div class="re-price">${p.budget}</div>
-                    <div class="re-name">${p.title}</div>
-                    <div class="re-loc">${p.location}</div>
+                    <div class="re-price">${safe(p.price_budget)}</div>
+                    <div class="re-name">${safe(p.title)}</div>
+                    <div class="re-loc">${safe(p.location)}</div>
                  </div>
               </a>
              `;
@@ -527,15 +525,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       grid.innerHTML = reProjects.map(p => {
-          // ensure valid image
-          const img = p.image_url ? (p.image_url.startsWith('/') ? p.image_url : '/uploads/' + p.image_url) : '/assets/projects/p1.jpg';
+          const img = p.cover_image_url || 'https://via.placeholder.com/400x300';
+          const link = p.slug ? `/property.html?slug=${safe(p.slug)}` : `/property.html?id=${p.id}`;
           return `
-          <a href="/project-details.html?id=${p.id}" class="re-card">
-             <div class="re-media" style="background-image:url('${img}')"></div>
+          <a href="${link}" class="re-card">
+             <div class="re-media" style="background-image:url('${safe(img)}')"></div>
              <div class="re-info">
-                <div class="re-price">${p.budget || 'Price on Request'}</div>
-                <div class="re-name">${p.title}</div>
-                <div class="re-loc">${p.location || 'Colombo, Sri Lanka'}</div>
+                <div class="re-price">${safe(p.price_budget || 'Price on Request')}</div>
+                <div class="re-name">${safe(p.title)}</div>
+                <div class="re-loc">${safe(p.location || 'Colombo, Sri Lanka')}</div>
              </div>
           </a>
           `;
@@ -545,17 +543,17 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("RE Fetch Error:", e);
       // Fallback on error
       const dummy = [
-        { id: 991, title: "Ocean View Residence", budget: "$1.2M", location: "Colombo 03", image_url: "/iterate/plan.jpg" },
-        { id: 992, title: "Hilltop Villa", budget: "$850k", location: "Kandy", image_url: "/iterate/design.jpg" },
-        { id: 993, title: "City Apartment", budget: "$450k", location: "Colombo 07", image_url: "/iterate/build.jpg" }
+        { id: 991, title: "Ocean View Residence", price_budget: "$1.2M", location: "Colombo 03", cover_image_url: "/iterate/plan.jpg" },
+        { id: 992, title: "Hilltop Villa", price_budget: "$850k", location: "Kandy", cover_image_url: "/iterate/design.jpg" },
+        { id: 993, title: "City Apartment", price_budget: "$450k", location: "Colombo 07", cover_image_url: "/iterate/build.jpg" }
       ];
       grid.innerHTML = dummy.map(p => {
-         const img = p.image_url;
+         const img = p.cover_image_url;
          return `
-          <a href="/project-details.html?id=${p.id}" class="re-card">
+          <a href="/property.html?id=${p.id}" class="re-card">
              <div class="re-media" style="background-image:url('${img}')"></div>
              <div class="re-info">
-                <div class="re-price">${p.budget}</div>
+                <div class="re-price">${p.price_budget}</div>
                 <div class="re-name">${p.title}</div>
                 <div class="re-loc">${p.location}</div>
              </div>
