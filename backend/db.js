@@ -1,15 +1,36 @@
-const mysql = require('mysql2');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 require('dotenv').config();
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || process.env.MYSQL_HOST || '127.0.0.1',
-  user: process.env.DB_USER || process.env.MYSQL_USER || 'root',
-  password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || '',
-  database: process.env.DB_NAME || process.env.MYSQL_DB || 'cam',
-  port: process.env.DB_PORT || process.env.MYSQL_PORT || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+const dbPath = path.resolve(__dirname, 'cam.db');
+
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Error opening database ' + dbPath + ': ' + err.message);
+  } else {
+    console.log('Connected to the SQLite database.');
+  }
 });
 
-module.exports = pool.promise();
+// Helper to wrap sqlite3 in promises (similar to mysql2/promise)
+db.query = function (sql, params) {
+  return new Promise((resolve, reject) => {
+    // Determine if it's a SELECT (all) or INSERT/UPDATE/DELETE (run)
+    const method = sql.trim().toUpperCase().startsWith('SELECT') ? 'all' : 'run';
+
+    this[method](sql, params, function (err, rows) {
+      if (err) {
+        reject(err);
+      } else {
+        // Normalize result format to match what the app expects (rows or result object)
+        if (method === 'run') {
+           resolve([{ insertId: this.lastID, affectedRows: this.changes }]);
+        } else {
+           resolve([rows]);
+        }
+      }
+    });
+  });
+};
+
+module.exports = db;
