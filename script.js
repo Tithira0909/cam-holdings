@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------------------------------
   // 7) STAGE PIN: HERO -> XFADE -> RE -> ITERATE
   // -------------------------------------------------------
-  fetchRealEstateProjects().then(() => {
+  fetchServiceSections().then(() => {
      // Wait for fetch to ensure DOM is ready?
      // Actually initStage works on containers, content can load later.
   });
@@ -488,42 +488,47 @@ document.addEventListener("DOMContentLoaded", () => {
     return stage;
   }
 
-  async function fetchRealEstateProjects() {
+  async function fetchServiceSections() {
     const grid = document.getElementById('reGrid');
     if(!grid) return;
 
     const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
     try {
-      const res = await fetch('/api/real-estate/properties?featured=true&limit=3');
-      if(!res.ok) throw new Error('Failed to load properties');
-      const data = await res.json();
+      const res = await fetch('/api/admin/service-types');
+      if(!res.ok) throw new Error('Failed to load services');
+      let data = await res.json();
 
-      const reProjects = data; // API handles filtering
+      // Filter active & Limit
+      data = data.filter(s => s.status === 'Active').slice(0, 3);
 
-      if(reProjects.length === 0) {
-          grid.innerHTML = '<p class="muted" style="text-align:center; width:100%;">No exclusive properties listed at the moment.</p>';
+      if(data.length === 0) {
+          grid.innerHTML = '<p class="muted" style="text-align:center; width:100%;">Loading services...</p>';
           return;
       }
 
-      grid.innerHTML = reProjects.map(p => {
-          const img = p.cover_image_url || 'https://via.placeholder.com/400x300';
-          const link = p.slug ? `/property.html?slug=${safe(p.slug)}` : `/property.html?id=${p.id}`;
+      grid.innerHTML = data.map(s => {
+          let img = s.thumbnail;
+          if (img && !img.startsWith('http') && !img.startsWith('/')) {
+             img = `/uploads/${s.thumbnail.split(/[/\\]/).pop()}`;
+          }
+          if(!img) img = 'https://via.placeholder.com/400x300?text=Service';
+
+          const link = `/service.html?slug=${safe(s.slug)}`;
           return `
           <a href="${link}" class="re-card">
              <div class="re-media" style="background-image:url('${safe(img)}')"></div>
              <div class="re-info">
-                <div class="re-price">${safe(p.price_budget || 'Price on Request')}</div>
-                <div class="re-name">${safe(p.title)}</div>
-                <div class="re-loc">${safe(p.location || 'Colombo, Sri Lanka')}</div>
+                <div class="re-name">${safe(s.name)}</div>
+                <div class="re-loc" style="margin-top:0.5rem; font-size:0.85rem; opacity:0.8;">${safe(s.description ? s.description.substring(0, 50) + '...' : '')}</div>
              </div>
           </a>
           `;
       }).join('');
 
     } catch(e) {
-      console.error("RE Fetch Error:", e);
-      grid.innerHTML = '<p class="muted" style="text-align:center; width:100%;">Unable to load properties.</p>';
+      console.error("Service Fetch Error:", e);
+      grid.innerHTML = '<p class="muted" style="text-align:center; width:100%;">Unable to load services.</p>';
     }
   }
 

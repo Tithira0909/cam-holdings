@@ -17,19 +17,30 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// GET all services
-router.get('/', authenticateToken, async (req, res) => {
+// GET all services (Public)
+router.get('/', async (req, res) => {
     try {
-        const { search } = req.query;
+        const { search, service_type_id, status } = req.query;
         let query = `
             SELECT s.*, st.name as service_type_name
             FROM services s
             LEFT JOIN service_types st ON s.service_type_id = st.id
+            WHERE 1=1
         `;
         const params = [];
 
+        if (service_type_id) {
+            query += ' AND s.service_type_id = ?';
+            params.push(service_type_id);
+        }
+
+        if (status) {
+            query += ' AND s.status = ?';
+            params.push(status);
+        }
+
         if (search) {
-            query += ' WHERE s.name LIKE ? OR st.name LIKE ?';
+            query += ' AND (s.name LIKE ? OR st.name LIKE ?)';
             params.push(`%${search}%`, `%${search}%`);
         }
 

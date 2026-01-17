@@ -50,3 +50,6 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+3:12:35 PM [vite] (client) page reload service.html
+3:13:43 PM [vite] (client) page reload index.html
+3:14:13 PM [vite] (client) page reload script.js

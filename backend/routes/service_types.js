@@ -18,10 +18,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// GET all service types
-router.get('/', authenticateToken, async (req, res) => {
+// GET all service types (Public)
+router.get('/', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM service_types ORDER BY created_at DESC');
+    const { search } = req.query;
+    let query = 'SELECT * FROM service_types';
+    const params = [];
+    if (search) {
+      query += ' WHERE name LIKE ?';
+      params.push(`%${search}%`);
+    }
+    query += ' ORDER BY created_at DESC';
+    const [rows] = await db.query(query, params);
     res.json(rows);
   } catch (error) {
     console.error(error);
@@ -29,8 +37,20 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// GET one service type
-router.get('/:id', authenticateToken, async (req, res) => {
+// GET service type by slug (Public)
+router.get('/slug/:slug', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM service_types WHERE slug = ?', [req.params.slug]);
+        if (rows.length === 0) return res.status(404).json({ message: 'Service Type not found' });
+        res.json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// GET one service type by ID (Public)
+router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM service_types WHERE id = ?', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ message: 'Service Type not found' });

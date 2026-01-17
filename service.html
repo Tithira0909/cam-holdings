@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Details | CAM Holdings</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Specific Styles for Service Page */
+        .service-hero {
+            position: relative;
+            height: 60vh;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+        }
+        .service-hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+        .service-hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            max-width: 800px;
+        }
+        .service-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .service-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .service-content {
+            padding: var(--secPadY) var(--gutter);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .sub-services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .sub-service-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .sub-service-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+        .ssc-media {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+        .ssc-body {
+            padding: 1.5rem;
+        }
+        .ssc-title {
+            font-size: 1.2rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .ssc-desc {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .service-hero h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body class="page-service">
+
+    <!-- NAV -->
+    <nav class="nav" aria-label="Primary">
+        <div class="nav-left">
+          <a class="nav-link" href="/index.html">Home</a>
+          <a class="nav-link" href="/services.html">Services</a>
+          <a class="nav-link" href="/projects.html">Projects</a>
+          <a class="nav-link" href="/blogs.html">Blogs</a>
+          <a class="nav-link" href="/contact.html">Contact</a>
+        </div>
+        <a class="brand" href="/index.html"><img class="brand-mark" src="/cam-logo.png" alt="CAM Holdings Logo" /></a>
+        <div class="nav-right">
+          <a class="pill" href="/why-cam.html">Why CAM</a>
+          <a class="pill pill-gold" href="get-a-quote.html">Get a Quote</a>
+          <button class="hamburger" type="button"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- HERO -->
+        <section class="service-hero" id="svcHero">
+            <div class="service-hero-content">
+                <h1 id="svcTitle">Loading...</h1>
+                <p id="svcDesc"></p>
+            </div>
+        </section>
+
+        <!-- CONTENT -->
+        <section class="service-content">
+            <div class="kicker"><span class="dot"></span> Our Expertise</div>
+            <h2 class="h2" style="margin-bottom: 2rem;">Specialized Services</h2>
+            <div id="subServicesGrid" class="sub-services-grid">
+                <!-- Loaded via JS -->
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="adaline-footer">
+            <div class="footer-bg"></div>
+            <div class="footer-wrap">
+                <div class="footer-brand">
+                    <a class="footer-logo" href="/"><span class="logo-text">CAM HOLDINGS</span></a>
+                    <p class="footer-copy">© 2025 CAM Holdings. All rights reserved.</p>
+                </div>
+                <div class="footer-cols">
+                   <!-- ... (standard footer cols) ... -->
+                   <div class="footer-col">
+                        <h4 class="footer-title">Navigation</h4>
+                        <a class="footer-link" href="/index.html">Home</a>
+                        <a class="footer-link" href="/projects.html">Projects</a>
+                        <a class="footer-link" href="/services.html">Services</a>
+                   </div>
+                   <div class="footer-col">
+                        <h4 class="footer-title">Contact</h4>
+                        <a class="footer-link" href="/contact.html">Get in Touch</a>
+                        <a class="footer-link" href="/get-a-quote.html">Get a Quote</a>
+                   </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script src="client-api.js"></script>
+    <script src="service.js"></script>
+    <script type="module" src="/script.js"></script>
+</body>
+</html>
