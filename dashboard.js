@@ -86,7 +86,17 @@ navLinks.forEach(link => {
         if (viewName === 'settings-analytics') loadAnalyticsSettings();
         if (viewName === 'settings-site') loadSiteSettings();
         if (viewName === 'settings-email') loadEmailSettings();
-        if (viewName === 'real-estate') loadRealEstateProperties();
+        if (viewName.startsWith('listings-')) {
+            const category = viewName.replace('listings-', '');
+            // Capitalize or map to exact category name expected by backend
+            const categoryMap = {
+                'real-estate': 'Real Estate',
+                'design': 'Design',
+                'construction': 'Construction',
+                'interiors': 'Interiors'
+            };
+            loadListings(categoryMap[category]);
+        }
         if (viewName === 'add-client') {
             resetClientForm();
         }
@@ -2588,105 +2598,115 @@ document.getElementById('emailSettingsForm')?.addEventListener('submit', async (
     } catch(e) { console.error(e); alert('Error'); }
 });
 
-// --- REAL ESTATE LOGIC ---
-let editingRealEstateId = null;
-let realEstateSearchTimeout;
+// --- LISTINGS LOGIC (Generic for Real Estate, Design, etc.) ---
+let editingListingId = null;
+let currentListingCategory = '';
+let listingSearchTimeout;
 
-document.getElementById('realEstateSearch')?.addEventListener('input', (e) => {
-    clearTimeout(realEstateSearchTimeout);
-    realEstateSearchTimeout = setTimeout(() => loadRealEstateProperties(e.target.value), 300);
+document.getElementById('listingSearch')?.addEventListener('input', (e) => {
+    clearTimeout(listingSearchTimeout);
+    listingSearchTimeout = setTimeout(() => loadListings(currentListingCategory, e.target.value), 300);
 });
 
-async function loadRealEstateProperties(query = '') {
-    const tbody = document.getElementById('realEstateTableBody');
+async function loadListings(category, query = '') {
+    currentListingCategory = category;
+    const tbody = document.getElementById('listingsTableBody');
     if (!tbody) return;
 
+    // Update Header
+    document.getElementById('listingViewTitle').textContent = category || 'Listings';
+    document.getElementById('listingViewBreadcrumb').textContent = `Admin / Listings / ${category || 'All'}`;
+
     try {
-        const url = query ? `/api/admin/real-estate?search=${encodeURIComponent(query)}` : '/api/admin/real-estate';
+        let url = `/api/admin/listings?category=${encodeURIComponent(category)}`;
+        if (query) url += `&search=${encodeURIComponent(query)}`;
+
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-        const properties = await response.json();
+        const listings = await response.json();
 
         tbody.innerHTML = '';
-        if (properties.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No properties found</td></tr>';
+        if (listings.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No listings found</td></tr>';
             return;
         }
 
-        properties.forEach(prop => {
-            const thumbUrl = prop.cover_image ? `/uploads/${prop.cover_image.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
-            const statusClass = prop.status === 'Active' ? 'badge-active' : 'badge-inactive';
+        listings.forEach(item => {
+            const thumbUrl = item.cover_image ? `/uploads/${item.cover_image.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
+            const statusClass = item.status === 'Active' ? 'badge-active' : 'badge-inactive';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
-                <td>${safe(prop.title)}</td>
-                <td>${safe(prop.location || '-')}</td>
-                <td>${safe(prop.price || '-')}</td>
-                <td><span class="badge ${statusClass}">${safe(prop.status)}</span></td>
+                <td>${safe(item.title)}</td>
+                <td>${safe(item.location || '-')}</td>
+                <td>${safe(item.price || '-')}</td>
+                <td><span class="badge ${statusClass}">${safe(item.status)}</span></td>
                 <td>
-                    <button class="btn-sm btn-edit" onclick="editRealEstateProperty(${prop.id})">Edit</button>
-                    <button class="btn-sm btn-deactivate" onclick="deleteRealEstateProperty(${prop.id})">Delete</button>
-                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="toggleRealEstateStatus(${prop.id}, '${prop.status}')">
-                        ${prop.status === 'Active' ? 'Deactivate' : 'Activate'}
+                    <button class="btn-sm btn-edit" onclick="editListing(${item.id})">Edit</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteListing(${item.id})">Delete</button>
+                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="toggleListingStatus(${item.id}, '${item.status}')">
+                        ${item.status === 'Active' ? 'Deactivate' : 'Activate'}
                     </button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     } catch (error) {
-        console.error('Error loading properties:', error);
-        tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Error loading properties</td></tr>';
+        console.error('Error loading listings:', error);
+        tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Error loading listings</td></tr>';
     }
 }
 
 // Modal Logic
-const reModal = document.getElementById('realEstateModal');
-const openReBtn = document.getElementById('openRealEstateModalBtn');
-const closeReBtn = document.getElementById('closeRealEstateModal');
-const cancelReBtn = document.getElementById('cancelRealEstateBtn');
+const liModal = document.getElementById('listingModal');
+const openLiBtn = document.getElementById('openListingModalBtn');
+const closeLiBtn = document.getElementById('closeListingModal');
+const cancelLiBtn = document.getElementById('cancelListingBtn');
 
-if(openReBtn) openReBtn.addEventListener('click', () => {
-    reModal.classList.add('active');
-    document.getElementById('realEstateForm').reset();
-    editingRealEstateId = null;
-    reModal.querySelector('h2').textContent = 'New Property';
+if(openLiBtn) openLiBtn.addEventListener('click', () => {
+    liModal.classList.add('active');
+    document.getElementById('listingForm').reset();
+    document.getElementById('li_service_category').value = currentListingCategory;
+    editingListingId = null;
+    liModal.querySelector('h2').textContent = `New ${currentListingCategory} Item`;
 });
-const closeReModalFunc = () => reModal.classList.remove('active');
-if(closeReBtn) closeReBtn.addEventListener('click', closeReModalFunc);
-if(cancelReBtn) cancelReBtn.addEventListener('click', closeReModalFunc);
+const closeLiModalFunc = () => liModal.classList.remove('active');
+if(closeLiBtn) closeLiBtn.addEventListener('click', closeLiModalFunc);
+if(cancelLiBtn) cancelLiBtn.addEventListener('click', closeLiModalFunc);
 
-window.editRealEstateProperty = async (id) => {
+window.editListing = async (id) => {
     try {
-        const response = await fetch(`/api/admin/real-estate`, { headers: { 'Authorization': `Bearer ${token}` } });
-        const properties = await response.json();
-        const prop = properties.find(p => p.id === id);
-        if(!prop) return;
+        const response = await fetch(`/api/admin/listings?category=${encodeURIComponent(currentListingCategory)}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const listings = await response.json();
+        const item = listings.find(p => p.id === id);
+        if(!item) return;
 
-        editingRealEstateId = id;
-        reModal.querySelector('h2').textContent = 'Edit Property';
-        const form = document.getElementById('realEstateForm');
-        form.querySelector('#re_title').value = prop.title;
-        form.querySelector('#re_location').value = prop.location || '';
-        form.querySelector('#re_price').value = prop.price || '';
-        form.querySelector('#re_status').value = prop.status || 'Active';
-        form.querySelector('#re_category').value = prop.category || '';
-        form.querySelector('#re_tags').value = prop.tags || '';
-        form.querySelector('#re_description').value = prop.description || '';
+        editingListingId = id;
+        liModal.querySelector('h2').textContent = 'Edit Item';
+        const form = document.getElementById('listingForm');
+        form.querySelector('#li_service_category').value = item.service_category;
+        form.querySelector('#li_title').value = item.title;
+        form.querySelector('#li_location').value = item.location || '';
+        form.querySelector('#li_price').value = item.price || '';
+        form.querySelector('#li_status').value = item.status || 'Active';
+        form.querySelector('#li_category').value = item.category || '';
+        form.querySelector('#li_tags').value = item.tags || '';
+        form.querySelector('#li_description').value = item.description || '';
 
-        reModal.classList.add('active');
+        liModal.classList.add('active');
     } catch(e) { console.error(e); }
 };
 
-document.getElementById('realEstateForm')?.addEventListener('submit', async (e) => {
+document.getElementById('listingForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
     try {
-        let url = '/api/admin/real-estate';
+        let url = '/api/admin/listings';
         let method = 'POST';
 
-        if(editingRealEstateId) {
-            url = `/api/admin/real-estate/${editingRealEstateId}`;
+        if(editingListingId) {
+            url = `/api/admin/listings/${editingListingId}`;
             method = 'PUT';
         }
 
@@ -2697,32 +2717,32 @@ document.getElementById('realEstateForm')?.addEventListener('submit', async (e) 
         });
 
         if(response.ok) {
-            closeReModalFunc();
-            loadRealEstateProperties();
-            alert(editingRealEstateId ? 'Property updated!' : 'Property created!');
+            closeLiModalFunc();
+            loadListings(currentListingCategory);
+            alert(editingListingId ? 'Item updated!' : 'Item created!');
         } else {
             const data = await response.json();
-            alert(data.message || 'Failed to save property');
+            alert(data.message || 'Failed to save item');
         }
-    } catch(e) { console.error(e); alert('Error saving property'); }
+    } catch(e) { console.error(e); alert('Error saving item'); }
 });
 
-window.deleteRealEstateProperty = async (id) => {
-    if(!confirm('Are you sure you want to delete this property?')) return;
+window.deleteListing = async (id) => {
+    if(!confirm('Are you sure you want to delete this item?')) return;
     try {
-        const response = await fetch(`/api/admin/real-estate/${id}`, {
+        const response = await fetch(`/api/admin/listings/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if(response.ok) loadRealEstateProperties();
-        else alert('Failed to delete property');
+        if(response.ok) loadListings(currentListingCategory);
+        else alert('Failed to delete item');
     } catch(e) { console.error(e); }
 };
 
-window.toggleRealEstateStatus = async (id, currentStatus) => {
+window.toggleListingStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
     try {
-        const response = await fetch(`/api/admin/real-estate/${id}/status`, {
+        const response = await fetch(`/api/admin/listings/${id}/status`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -2730,7 +2750,7 @@ window.toggleRealEstateStatus = async (id, currentStatus) => {
             },
             body: JSON.stringify({ status: newStatus })
         });
-        if(response.ok) loadRealEstateProperties();
+        if(response.ok) loadListings(currentListingCategory);
         else alert('Failed to update status');
     } catch(e) { console.error(e); }
 };

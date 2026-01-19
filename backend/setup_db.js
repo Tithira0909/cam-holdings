@@ -409,24 +409,25 @@ async function setupDatabase() {
     `);
     console.log('Email Settings table created or already exists.');
 
-    // Real Estate Properties
+    // Service Listings (Real Estate, Design, Construction, Interiors)
     await db.query(`
-      CREATE TABLE IF NOT EXISTS real_estate_properties (
+      CREATE TABLE IF NOT EXISTS service_listings (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
-        location VARCHAR(255),
-        price VARCHAR(255),
         description TEXT,
+        price VARCHAR(255),
+        location VARCHAR(255),
         cover_image VARCHAR(255),
         gallery_images TEXT,
         status ENUM('Active', 'Inactive') DEFAULT 'Active',
         category VARCHAR(255),
         tags VARCHAR(255),
+        service_category VARCHAR(50) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('Real Estate Properties table created or already exists.');
+    console.log('Service Listings table created or already exists.');
 
 
     // Add initial admin user if not exists

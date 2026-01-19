@@ -8,21 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    .re-section { padding: 4rem 2rem; background-color: #0a0a0a; }
-    .re-section__inner { max-width: 1200px; margin: 0 auto; }
-    .re-section__title { color: #fff; font-size: 2rem; margin-bottom: 2rem; font-family: 'Inter', sans-serif; }
-    .re-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
-    .re-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; transition: transform 0.3s; }
-    .re-card:hover { transform: translateY(-5px); border-color: #d6b25e; }
-    .re-card__img { width: 100%; height: 200px; object-fit: cover; }
-    .re-card__body { padding: 1.5rem; color: #fff; }
-    .re-card__title { font-size: 1.25rem; margin: 0 0 0.5rem 0; color: #d6b25e; }
-    .re-card__loc { font-size: 0.9rem; color: #aaa; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    .re-card__price { font-size: 1.1rem; font-weight: bold; margin-bottom: 1rem; }
-    .re-card__btn { display: inline-block; padding: 0.5rem 1rem; border: 1px solid #d6b25e; color: #d6b25e; text-decoration: none; border-radius: 4px; transition: all 0.3s; }
-    .re-card__btn:hover { background: #d6b25e; color: #000; }
-  </style>
 </head>
 
 <body class="cam-body">
@@ -66,7 +51,7 @@
 
         <div class="whycam-hero__cta">
           <a class="cam-btn cam-btn--gold" href="contact.html">Request Proposal</a>
-          <a class="cam-btn cam-btn--ghost" href="#property-grid">View Projects</a>
+          <a class="cam-btn cam-btn--ghost" href="#listing-grid">View Listings</a>
         </div>
       </div>
     </section>
@@ -74,9 +59,8 @@
     <section class="re-section">
       <div class="re-section__inner">
         <h2 class="re-section__title">Exclusive Properties</h2>
-        <div id="property-grid" class="re-grid">
-            <!-- Properties loaded via JS -->
-            <p style="color:white; text-align:center;">Loading properties...</p>
+        <div id="listing-grid" class="re-grid" data-category="Real Estate">
+            <p style="color:white; text-align:center;">Loading...</p>
         </div>
       </div>
     </section>
@@ -95,6 +79,6 @@
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
-  <script type="module" src="/real-estate-loader.js"></script>
+  <script type="module" src="/listings-loader.js"></script>
 </body>
 </html>
