@@ -215,3 +215,42 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+9:59:29 AM [vite] (client) page reload dashboard.html
+9:59:38 AM [vite] (client) page reload dashboard.html
+10:00:22 AM [vite] (client) page reload dashboard.js
+10:01:11 AM [vite] http proxy error: /api/properties?category=Real%20Estate
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:11 AM [vite] http proxy error: /api/public/reviews
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:12 AM [vite] http proxy error: /api/properties?category=Real%20Estate
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:12 AM [vite] http proxy error: /api/properties?category=Design%20%26%20Architecture
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:12 AM [vite] http proxy error: /api/properties?category=Construction%20%26%20Project%20Management
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:12 AM [vite] http proxy error: /api/properties?category=Interiors%20%26%20Finishing
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:13 AM [vite] http proxy error: /api/properties?category=Real%20Estate
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:13 AM [vite] http proxy error: /api/properties/test-villa
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:01:13 AM [vite] http proxy error: /api/properties?category=Design%20%26%20Architecture
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)

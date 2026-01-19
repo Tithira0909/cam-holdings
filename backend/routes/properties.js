@@ -173,17 +173,17 @@ router.patch('/admin/properties/:id/status', authenticateToken, async (req, res)
     }
 });
 
-// PATCH Activate/Deactivate (Requirement Alias)
-router.patch('/properties/:id/activate', authenticateToken, async (req, res) => {
-    // This expects body to contain active_status boolean, or we just toggle?
-    // Requirement: "activate or deactivate a property"
-    // Assuming JSON body { active_status: true/false } or we map it to status ENUM
-    const { active_status } = req.body; // Expect boolean
-    const status = active_status ? 'Active' : 'Inactive';
-
+// PATCH Toggle Status (Requirement Alias)
+router.patch('/properties/:id/toggle-status', authenticateToken, async (req, res) => {
     try {
-        await db.query('UPDATE properties SET status = ? WHERE id = ?', [status, req.params.id]);
-        res.json({ message: 'Active status updated' });
+        // Toggle logic: Fetch current, switch it
+        const [current] = await db.query('SELECT status FROM properties WHERE id = ?', [req.params.id]);
+        if (current.length === 0) return res.status(404).json({ message: 'Property not found' });
+
+        const newStatus = current[0].status === 'Active' ? 'Inactive' : 'Active';
+        await db.query('UPDATE properties SET status = ? WHERE id = ?', [newStatus, req.params.id]);
+
+        res.json({ message: `Property ${newStatus === 'Active' ? 'activated' : 'deactivated'} successfully`, status: newStatus });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

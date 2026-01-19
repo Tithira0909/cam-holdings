@@ -1510,6 +1510,10 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="li_service_category_display">Property Type</label>
+                        <input type="text" id="li_service_category_display" readonly style="background-color: #f0f0f0; color: #555;">
+                    </div>
+                    <div class="form-group">
                         <label for="li_category">Sub-Category</label>
                         <input type="text" id="li_category" name="category" placeholder="e.g. Villa, Modern, Renovation">
                     </div>
@@ -1525,6 +1529,9 @@
                         <label for="li_cover_image">Cover Image</label>
                         <div class="file-input-group">
                             <input type="file" id="li_cover_image" name="cover_image" accept="image/*">
+                        </div>
+                        <div id="imagePreviewContainer" style="margin-top: 10px; display: none;">
+                            <img id="imagePreview" src="" alt="Preview" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px;">
                         </div>
                     </div>
                     <div class="form-group full-width">

@@ -2667,6 +2667,8 @@ if(openLiBtn) openLiBtn.addEventListener('click', () => {
     liModal.classList.add('active');
     document.getElementById('listingForm').reset();
     document.getElementById('li_service_category').value = currentListingCategory;
+    document.getElementById('li_service_category_display').value = currentListingCategory;
+    document.getElementById('imagePreviewContainer').style.display = 'none';
     editingListingId = null;
     liModal.querySelector('h2').textContent = `New ${currentListingCategory} Item`;
 });
@@ -2685,6 +2687,7 @@ window.editListing = async (id) => {
         liModal.querySelector('h2').textContent = 'Edit Item';
         const form = document.getElementById('listingForm');
         form.querySelector('#li_service_category').value = item.service_category;
+        form.querySelector('#li_service_category_display').value = item.service_category;
         form.querySelector('#li_title').value = item.title;
         if(form.querySelector('#li_slug')) form.querySelector('#li_slug').value = item.slug || '';
         form.querySelector('#li_location').value = item.location || '';
@@ -2693,6 +2696,16 @@ window.editListing = async (id) => {
         form.querySelector('#li_category').value = item.category || '';
         form.querySelector('#li_tags').value = item.tags || '';
         form.querySelector('#li_description').value = item.description || '';
+
+        // Show image preview if exists
+        const prevContainer = document.getElementById('imagePreviewContainer');
+        const prevImg = document.getElementById('imagePreview');
+        if (item.cover_image) {
+            prevImg.src = `/uploads/${item.cover_image.split(/[/\\]/).pop()}`;
+            prevContainer.style.display = 'block';
+        } else {
+            prevContainer.style.display = 'none';
+        }
 
         liModal.classList.add('active');
     } catch(e) { console.error(e); }
@@ -2741,17 +2754,32 @@ window.deleteListing = async (id) => {
 };
 
 window.toggleListingStatus = async (id, currentStatus) => {
-    const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
     try {
-        const response = await fetch(`/api/admin/properties/${id}/status`, {
+        const response = await fetch(`/api/properties/${id}/toggle-status`, {
             method: 'PATCH',
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ status: newStatus })
+                'Authorization': `Bearer ${token}`
+            }
         });
         if(response.ok) loadListings(currentListingCategory);
         else alert('Failed to update status');
     } catch(e) { console.error(e); }
 };
+
+// Image Preview Handler
+document.getElementById('li_cover_image')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const container = document.getElementById('imagePreviewContainer');
+    const img = document.getElementById('imagePreview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            container.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        container.style.display = 'none';
+    }
+});
