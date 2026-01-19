@@ -469,6 +469,14 @@
                 </div>
             </li>
 
+            <!-- Real Estate -->
+            <li class="menu-item">
+                <div class="menu-link nav-btn" data-view="real-estate">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2zm1 14h-2v-4h2v4z"/></svg>
+                    <span class="menu-text">Real Estate</span>
+                </div>
+            </li>
+
             <!-- Customer Reviews -->
             <li class="menu-item collapsible">
                 <div class="menu-link">
@@ -591,6 +599,36 @@
                     </thead>
                     <tbody id="inquiriesTableBody">
                         <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Real Estate View -->
+            <div id="view-real-estate" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2>Real Estate Properties</h2>
+                    <span class="breadcrumb">Admin / Real Estate Properties</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openRealEstateModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Property</button>
+                    <input type="text" id="realEstateSearch" class="search-input" placeholder="Search Properties" style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Location</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="realEstateTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="6">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1425,6 +1463,69 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelServiceTypeBtn">Close</button>
                     <button type="submit" class="btn-primary">Create Service Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Real Estate Modal -->
+    <div id="realEstateModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Property</h2>
+                <button class="close-modal-btn" id="closeRealEstateModal">&times;</button>
+            </div>
+
+            <form id="realEstateForm" enctype="multipart/form-data">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="re_title">Property Title *</label>
+                        <input type="text" id="re_title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="re_location">Location</label>
+                        <input type="text" id="re_location" name="location">
+                    </div>
+                    <div class="form-group">
+                        <label for="re_price">Price / Budget</label>
+                        <input type="text" id="re_price" name="price">
+                    </div>
+                    <div class="form-group">
+                        <label for="re_status">Status</label>
+                        <select id="re_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="re_category">Category</label>
+                        <input type="text" id="re_category" name="category" placeholder="e.g. Villa, Apartment, Land">
+                    </div>
+                    <div class="form-group">
+                        <label for="re_tags">Tags</label>
+                        <input type="text" id="re_tags" name="tags" placeholder="Comma separated tags">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="re_description">Description</label>
+                        <textarea id="re_description" name="description" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="re_cover_image">Cover Image</label>
+                        <div class="file-input-group">
+                            <input type="file" id="re_cover_image" name="cover_image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="re_gallery">Gallery Images</label>
+                        <div class="file-input-group">
+                            <input type="file" id="re_gallery" name="gallery_images" accept="image/*" multiple>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelRealEstateBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Property</button>
                 </div>
             </form>
         </div>

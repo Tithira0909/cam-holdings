@@ -409,6 +409,25 @@ async function setupDatabase() {
     `);
     console.log('Email Settings table created or already exists.');
 
+    // Real Estate Properties
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS real_estate_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        location VARCHAR(255),
+        price VARCHAR(255),
+        description TEXT,
+        cover_image VARCHAR(255),
+        gallery_images TEXT,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        category VARCHAR(255),
+        tags VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Real Estate Properties table created or already exists.');
+
 
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
