@@ -3,14 +3,16 @@ import { fetchPublic, getImageUrl } from './client-api.js';
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
+    const slug = params.get('slug');
+    const identifier = slug || id;
 
-    if (!id) {
+    if (!identifier) {
         window.location.href = 'index.html';
         return;
     }
 
     try {
-        const property = await fetchPublic(`/properties/${id}`);
+        const property = await fetchPublic(`/properties/${identifier}`);
         renderProperty(property);
     } catch (error) {
         console.error('Error loading property:', error);

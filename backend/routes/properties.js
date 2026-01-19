@@ -40,11 +40,12 @@ router.get('/properties', async (req, res) => {
     }
 });
 
-// GET Single Property
-router.get('/properties/:id', async (req, res) => {
+// GET Single Property (by ID or Slug)
+router.get('/properties/:idOrSlug', async (req, res) => {
     try {
-        const query = "SELECT * FROM properties WHERE id = ? AND status = 'Active'";
-        const [properties] = await db.query(query, [req.params.id]);
+        const param = req.params.idOrSlug;
+        let query = "SELECT * FROM properties WHERE (id = ? OR slug = ?) AND status = 'Active'";
+        const [properties] = await db.query(query, [param, param]);
         if (properties.length === 0) return res.status(404).json({ message: 'Property not found' });
         res.json(properties[0]);
     } catch (error) {
@@ -84,21 +85,30 @@ router.get('/admin/properties', authenticateToken, async (req, res) => {
     }
 });
 
+// Helper to generate slug
+const generateSlug = (title) => {
+    return title.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+};
+
 // POST Create Property
 router.post('/admin/properties', authenticateToken, upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'gallery_images', maxCount: 10 }]), async (req, res) => {
-    const { title, location, price, description, status, category, tags, service_category } = req.body;
+    const { title, location, price, description, status, category, tags, service_category, slug } = req.body;
     const files = req.files || {};
 
     const cover_image = files['cover_image'] ? files['cover_image'][0].path : null;
     const gallery_files = files['gallery_images'] ? files['gallery_images'].map(f => f.path) : [];
     const gallery_images = JSON.stringify(gallery_files);
 
+    const finalSlug = slug || generateSlug(title) + '-' + Date.now();
+
     try {
         const [result] = await db.query(
             `INSERT INTO properties (
-                title, location, price, description, cover_image, gallery_images, status, category, tags, service_category
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [title, location, price, description, cover_image, gallery_images, status || 'Active', category, tags, service_category]
+                title, slug, location, price, description, cover_image, gallery_images, status, category, tags, service_category
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [title, finalSlug, location, price, description, cover_image, gallery_images, status || 'Active', category, tags, service_category]
         );
         res.status(201).json({ id: result.insertId, message: 'Property created successfully' });
     } catch (error) {
@@ -108,14 +118,18 @@ router.post('/admin/properties', authenticateToken, upload.fields([{ name: 'cove
 
 // PUT Update Property
 router.put('/admin/properties/:id', authenticateToken, upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'gallery_images', maxCount: 10 }]), async (req, res) => {
-    const { title, location, price, description, status, category, tags, service_category } = req.body;
+    const { title, location, price, description, status, category, tags, service_category, slug } = req.body;
     const id = req.params.id;
     const files = req.files || {};
 
     try {
-        // Build update query dynamically
         let query = "UPDATE properties SET title=?, location=?, price=?, description=?, status=?, category=?, tags=?, service_category=?";
         let params = [title, location, price, description, status, category, tags, service_category];
+
+        if (slug) {
+            query += ", slug=?";
+            params.push(slug);
+        }
 
         if (files['cover_image']) {
             query += ", cover_image=?";

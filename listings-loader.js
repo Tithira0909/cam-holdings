@@ -31,12 +31,13 @@ function createCard(item) {
     const title = item.title || 'Untitled';
     const location = item.location || '';
     const price = item.price || '';
+    const link = item.slug ? `property.html?slug=${item.slug}` : `property.html?id=${item.id}`;
 
     const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
     return `
         <div class="re-card">
-            <a href="property.html?id=${item.id}" style="text-decoration:none; color:inherit;">
+            <a href="${link}" style="text-decoration:none; color:inherit;">
                 <img src="${imgUrl}" alt="${safe(title)}" class="re-card__img" loading="lazy">
                 <div class="re-card__body">
                     <h3 class="re-card__title">${safe(title)}</h3>
@@ -49,7 +50,7 @@ function createCard(item) {
                 </div>
             </a>
             <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
-                <a href="property.html?id=${item.id}" class="re-card__btn">View Details</a>
+                <a href="${link}" class="re-card__btn">View Details</a>
             </div>
         </div>
     `;

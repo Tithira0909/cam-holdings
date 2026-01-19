@@ -414,6 +414,7 @@ async function setupDatabase() {
       CREATE TABLE IF NOT EXISTS properties (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) UNIQUE,
         description TEXT,
         price VARCHAR(255),
         location VARCHAR(255),
@@ -428,6 +429,16 @@ async function setupDatabase() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
+
+    // Attempt to add slug column if missing (Migration)
+    try {
+        await db.query("ALTER TABLE properties ADD COLUMN slug VARCHAR(255) UNIQUE");
+        console.log("Added slug column to properties.");
+    } catch (e) {
+        // Ignore duplicate column error
+        if (e.errno !== 1060) console.log("Migration note:", e.message);
+    }
+
     console.log('Properties table created or already exists.');
 
 

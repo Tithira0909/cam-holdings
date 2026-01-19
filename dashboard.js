@@ -2686,6 +2686,7 @@ window.editListing = async (id) => {
         const form = document.getElementById('listingForm');
         form.querySelector('#li_service_category').value = item.service_category;
         form.querySelector('#li_title').value = item.title;
+        if(form.querySelector('#li_slug')) form.querySelector('#li_slug').value = item.slug || '';
         form.querySelector('#li_location').value = item.location || '';
         form.querySelector('#li_price').value = item.price || '';
         form.querySelector('#li_status').value = item.status || 'Active';
