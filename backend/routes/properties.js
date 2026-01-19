@@ -24,7 +24,7 @@ const upload = multer({ storage: storage });
 router.get('/properties', async (req, res) => {
     try {
         const { category } = req.query;
-        let query = "SELECT * FROM service_listings WHERE status = 'Active'";
+        let query = "SELECT * FROM properties WHERE status = 'Active'";
         const params = [];
 
         if (category) {
@@ -43,7 +43,7 @@ router.get('/properties', async (req, res) => {
 // GET Single Property
 router.get('/properties/:id', async (req, res) => {
     try {
-        const query = "SELECT * FROM service_listings WHERE id = ? AND status = 'Active'";
+        const query = "SELECT * FROM properties WHERE id = ? AND status = 'Active'";
         const [properties] = await db.query(query, [req.params.id]);
         if (properties.length === 0) return res.status(404).json({ message: 'Property not found' });
         res.json(properties[0]);
@@ -58,7 +58,7 @@ router.get('/properties/:id', async (req, res) => {
 router.get('/admin/properties', authenticateToken, async (req, res) => {
     try {
         const { search, category } = req.query;
-        let query = "SELECT * FROM service_listings";
+        let query = "SELECT * FROM properties";
         const params = [];
         const conditions = [];
 
@@ -95,7 +95,7 @@ router.post('/admin/properties', authenticateToken, upload.fields([{ name: 'cove
 
     try {
         const [result] = await db.query(
-            `INSERT INTO service_listings (
+            `INSERT INTO properties (
                 title, location, price, description, cover_image, gallery_images, status, category, tags, service_category
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [title, location, price, description, cover_image, gallery_images, status || 'Active', category, tags, service_category]
@@ -114,7 +114,7 @@ router.put('/admin/properties/:id', authenticateToken, upload.fields([{ name: 'c
 
     try {
         // Build update query dynamically
-        let query = "UPDATE service_listings SET title=?, location=?, price=?, description=?, status=?, category=?, tags=?, service_category=?";
+        let query = "UPDATE properties SET title=?, location=?, price=?, description=?, status=?, category=?, tags=?, service_category=?";
         let params = [title, location, price, description, status, category, tags, service_category];
 
         if (files['cover_image']) {
@@ -141,7 +141,7 @@ router.put('/admin/properties/:id', authenticateToken, upload.fields([{ name: 'c
 // DELETE Property
 router.delete('/admin/properties/:id', authenticateToken, async (req, res) => {
     try {
-        await db.query('DELETE FROM service_listings WHERE id = ?', [req.params.id]);
+        await db.query('DELETE FROM properties WHERE id = ?', [req.params.id]);
         res.json({ message: 'Property deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -152,8 +152,24 @@ router.delete('/admin/properties/:id', authenticateToken, async (req, res) => {
 router.patch('/admin/properties/:id/status', authenticateToken, async (req, res) => {
     const { status } = req.body;
     try {
-        await db.query('UPDATE service_listings SET status = ? WHERE id = ?', [status, req.params.id]);
+        await db.query('UPDATE properties SET status = ? WHERE id = ?', [status, req.params.id]);
         res.json({ message: 'Status updated' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// PATCH Activate/Deactivate (Requirement Alias)
+router.patch('/properties/:id/activate', authenticateToken, async (req, res) => {
+    // This expects body to contain active_status boolean, or we just toggle?
+    // Requirement: "activate or deactivate a property"
+    // Assuming JSON body { active_status: true/false } or we map it to status ENUM
+    const { active_status } = req.body; // Expect boolean
+    const status = active_status ? 'Active' : 'Inactive';
+
+    try {
+        await db.query('UPDATE properties SET status = ? WHERE id = ?', [status, req.params.id]);
+        res.json({ message: 'Active status updated' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

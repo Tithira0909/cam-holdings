@@ -91,9 +91,9 @@ navLinks.forEach(link => {
             // Capitalize or map to exact category name expected by backend
             const categoryMap = {
                 'real-estate': 'Real Estate',
-                'design': 'Design',
-                'construction': 'Construction',
-                'interiors': 'Interiors'
+                'design': 'Design & Architecture',
+                'construction': 'Construction & Project Management',
+                'interiors': 'Interiors & Finishing'
             };
             loadListings(categoryMap[category]);
         }

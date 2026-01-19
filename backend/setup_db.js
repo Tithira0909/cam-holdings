@@ -409,9 +409,9 @@ async function setupDatabase() {
     `);
     console.log('Email Settings table created or already exists.');
 
-    // Service Listings (Real Estate, Design, Construction, Interiors)
+    // Properties (Real Estate, Design, Construction, Interiors)
     await db.query(`
-      CREATE TABLE IF NOT EXISTS service_listings (
+      CREATE TABLE IF NOT EXISTS properties (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         description TEXT,
@@ -420,6 +420,7 @@ async function setupDatabase() {
         cover_image VARCHAR(255),
         gallery_images TEXT,
         status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        active_status BOOLEAN GENERATED ALWAYS AS (status = 'Active') VIRTUAL,
         category VARCHAR(255),
         tags VARCHAR(255),
         service_category VARCHAR(50) NOT NULL,
@@ -427,7 +428,7 @@ async function setupDatabase() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('Service Listings table created or already exists.');
+    console.log('Properties table created or already exists.');
 
 
     // Add initial admin user if not exists
