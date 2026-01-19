@@ -457,6 +457,13 @@ async function setupDatabase() {
     process.exit(0);
   } catch (error) {
     console.error('Error setting up database:', error);
+    if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+        console.error('\n*** DATABASE CONNECTION ERROR ***');
+        console.error('Access was denied for user "' + process.env.DB_USER + '"@"' + process.env.DB_HOST + '".');
+        console.error('Please check your backend/.env file and ensure DB_PASSWORD is set correctly.');
+        console.error('If you have not set a password for MySQL, try setting DB_PASSWORD to an empty string in .env');
+        console.error('*********************************\n');
+    }
     if (connection) await connection.end();
     process.exit(1);
   }
