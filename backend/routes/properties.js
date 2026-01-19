@@ -20,8 +20,8 @@ const upload = multer({ storage: storage });
 
 // --- PUBLIC ROUTES ---
 
-// GET Active Service Listings
-router.get('/listings', async (req, res) => {
+// GET Active Properties
+router.get('/properties', async (req, res) => {
     try {
         const { category } = req.query;
         let query = "SELECT * FROM service_listings WHERE status = 'Active'";
@@ -33,20 +33,20 @@ router.get('/listings', async (req, res) => {
         }
 
         query += " ORDER BY created_at DESC";
-        const [listings] = await db.query(query, params);
-        res.json(listings);
+        const [properties] = await db.query(query, params);
+        res.json(properties);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// GET Single Listing
-router.get('/listings/:id', async (req, res) => {
+// GET Single Property
+router.get('/properties/:id', async (req, res) => {
     try {
         const query = "SELECT * FROM service_listings WHERE id = ? AND status = 'Active'";
-        const [listings] = await db.query(query, [req.params.id]);
-        if (listings.length === 0) return res.status(404).json({ message: 'Listing not found' });
-        res.json(listings[0]);
+        const [properties] = await db.query(query, [req.params.id]);
+        if (properties.length === 0) return res.status(404).json({ message: 'Property not found' });
+        res.json(properties[0]);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -54,8 +54,8 @@ router.get('/listings/:id', async (req, res) => {
 
 // --- ADMIN ROUTES ---
 
-// GET All Listings (Admin)
-router.get('/admin/listings', authenticateToken, async (req, res) => {
+// GET All Properties (Admin)
+router.get('/admin/properties', authenticateToken, async (req, res) => {
     try {
         const { search, category } = req.query;
         let query = "SELECT * FROM service_listings";
@@ -77,15 +77,15 @@ router.get('/admin/listings', authenticateToken, async (req, res) => {
         }
 
         query += " ORDER BY created_at DESC";
-        const [listings] = await db.query(query, params);
-        res.json(listings);
+        const [properties] = await db.query(query, params);
+        res.json(properties);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// POST Create Listing
-router.post('/admin/listings', authenticateToken, upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'gallery_images', maxCount: 10 }]), async (req, res) => {
+// POST Create Property
+router.post('/admin/properties', authenticateToken, upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'gallery_images', maxCount: 10 }]), async (req, res) => {
     const { title, location, price, description, status, category, tags, service_category } = req.body;
     const files = req.files || {};
 
@@ -100,14 +100,14 @@ router.post('/admin/listings', authenticateToken, upload.fields([{ name: 'cover_
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [title, location, price, description, cover_image, gallery_images, status || 'Active', category, tags, service_category]
         );
-        res.status(201).json({ id: result.insertId, message: 'Listing created successfully' });
+        res.status(201).json({ id: result.insertId, message: 'Property created successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// PUT Update Listing
-router.put('/admin/listings/:id', authenticateToken, upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'gallery_images', maxCount: 10 }]), async (req, res) => {
+// PUT Update Property
+router.put('/admin/properties/:id', authenticateToken, upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'gallery_images', maxCount: 10 }]), async (req, res) => {
     const { title, location, price, description, status, category, tags, service_category } = req.body;
     const id = req.params.id;
     const files = req.files || {};
@@ -132,24 +132,24 @@ router.put('/admin/listings/:id', authenticateToken, upload.fields([{ name: 'cov
         params.push(id);
 
         await db.query(query, params);
-        res.json({ message: 'Listing updated successfully' });
+        res.json({ message: 'Property updated successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// DELETE Listing
-router.delete('/admin/listings/:id', authenticateToken, async (req, res) => {
+// DELETE Property
+router.delete('/admin/properties/:id', authenticateToken, async (req, res) => {
     try {
         await db.query('DELETE FROM service_listings WHERE id = ?', [req.params.id]);
-        res.json({ message: 'Listing deleted successfully' });
+        res.json({ message: 'Property deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
 // PATCH Toggle Status
-router.patch('/admin/listings/:id/status', authenticateToken, async (req, res) => {
+router.patch('/admin/properties/:id/status', authenticateToken, async (req, res) => {
     const { status } = req.body;
     try {
         await db.query('UPDATE service_listings SET status = ? WHERE id = ?', [status, req.params.id]);

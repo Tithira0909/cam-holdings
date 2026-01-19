@@ -2614,11 +2614,11 @@ async function loadListings(category, query = '') {
     if (!tbody) return;
 
     // Update Header
-    document.getElementById('listingViewTitle').textContent = category || 'Listings';
-    document.getElementById('listingViewBreadcrumb').textContent = `Admin / Listings / ${category || 'All'}`;
+    document.getElementById('listingViewTitle').textContent = category || 'Properties';
+    document.getElementById('listingViewBreadcrumb').textContent = `Admin / Properties / ${category || 'All'}`;
 
     try {
-        let url = `/api/admin/listings?category=${encodeURIComponent(category)}`;
+        let url = `/api/admin/properties?category=${encodeURIComponent(category)}`;
         if (query) url += `&search=${encodeURIComponent(query)}`;
 
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -2626,7 +2626,7 @@ async function loadListings(category, query = '') {
 
         tbody.innerHTML = '';
         if (listings.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No listings found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No properties found</td></tr>';
             return;
         }
 
@@ -2652,8 +2652,8 @@ async function loadListings(category, query = '') {
             tbody.appendChild(tr);
         });
     } catch (error) {
-        console.error('Error loading listings:', error);
-        tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Error loading listings</td></tr>';
+        console.error('Error loading properties:', error);
+        tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Error loading properties</td></tr>';
     }
 }
 
@@ -2676,7 +2676,7 @@ if(cancelLiBtn) cancelLiBtn.addEventListener('click', closeLiModalFunc);
 
 window.editListing = async (id) => {
     try {
-        const response = await fetch(`/api/admin/listings?category=${encodeURIComponent(currentListingCategory)}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`/api/admin/properties?category=${encodeURIComponent(currentListingCategory)}`, { headers: { 'Authorization': `Bearer ${token}` } });
         const listings = await response.json();
         const item = listings.find(p => p.id === id);
         if(!item) return;
@@ -2702,11 +2702,11 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
     const formData = new FormData(e.target);
 
     try {
-        let url = '/api/admin/listings';
+        let url = '/api/admin/properties';
         let method = 'POST';
 
         if(editingListingId) {
-            url = `/api/admin/listings/${editingListingId}`;
+            url = `/api/admin/properties/${editingListingId}`;
             method = 'PUT';
         }
 
@@ -2730,7 +2730,7 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
 window.deleteListing = async (id) => {
     if(!confirm('Are you sure you want to delete this item?')) return;
     try {
-        const response = await fetch(`/api/admin/listings/${id}`, {
+        const response = await fetch(`/api/admin/properties/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -2742,7 +2742,7 @@ window.deleteListing = async (id) => {
 window.toggleListingStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
     try {
-        const response = await fetch(`/api/admin/listings/${id}/status`, {
+        const response = await fetch(`/api/admin/properties/${id}/status`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${token}`,

@@ -109,3 +109,35 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+7:55:07 AM [vite] (client) page reload dashboard.js
+7:55:19 AM [vite] (client) page reload listings-loader.js
+7:55:58 AM [vite] (client) page reload property.html
+7:55:58 AM [vite] (client) page reload property.html
+7:57:06 AM [vite] http proxy error: /api/properties?category=Real%20Estate
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+7:57:07 AM [vite] http proxy error: /api/properties?category=Design
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+7:57:07 AM [vite] http proxy error: /api/properties?category=Construction
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+7:57:07 AM [vite] http proxy error: /api/properties?category=Interiors
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+7:57:07 AM [vite] http proxy error: /api/properties?category=Design
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+7:57:08 AM [vite] http proxy error: /api/properties?category=Real%20Estate
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+7:57:09 AM [vite] http proxy error: /api/properties/1
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
