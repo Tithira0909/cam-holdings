@@ -51,10 +51,13 @@ function renderProperty(prop) {
         `;
     }
 
+    const dateStr = prop.created_at ? new Date(prop.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+
     const html = `
         <section class="prop-hero" style="background-image: url('${heroBg}');">
             <div class="prop-hero__content">
                 <h1 class="prop-title">${safe(prop.name)}</h1>
+                ${dateStr ? `<div style="color:#ccc; font-size:0.9rem; margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:1px;">Listed: ${dateStr}</div>` : ''}
                 <div class="prop-price">${safe(prop.estimated_cost || 'Price on Request')}</div>
             </div>
         </section>

@@ -28,7 +28,7 @@ export default defineConfig({
         getQuote: resolve(__dirname, 'get-a-quote.html'),
         projectDetails: resolve(__dirname, 'project-details.html'),
         realEstate: resolve(__dirname, 'real-estate.html'),
-        architecture: resolve(__dirname, 'architecture.html'),
+        designArchitecture: resolve(__dirname, 'design-architecture.html'),
         construction: resolve(__dirname, 'construction.html'),
         interiors: resolve(__dirname, 'interiors.html'),
         loading: resolve(__dirname, 'loadingPage.html'),
