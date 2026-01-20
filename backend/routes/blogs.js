@@ -97,4 +97,26 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// PATCH approve blog
+router.patch('/:id/approve', authenticateToken, async (req, res) => {
+    try {
+        const { is_approved } = req.body; // Expect boolean
+        await db.query('UPDATE blogs SET is_approved = ? WHERE id = ?', [is_approved, req.params.id]);
+        res.json({ message: 'Blog approval status updated' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// PATCH publish blog
+router.patch('/:id/publish', authenticateToken, async (req, res) => {
+    try {
+        const { published_status } = req.body; // Expect 'Published' or 'Unpublished'
+        await db.query('UPDATE blogs SET published_status = ? WHERE id = ?', [published_status, req.params.id]);
+        res.json({ message: 'Blog publish status updated' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

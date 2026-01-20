@@ -41,10 +41,12 @@ async function loadListings() {
     }
 
     try {
-        allItems = await fetchPublic(`/${apiSegment}`);
+        const fetchedItems = await fetchPublic(`/${apiSegment}`);
+        // Filter for Active status (Frontend safety)
+        allItems = Array.isArray(fetchedItems) ? fetchedItems.filter(item => item.status === 'Active') : [];
 
         if (!allItems || allItems.length === 0) {
-            grid.innerHTML = '<p style="color:#aaa; text-align:center;">No active items found.</p>';
+            grid.innerHTML = '<p style="color:#aaa; text-align:center; grid-column:1/-1;">No active items found.</p>';
             return;
         }
 

@@ -282,10 +282,28 @@ async function setupDatabase() {
         content_html TEXT,
         published_status ENUM('Published', 'Unpublished') DEFAULT 'Unpublished',
         is_featured BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        is_approved BOOLEAN DEFAULT FALSE
       )
     `);
-    console.log('Blogs table created or already exists.');
+
+    // Migration for Blogs Table
+    const blogMigrationQueries = [
+        "ALTER TABLE blogs ADD COLUMN is_approved BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE blogs ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    ];
+
+    for (const query of blogMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060 && error.errno !== 1054) {
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
+    console.log('Blogs table created or updated.');
 
     // Quotation Settings Tables
     await db.query(`

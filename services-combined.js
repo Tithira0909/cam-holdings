@@ -42,7 +42,9 @@ async function loadAllServices() {
         allCombinedItems = [];
         results.forEach(res => {
             if (Array.isArray(res.data)) {
-                const itemsWithMeta = res.data.map(item => ({
+                // Filter Active only
+                const activeItems = res.data.filter(item => item.status === 'Active');
+                const itemsWithMeta = activeItems.map(item => ({
                     ...item,
                     _sectionEndpoint: res.source.endpoint,
                     _categoryLabel: res.source.label
@@ -52,7 +54,7 @@ async function loadAllServices() {
         });
 
         if (allCombinedItems.length === 0) {
-            grid.innerHTML = '<p style="text-align:center;">No active items found.</p>';
+            grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No active items found.</p>';
             return;
         }
 
