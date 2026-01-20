@@ -68,9 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------------------------------
   const lenis = new Lenis({
     smooth: true,
-    lerp: 0.085,
-    wheelMultiplier: 0.9,
-    touchMultiplier: 1.1,
+    lerp: 0.1,
+    wheelMultiplier: 1.0,
+    touchMultiplier: 1.2,
   });
 
   // Expose Lenis

@@ -5583,3 +5583,50 @@ select:-webkit-autofill:focus {
     transform: translateX(100%);
   }
 }
+
+/* ===============================
+   Performance Optimizations (Added)
+   =============================== */
+
+/* Reduce blur cost globally */
+.mega-inner,
+.quote-card,
+.contact-card,
+.card-badge,
+.filter-bar,
+.lr-grid,
+.btn-review,
+.stat,
+.metric,
+.service-card,
+.project-card,
+.pkg,
+.review,
+.b-widget,
+.b-stat {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* Optimize shadows (reduce spread) */
+.service-card-item:hover,
+.project-card:hover,
+.whycam-card:hover,
+.b-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45) !important;
+}
+
+/* GPU Acceleration for hover targets */
+.service-card-item,
+.project-card,
+.whycam-card,
+.b-card,
+.review-card,
+.pkg {
+  will-change: transform;
+}
+
+/* Reduce layout thrashing for images */
+img {
+  content-visibility: auto;
+}
