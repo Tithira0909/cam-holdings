@@ -51,7 +51,7 @@ function createCard(item, section) {
     return `
         <div class="re-card">
             <a href="property.html?section=${section}&id=${item.id}" style="text-decoration:none; color:inherit;">
-                <img src="${imgUrl}" alt="${safe(title)}" class="re-card__img" loading="lazy">
+                <img src="${imgUrl}" alt="${safe(title)}" class="re-card__img" loading="lazy" onerror="this.onerror=null;this.src='/placeholder.svg';">
                 <div class="re-card__body">
                     <h3 class="re-card__title">${safe(title)}</h3>
                     <div class="re-card__loc" style="font-weight:bold; color:#d6b25e;">

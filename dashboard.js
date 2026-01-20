@@ -107,7 +107,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
 function getRelativeImageUrl(path) {
-    if (!path) return 'https://via.placeholder.com/60';
+    if (!path) return '/placeholder.svg';
     let cleanPath = path.replace(/\\/g, '/');
     if (cleanPath.startsWith('uploads/')) {
         cleanPath = cleanPath.substring(8);
@@ -841,13 +841,13 @@ async function loadServiceTypes() {
         }
 
         types.forEach(type => {
-            const thumbUrl = type.thumbnail ? `/uploads/${type.thumbnail.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
+            const thumbUrl = type.thumbnail ? `/uploads/${type.thumbnail.split(/[/\\]/).pop()}` : '/placeholder.svg';
 
             const item = document.createElement('div');
             item.className = 'service-type-item';
             item.innerHTML = `
                 <div class="service-type-info">
-                    <img src="${thumbUrl}" alt="Thumb" class="service-thumb">
+                    <img src="${thumbUrl}" alt="Thumb" class="service-thumb" onerror="this.onerror=null;this.src='/placeholder.svg';">
                     <div>
                         <strong>${type.name}</strong>
                         <div style="font-size: 0.8rem; color: #666;">/${type.slug}</div>
@@ -996,12 +996,12 @@ async function loadServices(query = '') {
         }
 
         services.forEach(service => {
-            const thumbUrl = service.image_url ? `/uploads/${service.image_url.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
+            const thumbUrl = service.image_url ? `/uploads/${service.image_url.split(/[/\\]/).pop()}` : '/placeholder.svg';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${service.name}</td>
-                <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
+                <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;" onerror="this.onerror=null;this.src='/placeholder.svg';"></td>
                 <td>${service.service_type_name || '-'}</td>
                 <td><span class="badge ${service.status === 'published' ? 'badge-approved' : 'badge-inactive'}">${service.status}</span></td>
                 <td>
@@ -2656,7 +2656,7 @@ async function loadServiceProperties(section, query = '') {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
+                <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;" onerror="this.onerror=null;this.src='/placeholder.svg';"></td>
                 <td>${safe(item.name)}</td>
                 <td>-</td>
                 <td>${safe(item.estimated_cost || '-')}</td>

@@ -38,7 +38,7 @@ export async function postPublic(endpoint, data) {
 }
 
 export function getImageUrl(path) {
-    if (!path) return 'https://via.placeholder.com/300';
+    if (!path) return '/placeholder.svg';
     if (path.startsWith('http')) return path;
     let cleanPath = path.replace(/\\/g, '/');
     // Remove 'uploads/' prefix if present to avoid duplication
