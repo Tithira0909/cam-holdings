@@ -109,9 +109,9 @@
         </p>
       </div>
 
-      <div class="service-grid">
-        <!-- Services will be loaded here dynamically -->
-        <p>Loading services...</p>
+      <div class="listing-container">
+        <!-- Wrapper for header + grid -->
+        <div id="listing-grid" class="re-grid"></div>
       </div>
     </div>
   </section>
@@ -213,6 +213,17 @@
   </footer>
 
   <script type="module" src="/script.js"></script>
-  <script type="module" src="/services-loader.js"></script>
+  <script type="module">
+    import { ListingManager } from './listing-manager.js';
+    new ListingManager({
+        containerId: 'listing-grid',
+        endpoints: [
+            { url: '/real-estate-properties', category: 'Real Estate', section: 'real-estate-properties' },
+            { url: '/design-architecture-properties', category: 'Design', section: 'design-architecture-properties' },
+            { url: '/construction-properties', category: 'Construction', section: 'construction-properties' },
+            { url: '/interiors-properties', category: 'Interiors', section: 'interiors-properties' }
+        ]
+    });
+  </script>
 </body>
 </html>

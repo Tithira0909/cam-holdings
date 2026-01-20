@@ -4,9 +4,12 @@ export class ListingManager {
     constructor(config) {
         this.config = config;
         this.containerId = config.containerId || 'listing-grid';
-        this.apiEndpoint = config.apiEndpoint;
-        this.detailsPage = 'property.html'; // Default
-        this.sectionName = config.sectionName || ''; // For passing to details
+        // Support single or multiple endpoints
+        // config.endpoints = [ { url: '...', category: '...' }, ... ]
+        // config.apiEndpoint (legacy/single)
+        this.endpoints = config.endpoints || (config.apiEndpoint ? [{ url: config.apiEndpoint, category: config.categoryName || 'General', section: config.sectionName }] : []);
+
+        this.detailsPage = 'property.html';
 
         // State
         this.items = [];
@@ -76,13 +79,45 @@ export class ListingManager {
                 sort: this.filters.sort
             });
 
-            const data = await fetchPublic(`${this.apiEndpoint}?${params.toString()}`);
-            this.items = data;
+            // Fetch from all endpoints
+            const promises = this.endpoints.map(ep =>
+                fetchPublic(`${ep.url}?${params.toString()}`)
+                    .then(data => data.map(item => ({
+                        ...item,
+                        _category: ep.category,
+                        _section: ep.section // Pass section name for URL construction
+                    })))
+            );
+
+            const results = await Promise.all(promises);
+            // Merge all
+            this.items = results.flat();
+
+            // Client-side sort if multiple sources (since DB sort is per-endpoint)
+            // If single source, backend sort is enough, but client sort doesn't hurt for consistency across merged lists
+            this.sortItems();
+
             this.renderGrid();
         } catch (error) {
             console.error(error);
             container.innerHTML = '<div class="error-state">Failed to load properties.</div>';
         }
+    }
+
+    sortItems() {
+        const sort = this.filters.sort;
+        this.items.sort((a, b) => {
+            if (sort === 'newest') {
+                return new Date(b.created_at) - new Date(a.created_at);
+            } else if (sort === 'oldest') {
+                return new Date(a.created_at) - new Date(b.created_at);
+            } else if (sort === 'price_asc') {
+                return parseFloat(a.estimated_cost) - parseFloat(b.estimated_cost);
+            } else if (sort === 'price_desc') {
+                return parseFloat(b.estimated_cost) - parseFloat(a.estimated_cost);
+            }
+            return 0;
+        });
     }
 
     renderGrid() {
@@ -103,15 +138,22 @@ export class ListingManager {
         if (desc.length > 100) desc = desc.substring(0, 100) + '...';
 
         const status = item.status || 'Active';
-        const badgeClass = status === 'Active' ? 'badge-active' : 'badge-draft';
+        // For public view we mostly show Active, but if Mixed/Draft leaked, handle it.
 
-        const detailsUrl = `${this.detailsPage}?section=${this.sectionName}&id=${item.id}`;
+        // Category Badge (Combined View)
+        let categoryHtml = '';
+        if (this.endpoints.length > 1 && item._category) {
+            categoryHtml = `<div class="lc-category-badge">${item._category}</div>`;
+        }
+
+        const section = item._section || this.sectionName; // Use item-specific section if merged
+        const detailsUrl = `${this.detailsPage}?section=${section}&id=${item.id}`;
 
         return `
             <div class="listing-card">
                 <div class="lc-media">
                     <img src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.onerror=null;this.src='/placeholder.svg';">
-                    <span class="lc-badge ${badgeClass}">${status}</span>
+                    ${categoryHtml}
                 </div>
                 <div class="lc-content">
                     <h3 class="lc-title">${title}</h3>
