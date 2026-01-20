@@ -87,15 +87,8 @@ navLinks.forEach(link => {
         if (viewName === 'settings-site') loadSiteSettings();
         if (viewName === 'settings-email') loadEmailSettings();
         if (viewName.startsWith('listings-')) {
-            const category = viewName.replace('listings-', '');
-            // Capitalize or map to exact category name expected by backend
-            const categoryMap = {
-                'real-estate': 'Real Estate',
-                'design': 'Design & Architecture',
-                'construction': 'Construction & Project Management',
-                'interiors': 'Interiors & Finishing'
-            };
-            loadListings(categoryMap[category]);
+            const section = viewName.replace('listings-', '');
+            loadServiceProperties(section);
         }
         if (viewName === 'add-client') {
             resetClientForm();
@@ -2598,54 +2591,72 @@ document.getElementById('emailSettingsForm')?.addEventListener('submit', async (
     } catch(e) { console.error(e); alert('Error'); }
 });
 
-// --- LISTINGS LOGIC (Generic for Real Estate, Design, etc.) ---
+// --- SERVICE PROPERTIES LOGIC ---
 let editingListingId = null;
-let currentListingCategory = '';
+let currentServiceSection = '';
 let listingSearchTimeout;
+
+const SECTION_MAP = {
+    'real-estate': { title: 'Real Estate', api: 'real-estate-properties' },
+    'design': { title: 'Design & Architecture', api: 'design-architecture-properties' },
+    'construction': { title: 'Construction', api: 'construction-properties' },
+    'interiors': { title: 'Interiors', api: 'interiors-properties' }
+};
 
 document.getElementById('listingSearch')?.addEventListener('input', (e) => {
     clearTimeout(listingSearchTimeout);
-    listingSearchTimeout = setTimeout(() => loadListings(currentListingCategory, e.target.value), 300);
+    listingSearchTimeout = setTimeout(() => loadServiceProperties(currentServiceSection, e.target.value), 300);
 });
 
-async function loadListings(category, query = '') {
-    currentListingCategory = category;
+async function loadServiceProperties(section, query = '') {
+    currentServiceSection = section;
+    const config = SECTION_MAP[section];
+    if(!config) return;
+
     const tbody = document.getElementById('listingsTableBody');
     if (!tbody) return;
 
     // Update Header
-    document.getElementById('listingViewTitle').textContent = category || 'Properties';
-    document.getElementById('listingViewBreadcrumb').textContent = `Admin / Properties / ${category || 'All'}`;
+    const titleEl = document.getElementById('listingViewTitle');
+    const breadEl = document.getElementById('listingViewBreadcrumb');
+    if(titleEl) titleEl.textContent = config.title;
+    if(breadEl) breadEl.textContent = `Admin / Service Listings / ${config.title}`;
 
     try {
-        let url = `/api/admin/properties?category=${encodeURIComponent(category)}`;
-        if (query) url += `&search=${encodeURIComponent(query)}`;
+        let url = `/api/admin/${config.api}`;
+        if (query) url += `?search=${encodeURIComponent(query)}`;
 
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-        const listings = await response.json();
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const items = await response.json();
 
         tbody.innerHTML = '';
-        if (listings.length === 0) {
+        if (items.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No properties found</td></tr>';
             return;
         }
 
-        listings.forEach(item => {
-            const thumbUrl = item.cover_image ? `/uploads/${item.cover_image.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
-            const statusClass = item.status === 'Active' ? 'badge-active' : 'badge-inactive';
+        items.forEach(item => {
+            const thumbUrl = item.main_image ? `/uploads/${item.main_image.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
+            const isActive = item.is_active === 1;
+            const statusClass = isActive ? 'badge-active' : 'badge-inactive';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
-                <td>${safe(item.title)}</td>
-                <td>${safe(item.location || '-')}</td>
-                <td>${safe(item.price || '-')}</td>
-                <td><span class="badge ${statusClass}">${safe(item.status)}</span></td>
+                <td>${safe(item.name)}</td>
+                <td>-</td>
+                <td>${safe(item.estimated_cost || '-')}</td>
+                <td><span class="badge ${statusClass}">${isActive ? 'Active' : 'Inactive'}</span></td>
                 <td>
                     <button class="btn-sm btn-edit" onclick="editListing(${item.id})">Edit</button>
                     <button class="btn-sm btn-deactivate" onclick="deleteListing(${item.id})">Delete</button>
-                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="toggleListingStatus(${item.id}, '${item.status}')">
-                        ${item.status === 'Active' ? 'Deactivate' : 'Activate'}
+                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="toggleListingStatus(${item.id})">
+                        ${isActive ? 'Deactivate' : 'Activate'}
                     </button>
                 </td>
             `;
@@ -2666,42 +2677,38 @@ const cancelLiBtn = document.getElementById('cancelListingBtn');
 if(openLiBtn) openLiBtn.addEventListener('click', () => {
     liModal.classList.add('active');
     document.getElementById('listingForm').reset();
-    document.getElementById('li_service_category').value = currentListingCategory;
-    document.getElementById('li_service_category_display').value = currentListingCategory;
-    document.getElementById('imagePreviewContainer').style.display = 'none';
+    document.getElementById('mainImagePreviewContainer').style.display = 'none';
     editingListingId = null;
-    liModal.querySelector('h2').textContent = `New ${currentListingCategory} Item`;
+    liModal.querySelector('h2').textContent = `New Property`;
 });
 const closeLiModalFunc = () => liModal.classList.remove('active');
 if(closeLiBtn) closeLiBtn.addEventListener('click', closeLiModalFunc);
 if(cancelLiBtn) cancelLiBtn.addEventListener('click', closeLiModalFunc);
 
 window.editListing = async (id) => {
+    const config = SECTION_MAP[currentServiceSection];
+    if(!config) return;
+
     try {
-        const response = await fetch(`/api/admin/properties?category=${encodeURIComponent(currentListingCategory)}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        const listings = await response.json();
-        const item = listings.find(p => p.id === id);
+        const response = await fetch(`/api/admin/${config.api}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const items = await response.json();
+        const item = items.find(p => p.id === id);
         if(!item) return;
 
         editingListingId = id;
-        liModal.querySelector('h2').textContent = 'Edit Item';
+        liModal.querySelector('h2').textContent = 'Edit Property';
         const form = document.getElementById('listingForm');
-        form.querySelector('#li_service_category').value = item.service_category;
-        form.querySelector('#li_service_category_display').value = item.service_category;
-        form.querySelector('#li_title').value = item.title;
-        if(form.querySelector('#li_slug')) form.querySelector('#li_slug').value = item.slug || '';
-        form.querySelector('#li_location').value = item.location || '';
-        form.querySelector('#li_price').value = item.price || '';
-        form.querySelector('#li_status').value = item.status || 'Active';
-        form.querySelector('#li_category').value = item.category || '';
-        form.querySelector('#li_tags').value = item.tags || '';
-        form.querySelector('#li_description').value = item.description || '';
 
-        // Show image preview if exists
-        const prevContainer = document.getElementById('imagePreviewContainer');
-        const prevImg = document.getElementById('imagePreview');
-        if (item.cover_image) {
-            prevImg.src = `/uploads/${item.cover_image.split(/[/\\]/).pop()}`;
+        form.querySelector('#li_name').value = item.name;
+        form.querySelector('#li_estimated_cost').value = item.estimated_cost;
+        form.querySelector('#li_description').value = item.description;
+        form.querySelector('#li_status').value = item.is_active ? "1" : "0";
+
+        // Preview
+        const prevContainer = document.getElementById('mainImagePreviewContainer');
+        const prevImg = document.getElementById('mainImagePreview');
+        if (item.main_image) {
+            prevImg.src = `/uploads/${item.main_image.split(/[/\\]/).pop()}`;
             prevContainer.style.display = 'block';
         } else {
             prevContainer.style.display = 'none';
@@ -2713,14 +2720,17 @@ window.editListing = async (id) => {
 
 document.getElementById('listingForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const config = SECTION_MAP[currentServiceSection];
+    if(!config) return;
+
     const formData = new FormData(e.target);
 
     try {
-        let url = '/api/admin/properties';
+        let url = `/api/admin/${config.api}`;
         let method = 'POST';
 
         if(editingListingId) {
-            url = `/api/admin/properties/${editingListingId}`;
+            url = `/api/admin/${config.api}/${editingListingId}`;
             method = 'PUT';
         }
 
@@ -2732,45 +2742,45 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
 
         if(response.ok) {
             closeLiModalFunc();
-            loadListings(currentListingCategory);
-            alert(editingListingId ? 'Item updated!' : 'Item created!');
+            loadServiceProperties(currentServiceSection);
+            alert(editingListingId ? 'Updated!' : 'Created!');
         } else {
             const data = await response.json();
-            alert(data.message || 'Failed to save item');
+            alert(data.message || data.error || 'Failed to save');
         }
-    } catch(e) { console.error(e); alert('Error saving item'); }
+    } catch(e) { console.error(e); alert('Error saving'); }
 });
 
 window.deleteListing = async (id) => {
-    if(!confirm('Are you sure you want to delete this item?')) return;
+    if(!confirm('Are you sure?')) return;
+    const config = SECTION_MAP[currentServiceSection];
     try {
-        const response = await fetch(`/api/admin/properties/${id}`, {
+        const response = await fetch(`/api/admin/${config.api}/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if(response.ok) loadListings(currentListingCategory);
-        else alert('Failed to delete item');
+        if(response.ok) loadServiceProperties(currentServiceSection);
+        else alert('Failed to delete');
     } catch(e) { console.error(e); }
 };
 
-window.toggleListingStatus = async (id, currentStatus) => {
+window.toggleListingStatus = async (id) => {
+    const config = SECTION_MAP[currentServiceSection];
     try {
-        const response = await fetch(`/api/properties/${id}/toggle-status`, {
+        const response = await fetch(`/api/admin/${config.api}/${id}/toggle`, {
             method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-        if(response.ok) loadListings(currentListingCategory);
+        if(response.ok) loadServiceProperties(currentServiceSection);
         else alert('Failed to update status');
     } catch(e) { console.error(e); }
 };
 
 // Image Preview Handler
-document.getElementById('li_cover_image')?.addEventListener('change', function(e) {
+document.getElementById('li_main_image')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
-    const container = document.getElementById('imagePreviewContainer');
-    const img = document.getElementById('imagePreview');
+    const container = document.getElementById('mainImagePreviewContainer');
+    const img = document.getElementById('mainImagePreview');
 
     if (file) {
         const reader = new FileReader();

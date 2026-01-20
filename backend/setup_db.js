@@ -409,37 +409,77 @@ async function setupDatabase() {
     `);
     console.log('Email Settings table created or already exists.');
 
-    // Properties (Real Estate, Design, Construction, Interiors)
+    // 1. Real Estate Properties
     await db.query(`
-      CREATE TABLE IF NOT EXISTS properties (
+      CREATE TABLE IF NOT EXISTS real_estate_properties (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        slug VARCHAR(255) UNIQUE,
-        description TEXT,
-        price VARCHAR(255),
-        location VARCHAR(255),
-        cover_image VARCHAR(255),
-        gallery_images TEXT,
-        status ENUM('Active', 'Inactive') DEFAULT 'Active',
-        active_status BOOLEAN GENERATED ALWAYS AS (status = 'Active') VIRTUAL,
-        category VARCHAR(255),
-        tags VARCHAR(255),
-        service_category VARCHAR(50) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_image_1 VARCHAR(255),
+        sub_image_2 VARCHAR(255),
+        sub_image_3 VARCHAR(255),
+        is_active TINYINT(1) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
+    console.log('real_estate_properties table created.');
 
-    // Attempt to add slug column if missing (Migration)
-    try {
-        await db.query("ALTER TABLE properties ADD COLUMN slug VARCHAR(255) UNIQUE");
-        console.log("Added slug column to properties.");
-    } catch (e) {
-        // Ignore duplicate column error
-        if (e.errno !== 1060) console.log("Migration note:", e.message);
-    }
+    // 2. Design & Architecture Properties
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS design_architecture_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_image_1 VARCHAR(255),
+        sub_image_2 VARCHAR(255),
+        sub_image_3 VARCHAR(255),
+        is_active TINYINT(1) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('design_architecture_properties table created.');
 
-    console.log('Properties table created or already exists.');
+    // 3. Construction Properties
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS construction_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_image_1 VARCHAR(255),
+        sub_image_2 VARCHAR(255),
+        sub_image_3 VARCHAR(255),
+        is_active TINYINT(1) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('construction_properties table created.');
+
+    // 4. Interiors Properties
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS interiors_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_image_1 VARCHAR(255),
+        sub_image_2 VARCHAR(255),
+        sub_image_3 VARCHAR(255),
+        is_active TINYINT(1) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('interiors_properties table created.');
 
 
     // Add initial admin user if not exists
