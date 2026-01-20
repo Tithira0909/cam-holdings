@@ -67,14 +67,24 @@ router.post('/', authenticateToken, cpUpload, async (req, res) => {
         }
 
         // Generate slug
-        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        let slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+        // Ensure uniqueness
+        let uniqueSlug = slug;
+        let counter = 2;
+        while(true) {
+            const [existing] = await db.query('SELECT id FROM blogs WHERE slug = ?', [uniqueSlug]);
+            if (existing.length === 0) break;
+            uniqueSlug = `${slug}-${counter}`;
+            counter++;
+        }
 
         const [result] = await db.query(
             'INSERT INTO blogs (type, title, slug, banner_url, featured_image_url, gallery_json, content_html, published_status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 type || 'News Content',
                 title,
-                slug,
+                uniqueSlug,
                 bannerUrl,
                 featuredImageUrl,
                 galleryJson,

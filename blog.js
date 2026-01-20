@@ -9,19 +9,39 @@ async function initBlogDetails() {
         container.innerHTML = `
             <div style="text-align:center; padding: 100px 20px;">
                 <h1>Article Not Found</h1>
-                <p>Invalid URL parameters.</p>
+                <p>No article specified in the URL.</p>
                 <a href="/blogs.html" class="btn primary" style="margin-top:20px;">Back to Blogs</a>
             </div>
         `;
         return;
     }
 
+    // Attempt to fetch. If it looks like a slug (has chars) try slug endpoint first.
+    // If we only have ID (numeric), maybe fallback?
+    // User requested explicit usage of slug endpoint.
+    // Ideally we should use /blogs/slug/:slug if it is a slug.
+
+    // We will try the general purpose one or the explicit one?
+    // User said: "Fix backend endpoint to match frontend... GET /api/blogs/slug/:slug"
+    // And "Blog detail page must fetch using that slug"
+
+    let endpoint = `/blogs/slug/${slug}`;
+
+    // Fallback logic if we suspect it's an ID (legacy links? though we just fixed them)
+    // If the slug is numeric, it might be an ID.
+    // But the new API /blogs/slug/:slug expects a slug.
+    // If we pass an ID there, it won't find it (unless slug == id string).
+    // The previous /blogs/:slug endpoint handled both.
+    // Let's use the explicit slug endpoint as requested, but if it fails (404), maybe we could try ID if it looks like ID?
+    // User requirement: "Only show 'Article Not Found' when: slug/id is missing OR API returns 404"
+
     try {
-        // Use the slug directly in the path
-        const blog = await fetchPublic(`/blogs/${slug}`);
+        console.log(`Fetching blog with slug: ${slug}`);
+        const blog = await fetchPublic(endpoint);
 
         if (!blog || !blog.title) {
-            throw new Error('Blog not found');
+            // This usually won't happen if fetchPublic throws on 404/500, but checking just in case
+             throw new Error('Blog not found');
         }
 
         // Set Title
@@ -32,10 +52,22 @@ async function initBlogDetails() {
 
     } catch (error) {
         console.error('Error loading blog details:', error);
+
+        // Differentiate between 404 (Not Found) and other errors (Server Error)
+        // fetchPublic in client-api.js throws "API Error: 404"
+
+        let title = "Article Not Found";
+        let msg = "We couldn't find the blog post you're looking for.";
+
+        if (error.message && !error.message.includes('404')) {
+            title = "Server Error";
+            msg = "Something went wrong while loading the article. Please try again later.";
+        }
+
         container.innerHTML = `
             <div style="text-align:center; padding: 100px 20px;">
-                <h1>Article Not Found</h1>
-                <p>We couldn't find the blog post you're looking for.</p>
+                <h1>${title}</h1>
+                <p>${msg}</p>
                 <a href="/blogs.html" class="btn primary" style="margin-top:20px;">Back to Blogs</a>
             </div>
         `;

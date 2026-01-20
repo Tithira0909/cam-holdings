@@ -85,7 +85,7 @@ function createBlogCard(blog) {
     const snippet = getSnippet(blog.content_html);
     const typeDisplay = blog.type || 'Blog';
 
-    const link = `/blog-details.html?slug=${blog.slug || blog.id}`;
+    const link = `/blog.html?slug=${blog.slug || blog.id}`;
     card.innerHTML = `
         <a class="b-card-link" href="${link}">
             <div class="b-media" style="background-image:url('${imageUrl}')"></div>
@@ -129,7 +129,7 @@ function renderFeatured(blog, container) {
     const snippet = getSnippet(blog.content_html);
     const typeDisplay = blog.type || 'Featured';
 
-    const link = `/blog-details.html?slug=${blog.slug || blog.id}`;
+    const link = `/blog.html?slug=${blog.slug || blog.id}`;
     featuredEl.innerHTML = `
       <a class="b-featured-link" href="${link}">
         <div class="b-featured-media" style="background-image:url('${imageUrl}')"></div>
