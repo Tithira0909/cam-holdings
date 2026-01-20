@@ -43,6 +43,12 @@ if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir);
 }
 
+// Ensure uploads/properties directory exists
+const propertiesDir = path.join(uploadDir, 'properties');
+if (!fs.existsSync(propertiesDir)){
+    fs.mkdirSync(propertiesDir);
+}
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

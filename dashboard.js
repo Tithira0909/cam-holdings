@@ -106,6 +106,15 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 // Helper for XSS protection
 const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
+function getRelativeImageUrl(path) {
+    if (!path) return 'https://via.placeholder.com/60';
+    let cleanPath = path.replace(/\\/g, '/');
+    if (cleanPath.startsWith('uploads/')) {
+        cleanPath = cleanPath.substring(8);
+    }
+    return `/uploads/${cleanPath}`;
+}
+
 // --- DASHBOARD LOGIC ---
 async function loadDashboardStats() {
     // Set Admin Name
@@ -2641,7 +2650,7 @@ async function loadServiceProperties(section, query = '') {
         }
 
         items.forEach(item => {
-            const thumbUrl = item.main_image ? `/uploads/${item.main_image.split(/[/\\]/).pop()}` : 'https://via.placeholder.com/60';
+            const thumbUrl = getRelativeImageUrl(item.main_image);
             const isActive = item.is_active === 1;
             const statusClass = isActive ? 'badge-active' : 'badge-inactive';
 
@@ -2708,7 +2717,7 @@ window.editListing = async (id) => {
         const prevContainer = document.getElementById('mainImagePreviewContainer');
         const prevImg = document.getElementById('mainImagePreview');
         if (item.main_image) {
-            prevImg.src = `/uploads/${item.main_image.split(/[/\\]/).pop()}`;
+            prevImg.src = getRelativeImageUrl(item.main_image);
             prevContainer.style.display = 'block';
         } else {
             prevContainer.style.display = 'none';

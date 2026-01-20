@@ -9,11 +9,10 @@ const path = require('path');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         // Ensure folder exists or let the app crash if not (user responsibility to create dirs or add mkdir logic)
-        // For simplicity, we use 'uploads/' and frontend helper will resolve it
-        cb(null, 'uploads/');
+        cb(null, 'uploads/properties/');
     },
     filename: function (req, file, cb) {
-        cb(null, 're-' + Date.now() + path.extname(file.originalname));
+        cb(null, 'in-' + Date.now() + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });

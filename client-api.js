@@ -40,7 +40,10 @@ export async function postPublic(endpoint, data) {
 export function getImageUrl(path) {
     if (!path) return 'https://via.placeholder.com/300';
     if (path.startsWith('http')) return path;
-    const cleanPath = path.replace(/\\/g, '/');
-    // Use relative path for uploads too
-    return `/uploads/${cleanPath.split('/').pop()}`;
+    let cleanPath = path.replace(/\\/g, '/');
+    // Remove 'uploads/' prefix if present to avoid duplication
+    if (cleanPath.startsWith('uploads/')) {
+        cleanPath = cleanPath.substring(8);
+    }
+    return `/uploads/${cleanPath}`;
 }
