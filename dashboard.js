@@ -115,6 +115,29 @@ function getRelativeImageUrl(path) {
     return `/uploads/${cleanPath}`;
 }
 
+// Helper for Fetch with Auth handling
+async function fetchAuth(url, options = {}) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.replace('login.html');
+        return; // Stop execution
+    }
+
+    const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401 || response.status === 403) {
+        console.warn('Session expired or unauthorized. Redirecting to login.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('first_name');
+        localStorage.removeItem('last_name');
+        window.location.replace('login.html');
+        throw new Error('Session expired'); // Throw error to stop subsequent code
+    }
+
+    return response;
+}
+
 // --- DASHBOARD LOGIC ---
 async function loadDashboardStats() {
     // Set Admin Name
@@ -134,9 +157,7 @@ async function loadDashboardStats() {
 
     // Fetch Stats
     try {
-        const response = await fetch('/api/admin/dashboard/stats', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetchAuth('/api/admin/dashboard/stats');
 
         if (!response.ok) throw new Error('Failed to fetch stats');
 
@@ -157,9 +178,7 @@ async function loadInquiries() {
     if (!tbody) return;
 
     try {
-        const response = await fetch('/api/admin/inquiries', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetchAuth('/api/admin/inquiries');
 
         if (!response.ok) throw new Error('Failed to fetch inquiries');
 
@@ -203,9 +222,7 @@ async function loadQuotations() {
     if (!tbody) return;
 
     try {
-        const response = await fetch('/api/admin/quotations', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetchAuth('/api/admin/quotations');
 
         if (!response.ok) throw new Error('Failed to fetch quotations');
 
@@ -263,9 +280,7 @@ if(closeQuoteBtn) closeQuoteBtn.addEventListener('click', closeQuoteModalFunc);
 
 window.previewQuotation = async (id) => {
     try {
-        const response = await fetch(`/api/admin/quotations/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetchAuth(`/api/admin/quotations/${id}`);
 
         if (!response.ok) throw new Error('Failed to fetch details');
         const data = await response.json();
@@ -315,9 +330,7 @@ if(closeMsgBtn) closeMsgBtn.addEventListener('click', closeMessageModal);
 window.viewMessage = async (id) => {
     try {
         // Fetch full details (or find in list if we cached it, but endpoint requested)
-        const response = await fetch(`/api/admin/inquiries/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetchAuth(`/api/admin/inquiries/${id}`);
 
         if (!response.ok) throw new Error('Failed to fetch message details');
 
@@ -359,7 +372,8 @@ async function loadProjects(query = '') {
 
     try {
         const url = query ? `/api/admin/projects?search=${encodeURIComponent(query)}` : '/api/admin/projects';
-        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(url);
+        if (!response.ok) throw new Error('Failed to fetch projects'); // Check ok for consistency
         const projects = await response.json();
 
         tbody.innerHTML = '';
@@ -396,7 +410,7 @@ let projectEditorInstance;
 
 async function loadClientsForProjectForm() {
     try {
-        const response = await fetch('/api/admin/clients', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/clients');
         const clients = await response.json();
         const select = document.getElementById('np_client');
         select.innerHTML = '<option value="">Select Client</option>';
@@ -413,7 +427,7 @@ async function loadClientsForProjectForm() {
 
 async function loadServicesForProjectForm() {
     try {
-        const response = await fetch('/api/admin/services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/services');
         const services = await response.json();
         const select = document.getElementById('np_service');
         select.innerHTML = '<option value="">Select Service</option>';
@@ -449,9 +463,8 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
     const formData = new FormData(e.target);
 
     try {
-        const response = await fetch('/api/admin/projects', {
+        const response = await fetchAuth('/api/admin/projects', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
 
@@ -505,7 +518,7 @@ if(cancelProjectBtn) cancelProjectBtn.addEventListener('click', closeProjectModa
 
 window.editProject = async (id) => {
     try {
-        const response = await fetch('/api/admin/projects', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/projects');
         const projects = await response.json();
         const project = projects.find(p => p.id === id);
 
@@ -541,9 +554,8 @@ document.getElementById('projectForm')?.addEventListener('submit', async (e) => 
             method = 'PUT';
         }
 
-        const response = await fetch(url, {
+        const response = await fetchAuth(url, {
             method: method,
-            headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
 
@@ -564,9 +576,8 @@ document.getElementById('projectForm')?.addEventListener('submit', async (e) => 
 window.deleteProject = async (id) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
     try {
-        const response = await fetch(`/api/admin/projects/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/projects/${id}`, {
+            method: 'DELETE'
         });
         if (response.ok) loadProjects();
         else alert('Failed to delete project');
@@ -602,10 +613,9 @@ document.getElementById('progressForm')?.addEventListener('submit', async (e) =>
     const status = document.getElementById('prog_status').value;
 
     try {
-        const response = await fetch(`/api/admin/projects/${projectProgressId}/progress`, {
+        const response = await fetchAuth(`/api/admin/projects/${projectProgressId}/progress`, {
             method: 'PATCH',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ progress_status: status })
@@ -637,9 +647,7 @@ async function loadClients(query = '') {
 
     try {
         const url = query ? `/api/admin/clients?search=${encodeURIComponent(query)}` : '/api/admin/clients';
-        const response = await fetch(url, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetchAuth(url);
 
         if (!response.ok) {
             let errorMsg = `Server error: ${response.status}`;
@@ -711,9 +719,8 @@ async function loadClients(query = '') {
 
 window.approveClient = async (id) => {
     try {
-        const response = await fetch(`/api/admin/clients/${id}/approve`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/clients/${id}/approve`, {
+            method: 'PATCH'
         });
         if (response.ok) loadClients();
         else alert('Failed to approve client');
@@ -725,9 +732,8 @@ window.approveClient = async (id) => {
 window.toggleStatus = async (id, action) => {
     if (!confirm('Are you sure?')) return;
     try {
-        const response = await fetch(`/api/admin/clients/${id}/${action}`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/clients/${id}/${action}`, {
+            method: 'PATCH'
         });
         if (response.ok) loadClients();
         else alert('Failed to update status');
@@ -749,7 +755,7 @@ async function loadAdmins(query = '') {
 
     try {
         const url = query ? `/api/admin/admins?search=${encodeURIComponent(query)}` : '/api/admin/admins';
-        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(url);
         const admins = await response.json();
 
         tbody.innerHTML = '';
@@ -787,9 +793,8 @@ async function loadAdmins(query = '') {
 window.deactivateAdmin = async (id) => {
     if (!confirm('Are you sure you want to deactivate this admin?')) return;
     try {
-        const response = await fetch(`/api/admin/admins/${id}/deactivate`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/admins/${id}/deactivate`, {
+            method: 'PATCH'
         });
         if (response.ok) loadAdmins();
         else {
@@ -806,10 +811,9 @@ window.changePermissions = async (id) => {
     // Prompt implies updating fields. I'll just alert for now or send a dummy update.
     if (!confirm('Change permissions for this user?')) return;
     try {
-        const response = await fetch(`/api/admin/admins/${id}/permissions`, {
+        const response = await fetchAuth(`/api/admin/admins/${id}/permissions`, {
             method: 'PATCH',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ permissions: 'FULL_ACCESS' }) // Dummy permission
@@ -831,7 +835,7 @@ async function loadServiceTypes() {
     if (!listContainer) return;
 
     try {
-        const response = await fetch('/api/admin/service-types', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/service-types');
         const types = await response.json();
 
         listContainer.innerHTML = '';
@@ -896,7 +900,7 @@ if(cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
 window.editServiceType = async (id) => {
     try {
         // Fetch specific service type details
-        const response = await fetch(`/api/admin/service-types/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(`/api/admin/service-types/${id}`);
         if (!response.ok) throw new Error('Failed to fetch details');
 
         const type = await response.json();
@@ -936,11 +940,8 @@ document.getElementById('serviceTypeForm')?.addEventListener('submit', async (e)
             method = 'PUT';
         }
 
-        const response = await fetch(url, {
+        const response = await fetchAuth(url, {
             method: method,
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
             body: formData // Fetch handles Content-Type for FormData (multipart/form-data)
         });
 
@@ -961,9 +962,8 @@ document.getElementById('serviceTypeForm')?.addEventListener('submit', async (e)
 window.deleteServiceType = async (id) => {
     if(!confirm('Are you sure you want to delete this?')) return;
     try {
-        const response = await fetch(`/api/admin/service-types/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/service-types/${id}`, {
+            method: 'DELETE'
         });
         if (response.ok) loadServiceTypes();
         else alert('Failed to delete');
@@ -986,7 +986,7 @@ async function loadServices(query = '') {
 
     try {
         const url = query ? `/api/admin/services?search=${encodeURIComponent(query)}` : '/api/admin/services';
-        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(url);
         const services = await response.json();
 
         tbody.innerHTML = '';
@@ -1043,7 +1043,7 @@ if(cancelServiceBtn) cancelServiceBtn.addEventListener('click', closeServiceModa
 
 async function loadServiceTypesForDropdown() {
     try {
-        const response = await fetch('/api/admin/service-types', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/service-types');
         const types = await response.json();
         const select = document.getElementById('svc_type');
 
@@ -1066,7 +1066,7 @@ async function loadServiceTypesForDropdown() {
 
 window.editService = async (id) => {
     try {
-        const response = await fetch('/api/admin/services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/services');
         const services = await response.json();
         const service = services.find(s => s.id === id);
 
@@ -1105,9 +1105,8 @@ document.getElementById('serviceForm')?.addEventListener('submit', async (e) => 
             method = 'PUT';
         }
 
-        const response = await fetch(url, {
+        const response = await fetchAuth(url, {
             method: method,
-            headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
 
@@ -1128,9 +1127,8 @@ document.getElementById('serviceForm')?.addEventListener('submit', async (e) => 
 window.deleteService = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const response = await fetch(`/api/admin/services/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/services/${id}`, {
+            method: 'DELETE'
         });
         if (response.ok) loadServices();
         else alert('Failed to delete');
@@ -1148,7 +1146,7 @@ async function loadReviews() {
     if (!tbody) return;
 
     try {
-        const response = await fetch('/api/admin/reviews', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/reviews');
         const reviews = await response.json();
 
         tbody.innerHTML = '';
@@ -1275,7 +1273,7 @@ function updateStarDisplay(rating) {
 // Edit Logic
 window.editReview = async (id) => {
     try {
-        const response = await fetch('/api/admin/reviews', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/reviews');
         const reviews = await response.json();
         const review = reviews.find(r => r.id === id);
 
@@ -1310,10 +1308,9 @@ window.editReview = async (id) => {
 // Actions
 window.toggleReviewActive = async (id, currentStatus) => {
     try {
-        const response = await fetch(`/api/admin/reviews/${id}`, {
+        const response = await fetchAuth(`/api/admin/reviews/${id}`, {
             method: 'PATCH',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ is_active: !currentStatus })
@@ -1327,10 +1324,9 @@ window.toggleReviewActive = async (id, currentStatus) => {
 
 window.toggleReviewPublished = async (id, currentStatus) => {
     try {
-        const response = await fetch(`/api/admin/reviews/${id}`, {
+        const response = await fetchAuth(`/api/admin/reviews/${id}`, {
             method: 'PATCH',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ is_published: !currentStatus })
@@ -1345,9 +1341,8 @@ window.toggleReviewPublished = async (id, currentStatus) => {
 window.deleteReview = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const response = await fetch(`/api/admin/reviews/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/reviews/${id}`, {
+            method: 'DELETE'
         });
         if (response.ok) loadReviews();
         else alert('Failed to delete');
@@ -1406,10 +1401,9 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
             method = 'PATCH'; // We changed PUT to PATCH for updates in backend
         }
 
-        const response = await fetch(url, {
+        const response = await fetchAuth(url, {
             method: method,
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
@@ -1452,7 +1446,7 @@ window.editClient = async (id) => {
     // But `onclick="editClient(...)` is string based.
 
     // I will fetch the list again and find the client. Not efficient but fine for now.
-    const response = await fetch('/api/admin/clients', { headers: { 'Authorization': `Bearer ${token}` } });
+    const response = await fetchAuth('/api/admin/clients');
     const clients = await response.json();
     const client = clients.find(c => c.id === id);
 
@@ -1536,11 +1530,10 @@ document.getElementById('registerClientForm')?.addEventListener('submit', async 
             method = 'POST';
         }
 
-        const response = await fetch(url, {
+        const response = await fetchAuth(url, {
             method: method,
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
         });
@@ -1580,7 +1573,7 @@ async function loadBlogs(query = '') {
 
     try {
         const url = query ? `/api/admin/blogs?search=${encodeURIComponent(query)}` : '/api/admin/blogs';
-        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(url);
         const blogs = await response.json();
 
         tbody.innerHTML = '';
@@ -1641,9 +1634,8 @@ document.getElementById('addBlogForm')?.addEventListener('submit', async (e) => 
     const formData = new FormData(e.target);
 
     try {
-        const response = await fetch('/api/admin/blogs', {
+        const response = await fetchAuth('/api/admin/blogs', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
 
@@ -1668,9 +1660,8 @@ document.getElementById('addBlogForm')?.addEventListener('submit', async (e) => 
 window.deleteBlog = async (id) => {
     if (!confirm('Are you sure you want to delete this blog?')) return;
     try {
-        const response = await fetch(`/api/admin/blogs/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/blogs/${id}`, {
+            method: 'DELETE'
         });
         if (response.ok) loadBlogs();
         else alert('Failed to delete blog');
@@ -1694,7 +1685,7 @@ async function loadProjectTasks(query = '') {
 
     try {
         const url = query ? `/api/admin/project-tasks?search=${encodeURIComponent(query)}` : '/api/admin/project-tasks';
-        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(url);
         const tasks = await response.json();
 
         tbody.innerHTML = '';
@@ -1747,7 +1738,7 @@ if(cancelPtBtn) cancelPtBtn.addEventListener('click', closePtModalFunc);
 
 window.editProjectTask = async (id) => {
     try {
-        const response = await fetch('/api/admin/project-tasks', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/project-tasks');
         const tasks = await response.json();
         const task = tasks.find(t => t.id === id);
 
@@ -1782,10 +1773,9 @@ document.getElementById('projectTaskForm')?.addEventListener('submit', async (e)
             method = 'PUT';
         }
 
-        const response = await fetch(url, {
+        const response = await fetchAuth(url, {
             method: method,
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
@@ -1808,9 +1798,8 @@ document.getElementById('projectTaskForm')?.addEventListener('submit', async (e)
 window.deleteProjectTask = async (id) => {
     if (!confirm('Are you sure you want to delete this task?')) return;
     try {
-        const response = await fetch(`/api/admin/project-tasks/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/project-tasks/${id}`, {
+            method: 'DELETE'
         });
         if (response.ok) loadProjectTasks();
         else alert('Failed to delete task');
@@ -1828,7 +1817,7 @@ async function loadPropertyDesigns() {
     const tbody = document.getElementById('propertyDesignsTableBody');
     if (!tbody) return;
     try {
-        const response = await fetch('/api/admin/property-designs', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-designs');
         const rows = await response.json();
         tbody.innerHTML = '';
         if (rows.length === 0) {
@@ -1872,7 +1861,7 @@ if(cancelPdBtn) cancelPdBtn.addEventListener('click', closePdModalFunc);
 window.editPropertyDesign = async (id) => {
     try {
         // Fetch all to find (or fetch single if API exists, sticking to pattern)
-        const response = await fetch('/api/admin/property-designs', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-designs');
         const rows = await response.json();
         const item = rows.find(r => r.id === id);
         if(!item) return;
@@ -1898,9 +1887,9 @@ document.getElementById('propertyDesignForm')?.addEventListener('submit', async 
             url = `/api/admin/property-designs/${editingPropertyDesignId}`;
             method = 'PUT';
         }
-        const res = await fetch(url, {
+        const res = await fetchAuth(url, {
             method,
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) {
@@ -1913,9 +1902,8 @@ document.getElementById('propertyDesignForm')?.addEventListener('submit', async 
 window.deletePropertyDesign = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const res = await fetch(`/api/admin/property-designs/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetchAuth(`/api/admin/property-designs/${id}`, {
+            method: 'DELETE'
         });
         if(res.ok) loadPropertyDesigns();
         else alert('Failed to delete');
@@ -1930,7 +1918,7 @@ async function loadPropertyParts() {
     const tbody = document.getElementById('propertyPartsTableBody');
     if (!tbody) return;
     try {
-        const response = await fetch('/api/admin/property-parts', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-parts');
         const rows = await response.json();
         tbody.innerHTML = '';
         if (rows.length === 0) {
@@ -1973,7 +1961,7 @@ if(cancelPpBtn) cancelPpBtn.addEventListener('click', closePpModalFunc);
 
 window.editPropertyPart = async (id) => {
     try {
-        const response = await fetch('/api/admin/property-parts', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-parts');
         const rows = await response.json();
         const item = rows.find(r => r.id === id);
         if(!item) return;
@@ -1999,9 +1987,9 @@ document.getElementById('propertyPartForm')?.addEventListener('submit', async (e
             url = `/api/admin/property-parts/${editingPropertyPartId}`;
             method = 'PUT';
         }
-        const res = await fetch(url, {
+        const res = await fetchAuth(url, {
             method,
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) {
@@ -2014,9 +2002,8 @@ document.getElementById('propertyPartForm')?.addEventListener('submit', async (e
 window.deletePropertyPart = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const res = await fetch(`/api/admin/property-parts/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetchAuth(`/api/admin/property-parts/${id}`, {
+            method: 'DELETE'
         });
         if(res.ok) loadPropertyParts();
         else alert('Failed to delete');
@@ -2031,7 +2018,7 @@ async function loadPropertyPartItems() {
     const tbody = document.getElementById('propertyPartItemsTableBody');
     if (!tbody) return;
     try {
-        const response = await fetch('/api/admin/property-part-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-part-items');
         const rows = await response.json();
         tbody.innerHTML = '';
         if (rows.length === 0) {
@@ -2060,7 +2047,7 @@ async function loadPropertyPartItems() {
 
 async function loadPropertyPartsDropdown() {
     try {
-        const response = await fetch('/api/admin/property-parts', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-parts');
         const rows = await response.json();
         const select = document.getElementById('ppi_part_id');
         select.innerHTML = '<option value="">Select Part</option>';
@@ -2091,7 +2078,7 @@ if(cancelPpiBtn) cancelPpiBtn.addEventListener('click', closePpiModalFunc);
 
 window.editPropertyPartItem = async (id) => {
     try {
-        const response = await fetch('/api/admin/property-part-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-part-items');
         const rows = await response.json();
         const item = rows.find(r => r.id === id);
         if(!item) return;
@@ -2121,9 +2108,9 @@ document.getElementById('propertyPartItemForm')?.addEventListener('submit', asyn
             url = `/api/admin/property-part-items/${editingPropertyPartItemId}`;
             method = 'PUT';
         }
-        const res = await fetch(url, {
+        const res = await fetchAuth(url, {
             method,
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) {
@@ -2136,9 +2123,8 @@ document.getElementById('propertyPartItemForm')?.addEventListener('submit', asyn
 window.deletePropertyPartItem = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const res = await fetch(`/api/admin/property-part-items/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetchAuth(`/api/admin/property-part-items/${id}`, {
+            method: 'DELETE'
         });
         if(res.ok) loadPropertyPartItems();
         else alert('Failed to delete');
@@ -2153,7 +2139,7 @@ async function loadPropertyServices() {
     const tbody = document.getElementById('propertyServicesTableBody');
     if (!tbody) return;
     try {
-        const response = await fetch('/api/admin/property-services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-services');
         const rows = await response.json();
         tbody.innerHTML = '';
         if (rows.length === 0) {
@@ -2196,7 +2182,7 @@ if(cancelPsBtn) cancelPsBtn.addEventListener('click', closePsModalFunc);
 
 window.editPropertyService = async (id) => {
     try {
-        const response = await fetch('/api/admin/property-services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-services');
         const rows = await response.json();
         const item = rows.find(r => r.id === id);
         if(!item) return;
@@ -2222,9 +2208,9 @@ document.getElementById('propertyServiceForm')?.addEventListener('submit', async
             url = `/api/admin/property-services/${editingPropertyServiceId}`;
             method = 'PUT';
         }
-        const res = await fetch(url, {
+        const res = await fetchAuth(url, {
             method,
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) {
@@ -2237,9 +2223,8 @@ document.getElementById('propertyServiceForm')?.addEventListener('submit', async
 window.deletePropertyService = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const res = await fetch(`/api/admin/property-services/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetchAuth(`/api/admin/property-services/${id}`, {
+            method: 'DELETE'
         });
         if(res.ok) loadPropertyServices();
         else alert('Failed to delete');
@@ -2254,7 +2239,7 @@ async function loadPropertyServiceItems() {
     const tbody = document.getElementById('propertyServiceItemsTableBody');
     if (!tbody) return;
     try {
-        const response = await fetch('/api/admin/property-service-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-service-items');
         const rows = await response.json();
         tbody.innerHTML = '';
         if (rows.length === 0) {
@@ -2283,7 +2268,7 @@ async function loadPropertyServiceItems() {
 
 async function loadPropertyServicesDropdown() {
     try {
-        const response = await fetch('/api/admin/property-services', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-services');
         const rows = await response.json();
         const select = document.getElementById('psi_service_id');
         select.innerHTML = '<option value="">Select Service</option>';
@@ -2314,7 +2299,7 @@ if(cancelPsiBtn) cancelPsiBtn.addEventListener('click', closePsiModalFunc);
 
 window.editPropertyServiceItem = async (id) => {
     try {
-        const response = await fetch('/api/admin/property-service-items', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/property-service-items');
         const rows = await response.json();
         const item = rows.find(r => r.id === id);
         if(!item) return;
@@ -2344,9 +2329,9 @@ document.getElementById('propertyServiceItemForm')?.addEventListener('submit', a
             url = `/api/admin/property-service-items/${editingPropertyServiceItemId}`;
             method = 'PUT';
         }
-        const res = await fetch(url, {
+        const res = await fetchAuth(url, {
             method,
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) {
@@ -2359,9 +2344,8 @@ document.getElementById('propertyServiceItemForm')?.addEventListener('submit', a
 window.deletePropertyServiceItem = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const res = await fetch(`/api/admin/property-service-items/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetchAuth(`/api/admin/property-service-items/${id}`, {
+            method: 'DELETE'
         });
         if(res.ok) loadPropertyServiceItems();
         else alert('Failed to delete');
@@ -2382,7 +2366,7 @@ async function loadRoles() {
     const tbody = document.getElementById('rolesTableBody');
     if (!tbody) return;
     try {
-        const response = await fetch('/api/admin/roles', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/roles');
         const rows = await response.json();
         tbody.innerHTML = '';
         if (rows.length === 0) {
@@ -2432,7 +2416,7 @@ if(cancelRoleBtn) cancelRoleBtn.addEventListener('click', closeRoleModalFunc);
 
 window.editRole = async (id) => {
     try {
-        const response = await fetch('/api/admin/roles', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth('/api/admin/roles');
         const rows = await response.json();
         const item = rows.find(r => r.id === id);
         if(!item) return;
@@ -2466,9 +2450,9 @@ document.getElementById('roleForm')?.addEventListener('submit', async (e) => {
             url = `/api/admin/roles/${editingRoleId}`;
             method = 'PUT';
         }
-        const res = await fetch(url, {
+        const res = await fetchAuth(url, {
             method,
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) {
@@ -2484,9 +2468,8 @@ document.getElementById('roleForm')?.addEventListener('submit', async (e) => {
 window.deleteRole = async (id) => {
     if(!confirm('Are you sure?')) return;
     try {
-        const res = await fetch(`/api/admin/roles/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetchAuth(`/api/admin/roles/${id}`, {
+            method: 'DELETE'
         });
         if(res.ok) loadRoles();
         else alert('Failed to delete');
@@ -2496,7 +2479,7 @@ window.deleteRole = async (id) => {
 // 2. Analytics Settings
 async function loadAnalyticsSettings() {
     try {
-        const res = await fetch('/api/admin/settings/analytics', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetchAuth('/api/admin/settings/analytics');
         if(!res.ok) return;
         const data = await res.json();
         const form = document.getElementById('analyticsSettingsForm');
@@ -2514,9 +2497,9 @@ document.getElementById('analyticsSettingsForm')?.addEventListener('submit', asy
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     try {
-        const res = await fetch('/api/admin/settings/analytics', {
+        const res = await fetchAuth('/api/admin/settings/analytics', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) alert('Settings saved');
@@ -2527,7 +2510,7 @@ document.getElementById('analyticsSettingsForm')?.addEventListener('submit', asy
 // 3. Site Settings
 async function loadSiteSettings() {
     try {
-        const res = await fetch('/api/admin/settings/site', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetchAuth('/api/admin/settings/site');
         if(!res.ok) return;
         const data = await res.json();
         const form = document.getElementById('siteSettingsForm');
@@ -2554,9 +2537,9 @@ document.getElementById('siteSettingsForm')?.addEventListener('submit', async (e
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     try {
-        const res = await fetch('/api/admin/settings/site', {
+        const res = await fetchAuth('/api/admin/settings/site', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) alert('Settings saved');
@@ -2567,7 +2550,7 @@ document.getElementById('siteSettingsForm')?.addEventListener('submit', async (e
 // 4. Email Settings
 async function loadEmailSettings() {
     try {
-        const res = await fetch('/api/admin/settings/email', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetchAuth('/api/admin/settings/email');
         if(!res.ok) return;
         const data = await res.json();
         const form = document.getElementById('emailSettingsForm');
@@ -2590,9 +2573,9 @@ document.getElementById('emailSettingsForm')?.addEventListener('submit', async (
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     try {
-        const res = await fetch('/api/admin/settings/email', {
+        const res = await fetchAuth('/api/admin/settings/email', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         if(res.ok) alert('Settings saved');
@@ -2635,7 +2618,7 @@ async function loadServiceProperties(section, query = '') {
         let url = `/api/admin/${config.api}`;
         if (query) url += `?search=${encodeURIComponent(query)}`;
 
-        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(url);
 
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
@@ -2699,7 +2682,7 @@ window.editListing = async (id) => {
     if(!config) return;
 
     try {
-        const response = await fetch(`/api/admin/${config.api}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetchAuth(`/api/admin/${config.api}`);
         const items = await response.json();
         const item = items.find(p => p.id === id);
         if(!item) return;
@@ -2743,9 +2726,8 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
             method = 'PUT';
         }
 
-        const response = await fetch(url, {
+        const response = await fetchAuth(url, {
             method: method,
-            headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
 
@@ -2764,9 +2746,8 @@ window.deleteListing = async (id) => {
     if(!confirm('Are you sure?')) return;
     const config = SECTION_MAP[currentServiceSection];
     try {
-        const response = await fetch(`/api/admin/${config.api}/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/${config.api}/${id}`, {
+            method: 'DELETE'
         });
         if(response.ok) loadServiceProperties(currentServiceSection);
         else alert('Failed to delete');
@@ -2776,9 +2757,8 @@ window.deleteListing = async (id) => {
 window.toggleListingStatus = async (id) => {
     const config = SECTION_MAP[currentServiceSection];
     try {
-        const response = await fetch(`/api/admin/${config.api}/${id}/toggle`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetchAuth(`/api/admin/${config.api}/${id}/toggle`, {
+            method: 'PATCH'
         });
         if(response.ok) loadServiceProperties(currentServiceSection);
         else alert('Failed to update status');
