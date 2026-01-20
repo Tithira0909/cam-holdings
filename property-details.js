@@ -27,13 +27,26 @@ function renderProperty(prop) {
 
     // Build gallery html
     let galleryHtml = '';
-    const images = [prop.sub_image_1, prop.sub_image_2, prop.sub_image_3].filter(Boolean);
+    let images = [];
 
-    if (images.length > 0) {
+    // Parse JSON sub_images
+    if (prop.sub_images) {
+        try {
+            if (Array.isArray(prop.sub_images)) {
+                images = prop.sub_images;
+            } else {
+                images = JSON.parse(prop.sub_images);
+            }
+        } catch (e) {
+            console.warn('Failed to parse gallery images', e);
+        }
+    }
+
+    if (images && images.length > 0) {
         galleryHtml = `
             <h3 style="color:white; margin-top:3rem;">Gallery</h3>
             <div class="gallery-grid">
-                ${images.map(img => `<img src="${getImageUrl(img)}" class="gallery-item" loading="lazy">`).join('')}
+                ${images.map(img => `<img src="${getImageUrl(img)}" class="gallery-item" loading="lazy" onerror="this.onerror=null;this.src='/placeholder.svg';">`).join('')}
             </div>
         `;
     }

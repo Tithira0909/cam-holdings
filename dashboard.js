@@ -61,7 +61,13 @@ navLinks.forEach(link => {
 
         // 2. Switch View
         views.forEach(v => v.classList.remove('active'));
-        const viewId = `view-${viewName}`;
+        let viewId = `view-${viewName}`;
+
+        // Handle shared view for listings
+        if (viewName.startsWith('listings-')) {
+            viewId = 'view-listings';
+        }
+
         const targetView = document.getElementById(viewId);
         if (targetView) targetView.classList.add('active');
 
@@ -2634,22 +2640,24 @@ async function loadServiceProperties(section, query = '') {
 
         items.forEach(item => {
             const thumbUrl = getRelativeImageUrl(item.main_image);
-            const isActive = item.is_active === 1;
-            const statusClass = isActive ? 'badge-active' : 'badge-inactive';
+            const status = item.status || 'Draft';
+            const statusClass = (status === 'Active' || status === 'Published') ? 'badge-active' : 'badge-inactive';
+            const createdDate = item.created_at ? new Date(item.created_at).toLocaleDateString() : '-';
+            // Truncate description
+            let desc = item.description || '-';
+            if (desc.length > 50) desc = desc.substring(0, 50) + '...';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;" onerror="this.onerror=null;this.src='/placeholder.svg';"></td>
                 <td>${safe(item.name)}</td>
-                <td>-</td>
                 <td>${safe(item.estimated_cost || '-')}</td>
-                <td><span class="badge ${statusClass}">${isActive ? 'Active' : 'Inactive'}</span></td>
+                <td>${safe(desc)}</td>
+                <td>${createdDate}</td>
+                <td><span class="badge ${statusClass}">${safe(status)}</span></td>
                 <td>
                     <button class="btn-sm btn-edit" onclick="editListing(${item.id})">Edit</button>
                     <button class="btn-sm btn-deactivate" onclick="deleteListing(${item.id})">Delete</button>
-                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="toggleListingStatus(${item.id})">
-                        ${isActive ? 'Deactivate' : 'Activate'}
-                    </button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -2694,7 +2702,7 @@ window.editListing = async (id) => {
         form.querySelector('#li_name').value = item.name;
         form.querySelector('#li_estimated_cost').value = item.estimated_cost;
         form.querySelector('#li_description').value = item.description;
-        form.querySelector('#li_status').value = item.is_active ? "1" : "0";
+        form.querySelector('#li_status').value = item.status || 'Draft';
 
         // Preview
         const prevContainer = document.getElementById('mainImagePreviewContainer');
@@ -2704,6 +2712,43 @@ window.editListing = async (id) => {
             prevContainer.style.display = 'block';
         } else {
             prevContainer.style.display = 'none';
+        }
+
+        // Show existing sub-images
+        const subContainer = document.getElementById('subImagesPreviewContainer');
+        if (subContainer) {
+            subContainer.innerHTML = '';
+            let subs = [];
+            try {
+                if (item.sub_images) {
+                    subs = Array.isArray(item.sub_images) ? item.sub_images : JSON.parse(item.sub_images);
+                }
+            } catch (e) {}
+
+            if (subs && subs.length > 0) {
+                const label = document.createElement('div');
+                label.style.fontSize = '0.85rem';
+                label.style.color = '#666';
+                label.textContent = 'Existing Gallery Images:';
+                subContainer.appendChild(label);
+
+                const gallery = document.createElement('div');
+                gallery.style.display = 'flex';
+                gallery.style.gap = '8px';
+                gallery.style.marginTop = '5px';
+
+                subs.forEach(path => {
+                    const img = document.createElement('img');
+                    img.src = getRelativeImageUrl(path);
+                    img.style.width = '50px';
+                    img.style.height = '50px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '4px';
+                    img.onerror = function() { this.src = '/placeholder.svg'; };
+                    gallery.appendChild(img);
+                });
+                subContainer.appendChild(gallery);
+            }
         }
 
         liModal.classList.add('active');

@@ -410,6 +410,8 @@ async function setupDatabase() {
     console.log('Email Settings table created or already exists.');
 
     // 1. Real Estate Properties
+    // Dropping to ensure schema update
+    await db.query('DROP TABLE IF EXISTS real_estate_properties');
     await db.query(`
       CREATE TABLE IF NOT EXISTS real_estate_properties (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -417,10 +419,8 @@ async function setupDatabase() {
         estimated_cost VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         main_image VARCHAR(255) NOT NULL,
-        sub_image_1 VARCHAR(255),
-        sub_image_2 VARCHAR(255),
-        sub_image_3 VARCHAR(255),
-        is_active TINYINT(1) DEFAULT 0,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -428,6 +428,7 @@ async function setupDatabase() {
     console.log('real_estate_properties table created.');
 
     // 2. Design & Architecture Properties
+    await db.query('DROP TABLE IF EXISTS design_architecture_properties');
     await db.query(`
       CREATE TABLE IF NOT EXISTS design_architecture_properties (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -435,10 +436,8 @@ async function setupDatabase() {
         estimated_cost VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         main_image VARCHAR(255) NOT NULL,
-        sub_image_1 VARCHAR(255),
-        sub_image_2 VARCHAR(255),
-        sub_image_3 VARCHAR(255),
-        is_active TINYINT(1) DEFAULT 0,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -446,6 +445,7 @@ async function setupDatabase() {
     console.log('design_architecture_properties table created.');
 
     // 3. Construction Properties
+    await db.query('DROP TABLE IF EXISTS construction_properties');
     await db.query(`
       CREATE TABLE IF NOT EXISTS construction_properties (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -453,10 +453,8 @@ async function setupDatabase() {
         estimated_cost VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         main_image VARCHAR(255) NOT NULL,
-        sub_image_1 VARCHAR(255),
-        sub_image_2 VARCHAR(255),
-        sub_image_3 VARCHAR(255),
-        is_active TINYINT(1) DEFAULT 0,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -464,6 +462,7 @@ async function setupDatabase() {
     console.log('construction_properties table created.');
 
     // 4. Interiors Properties
+    await db.query('DROP TABLE IF EXISTS interiors_properties');
     await db.query(`
       CREATE TABLE IF NOT EXISTS interiors_properties (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -471,10 +470,8 @@ async function setupDatabase() {
         estimated_cost VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         main_image VARCHAR(255) NOT NULL,
-        sub_image_1 VARCHAR(255),
-        sub_image_2 VARCHAR(255),
-        sub_image_3 VARCHAR(255),
-        is_active TINYINT(1) DEFAULT 0,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )

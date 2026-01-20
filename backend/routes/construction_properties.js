@@ -43,22 +43,20 @@ router.post('/admin/construction-properties', authenticateToken, upload.fields([
     { name: 'sub_images', maxCount: 3 }
 ]), async (req, res) => {
     try {
-        const { name, estimated_cost, description, is_active } = req.body;
+        const { name, estimated_cost, description, status } = req.body;
         const files = req.files || {};
 
         const main_image = files['main_image'] ? files['main_image'][0].path : null;
         if(!main_image) return res.status(400).json({message: 'Main image required'});
 
-        const subImages = files['sub_images'] || [];
-        const sub1 = subImages[0] ? subImages[0].path : null;
-        const sub2 = subImages[1] ? subImages[1].path : null;
-        const sub3 = subImages[2] ? subImages[2].path : null;
+        const subImages = files['sub_images'] ? files['sub_images'].map(f => f.path) : [];
+        const subImagesJson = JSON.stringify(subImages);
 
-        const activeVal = is_active === 'true' || is_active === '1' || is_active === 1 ? 1 : 0;
+        const statusVal = status || 'Draft';
 
         const [result] = await db.query(
-            `INSERT INTO ${TABLE_NAME} (name, estimated_cost, description, main_image, sub_image_1, sub_image_2, sub_image_3, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, estimated_cost, description, main_image, sub1, sub2, sub3, activeVal]
+            `INSERT INTO ${TABLE_NAME} (name, estimated_cost, description, main_image, sub_images, status) VALUES (?, ?, ?, ?, ?, ?)`,
+            [name, estimated_cost, description, main_image, subImagesJson, statusVal]
         );
         res.status(201).json({ id: result.insertId, message: 'Created successfully' });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -70,11 +68,11 @@ router.put('/admin/construction-properties/:id', authenticateToken, upload.field
     { name: 'sub_images', maxCount: 3 }
 ]), async (req, res) => {
     try {
-        const { name, estimated_cost, description, is_active } = req.body;
+        const { name, estimated_cost, description, status } = req.body;
         const id = req.params.id;
         const files = req.files || {};
 
-        // Fetch current to keep existing images if not replaced
+        // Fetch current
         const [current] = await db.query(`SELECT * FROM ${TABLE_NAME} WHERE id=?`, [id]);
         if(current.length === 0) return res.status(404).json({message: 'Not found'});
         const curr = current[0];
@@ -82,26 +80,17 @@ router.put('/admin/construction-properties/:id', authenticateToken, upload.field
         let main_image = curr.main_image;
         if(files['main_image']) main_image = files['main_image'][0].path;
 
-        let sub1 = curr.sub_image_1;
-        let sub2 = curr.sub_image_2;
-        let sub3 = curr.sub_image_3;
-
-        if(files['sub_images']) {
-            // Replace logic: If new subs uploaded, overwrite from 1 to 3
-            // Assuming simplified logic: new upload replaces all subs or just fills?
-            // User requirement: "Handle 'replace image' on edit".
-            // For simplicity in MVP: If new sub_images uploaded, they shift into slots.
-            const newSubs = files['sub_images'];
-            if(newSubs.length > 0) sub1 = newSubs[0].path;
-            if(newSubs.length > 1) sub2 = newSubs[1].path;
-            if(newSubs.length > 2) sub3 = newSubs[2].path;
+        let subImagesJson = curr.sub_images;
+        if(files['sub_images'] && files['sub_images'].length > 0) {
+            const newSubs = files['sub_images'].map(f => f.path);
+            subImagesJson = JSON.stringify(newSubs);
         }
 
-        const activeVal = is_active === undefined ? curr.is_active : (is_active === 'true' || is_active === '1' || is_active === 1 ? 1 : 0);
+        const statusVal = status || curr.status;
 
         await db.query(
-            `UPDATE ${TABLE_NAME} SET name=?, estimated_cost=?, description=?, main_image=?, sub_image_1=?, sub_image_2=?, sub_image_3=?, is_active=? WHERE id=?`,
-            [name, estimated_cost, description, main_image, sub1, sub2, sub3, activeVal, id]
+            `UPDATE ${TABLE_NAME} SET name=?, estimated_cost=?, description=?, main_image=?, sub_images=?, status=? WHERE id=?`,
+            [name, estimated_cost, description, main_image, subImagesJson, statusVal, id]
         );
         res.json({ message: 'Updated successfully' });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -118,12 +107,12 @@ router.delete('/admin/construction-properties/:id', authenticateToken, async (re
 // PATCH Toggle
 router.patch('/admin/construction-properties/:id/toggle', authenticateToken, async (req, res) => {
     try {
-        const [current] = await db.query(`SELECT is_active FROM ${TABLE_NAME} WHERE id=?`, [req.params.id]);
+        const [current] = await db.query(`SELECT status FROM ${TABLE_NAME} WHERE id=?`, [req.params.id]);
         if(current.length === 0) return res.status(404).json({message:'Not found'});
 
-        const newVal = current[0].is_active ? 0 : 1;
-        await db.query(`UPDATE ${TABLE_NAME} SET is_active=? WHERE id=?`, [newVal, req.params.id]);
-        res.json({ message: 'Toggled', is_active: newVal });
+        const newVal = current[0].status === 'Active' ? 'Inactive' : 'Active';
+        await db.query(`UPDATE ${TABLE_NAME} SET status=? WHERE id=?`, [newVal, req.params.id]);
+        res.json({ message: 'Toggled', status: newVal });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -131,14 +120,14 @@ router.patch('/admin/construction-properties/:id/toggle', authenticateToken, asy
 
 router.get('/public/construction-properties', async (req, res) => {
     try {
-        const [rows] = await db.query(`SELECT * FROM ${TABLE_NAME} WHERE is_active=1 ORDER BY created_at DESC`);
+        const [rows] = await db.query(`SELECT * FROM ${TABLE_NAME} WHERE status='Active' OR status='Published' ORDER BY created_at DESC`);
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 router.get('/public/construction-properties/:id', async (req, res) => {
     try {
-        const [rows] = await db.query(`SELECT * FROM ${TABLE_NAME} WHERE id=? AND is_active=1`, [req.params.id]);
+        const [rows] = await db.query(`SELECT * FROM ${TABLE_NAME} WHERE id=? AND (status='Active' OR status='Published')`, [req.params.id]);
         if(rows.length===0) return res.status(404).json({message: 'Not found'});
         res.json(rows[0]);
     } catch (e) { res.status(500).json({ error: e.message }); }
