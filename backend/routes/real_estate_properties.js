@@ -120,7 +120,27 @@ router.patch('/admin/real-estate-properties/:id/toggle', authenticateToken, asyn
 
 router.get('/public/real-estate-properties', async (req, res) => {
     try {
-        const [rows] = await db.query(`SELECT * FROM ${TABLE_NAME} WHERE status='Active' OR status='Published' ORDER BY created_at DESC`);
+        const { search, sort } = req.query;
+        let query = `SELECT * FROM ${TABLE_NAME} WHERE (status='Active' OR status='Published')`;
+        const params = [];
+
+        if (search) {
+            query += ` AND (name LIKE ? OR description LIKE ?)`;
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        if (sort === 'oldest') {
+            query += ' ORDER BY created_at ASC';
+        } else if (sort === 'price_asc') {
+            // Try to cast to number, fallback to string if fails (simple approach)
+            query += ' ORDER BY CAST(estimated_cost AS UNSIGNED) ASC';
+        } else if (sort === 'price_desc') {
+            query += ' ORDER BY CAST(estimated_cost AS UNSIGNED) DESC';
+        } else {
+            query += ' ORDER BY created_at DESC';
+        }
+
+        const [rows] = await db.query(query, params);
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });

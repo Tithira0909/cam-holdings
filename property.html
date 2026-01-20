@@ -8,27 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    .prop-hero { position: relative; height: 60vh; min-height: 400px; background-size: cover; background-position: center; display: flex; align-items: flex-end; }
-    .prop-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #0a0a0a, transparent); }
-    .prop-hero__content { position: relative; z-index: 1; padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
-    .prop-title { font-size: 3rem; color: #fff; margin-bottom: 0.5rem; }
-    .prop-loc { font-size: 1.2rem; color: #ccc; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    .prop-price { font-size: 1.5rem; color: #d6b25e; font-weight: bold; }
-
-    .prop-body { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr; gap: 4rem; }
-    .prop-desc { color: #ccc; line-height: 1.8; font-size: 1.1rem; }
-    .prop-sidebar { background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); height: fit-content; }
-
-    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 3rem; }
-    .gallery-item { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; cursor: pointer; transition: opacity 0.2s; }
-    .gallery-item:hover { opacity: 0.8; }
-
-    @media (max-width: 768px) {
-        .prop-body { grid-template-columns: 1fr; }
-        .prop-title { font-size: 2rem; }
-    }
-  </style>
 </head>
 
 <body class="cam-body">
@@ -65,6 +44,9 @@
   </footer>
 
   <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
-  <script type="module" src="/property-details.js"></script>
+  <script type="module">
+    import { DetailsManager } from './details-manager.js';
+    new DetailsManager();
+  </script>
 </body>
 </html>

@@ -59,8 +59,8 @@
     <section class="re-section">
       <div class="re-section__inner">
         <h2 class="re-section__title">Featured Designs</h2>
-        <div id="listing-grid" class="re-grid" data-category="Design & Architecture">
-            <p style="color:white; text-align:center;">Loading active designs...</p>
+        <div class="listing-container">
+            <div id="listing-grid" class="re-grid"></div>
         </div>
       </div>
     </section>
@@ -79,6 +79,13 @@
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
-  <script type="module" src="/listings-loader.js"></script>
+  <script type="module">
+    import { ListingManager } from './listing-manager.js';
+    new ListingManager({
+        containerId: 'listing-grid',
+        apiEndpoint: '/design-architecture-properties',
+        sectionName: 'design-architecture-properties'
+    });
+  </script>
 </body>
 </html>

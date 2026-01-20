@@ -120,7 +120,26 @@ router.patch('/admin/construction-properties/:id/toggle', authenticateToken, asy
 
 router.get('/public/construction-properties', async (req, res) => {
     try {
-        const [rows] = await db.query(`SELECT * FROM ${TABLE_NAME} WHERE status='Active' OR status='Published' ORDER BY created_at DESC`);
+        const { search, sort } = req.query;
+        let query = `SELECT * FROM ${TABLE_NAME} WHERE (status='Active' OR status='Published')`;
+        const params = [];
+
+        if (search) {
+            query += ` AND (name LIKE ? OR description LIKE ?)`;
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        if (sort === 'oldest') {
+            query += ' ORDER BY created_at ASC';
+        } else if (sort === 'price_asc') {
+            query += ' ORDER BY CAST(estimated_cost AS UNSIGNED) ASC';
+        } else if (sort === 'price_desc') {
+            query += ' ORDER BY CAST(estimated_cost AS UNSIGNED) DESC';
+        } else {
+            query += ' ORDER BY created_at DESC';
+        }
+
+        const [rows] = await db.query(query, params);
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
