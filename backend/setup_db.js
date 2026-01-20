@@ -291,7 +291,8 @@ async function setupDatabase() {
     // Migration for Blogs Table
     const blogMigrationQueries = [
         "ALTER TABLE blogs ADD COLUMN is_approved BOOLEAN DEFAULT FALSE",
-        "ALTER TABLE blogs ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+        "ALTER TABLE blogs ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+        "ALTER TABLE blogs ADD COLUMN slug VARCHAR(255) UNIQUE"
     ];
 
     for (const query of blogMigrationQueries) {

@@ -66,11 +66,15 @@ router.post('/', authenticateToken, cpUpload, async (req, res) => {
             return res.status(400).json({ message: 'Title is required' });
         }
 
+        // Generate slug
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
         const [result] = await db.query(
-            'INSERT INTO blogs (type, title, banner_url, featured_image_url, gallery_json, content_html, published_status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO blogs (type, title, slug, banner_url, featured_image_url, gallery_json, content_html, published_status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 type || 'News Content',
                 title,
+                slug,
                 bannerUrl,
                 featuredImageUrl,
                 galleryJson,

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blog Details | CAM Holdings</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Specific styles for blog details if not in styles.css */
+    .bd-hero {
+        position: relative;
+        height: 60vh;
+        min-height: 400px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: flex-end;
+        padding-bottom: 4rem;
+    }
+    .bd-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.4) 100%);
+    }
+    .bd-hero-content {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    .bd-chip {
+        display: inline-block;
+        background: var(--gold);
+        color: #000;
+        padding: 4px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        border-radius: 2px;
+    }
+    .bd-h1 {
+        font-size: clamp(2rem, 5vw, 4rem);
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+    .bd-meta {
+        display: flex;
+        gap: 1.5rem;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.95rem;
+    }
+    .bd-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 4rem;
+        max-width: 1200px;
+        margin: 4rem auto;
+        padding: 0 20px;
+    }
+    .bd-main {
+        min-width: 0; /* Prevent overflow */
+    }
+    .bd-body {
+        font-size: 1.125rem;
+        line-height: 1.7;
+        color: rgba(255,255,255,0.9);
+    }
+    .bd-body h2 {
+        font-size: 2rem;
+        color: var(--gold);
+        margin: 3rem 0 1rem;
+    }
+    .bd-body p {
+        margin-bottom: 1.5rem;
+    }
+    .bd-body img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin: 2rem 0;
+    }
+    .bd-side {
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+    }
+    .bd-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gold);
+        text-decoration: none;
+        margin-bottom: 2rem;
+        font-weight: 500;
+    }
+    .bd-back:hover { text-decoration: underline; }
+
+    @media (max-width: 900px) {
+        .bd-layout { grid-template-columns: 1fr; gap: 2rem; }
+        .bd-side { display: none; } /* Hide sidebar on mobile/tablet or move to bottom */
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAV -->
+ <nav class="nav" aria-label="Primary">
+    <div class="nav-left">
+      <a class="nav-link" href="/index.html">Home</a>
+      <a class="nav-link mega-trigger" href="/services.html">Services</a>
+      <a class="nav-link" href="/projects.html">Projects</a>
+       <a class="nav-link active" href="/blogs.html">Blogs</a>
+      <a class="nav-link " href="/contact.html">Contact</a>
+    </div>
+
+    <a class="brand" href="/index.html">
+      <img class="brand-mark" src="/cam-logo.png" alt="CAM Holdings Logo" />
+    </a>
+
+    <div class="nav-right">
+      <a class="pill pill-gold" href="get-a-quote.html">Get a Quote</a>
+      <button class="hamburger" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- LOADING / CONTENT -->
+  <div id="blogDetailContainer">
+      <div style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+          <p>Loading article...</p>
+      </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-bg"></div>
+    <div class="wrap footer-wrap">
+      <div class="f-brand">
+        <div class="f-logo">
+          <span class="mark"></span>
+          <span class="txt">CAM</span>
+        </div>
+        <p class="f-copy">Luxury real-estate, design & construction — crafted with precision.</p>
+      </div>
+      <div class="f-cols">
+        <div>
+          <h4>Company</h4>
+          <a href="/about.html">About</a>
+          <a href="/projects.html">Projects</a>
+          <a href="/blogs.html">Blogs</a>
+        </div>
+        <div>
+          <h4>Support</h4>
+          <a href="/contact.html">Contact</a>
+          <a href="/index.html#book">Book</a>
+          <a href="/privacy.html">Privacy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/script.js"></script>
+  <script type="module" src="/blog-details.js"></script>
+</body>
+</html>
