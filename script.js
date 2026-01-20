@@ -68,9 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------------------------------
   const lenis = new Lenis({
     smooth: true,
-    lerp: 0.1,
-    wheelMultiplier: 1.0,
-    touchMultiplier: 1.2,
+    lerp: 0.07,
+    wheelMultiplier: 0.8,
+    touchMultiplier: 1.0,
   });
 
   // Expose Lenis
@@ -826,12 +826,11 @@ document.addEventListener("DOMContentLoaded", () => {
         autoAlpha: 1,
         x: 0,
         y: 0,
-        duration: 0.85,
-        ease: "power3.out",
+        duration: 1.4,
+        ease: "power2.out",
         scrollTrigger: {
           trigger: el,
-          // Header triggers earlier (top 92%) than content (top 82%)
-          start: isHead ? "top 92%" : "top 82%",
+          start: isHead ? "top 92%" : "top 85%",
           end: "top 55%",
           toggleActions: "play none none reverse",
         },

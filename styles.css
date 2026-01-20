@@ -5630,3 +5630,11 @@ select:-webkit-autofill:focus {
 img {
   content-visibility: auto;
 }
+
+/* Further shadow optimization */
+.service-card-item:hover,
+.project-card:hover,
+.whycam-card:hover,
+.b-card:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4) !important;
+}
