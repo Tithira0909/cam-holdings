@@ -923,8 +923,8 @@
                     <form id="addProjectForm" enctype="multipart/form-data">
                         <div class="client-form-grid">
                             <div class="form-group">
-                                <label for="np_client">Select Client *</label>
-                                <select id="np_client" name="client_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                <label for="np_client">Select Client (Optional)</label>
+                                <select id="np_client" name="client_id" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
                                     <option value="">Loading...</option>
                                 </select>
                             </div>
@@ -934,7 +934,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="np_slug">Slug</label>
-                                <input type="text" id="np_slug" name="slug">
+                                <input type="text" id="np_slug" name="slug" placeholder="Auto-generated if empty">
                             </div>
                             <div class="form-group">
                                 <label for="np_location">Location</label>
@@ -1580,6 +1580,20 @@
                         <input type="text" id="proj_title_input" name="title" required>
                     </div>
                     <div class="form-group">
+                        <label for="proj_slug_input">Slug</label>
+                        <input type="text" id="proj_slug_input" name="slug">
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_category">Category</label>
+                        <select id="proj_category" name="category" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="interior">Interior</option>
+                            <option value="architecture">Architecture</option>
+                            <option value="construction">Construction</option>
+                            <option value="landscape">Landscape</option>
+                            <option value="commercial">Commercial</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="proj_loc">Location</label>
                         <input type="text" id="proj_loc" name="location">
                     </div>
@@ -1594,14 +1608,27 @@
                             <option value="Inactive">Inactive</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="proj_featured">Featured</label>
+                        <select id="proj_featured" name="is_featured" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
                     <div class="form-group full-width">
                         <label for="proj_desc_input">Description</label>
                         <textarea id="proj_desc_input" name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="proj_image">Image</label>
+                        <label for="proj_image">Cover Image</label>
                         <div class="file-input-group">
                             <input type="file" id="proj_image" name="image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="proj_gallery">Gallery Images</label>
+                        <div class="file-input-group">
+                            <input type="file" id="proj_gallery" name="galleryImages" accept="image/*" multiple>
                         </div>
                     </div>
                 </div>

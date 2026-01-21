@@ -12,11 +12,18 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+        cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
     }
 });
 
 const upload = multer({ storage: storage });
+
+const generateSlug = (title) => {
+    return title.toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/^-+|-+$/g, '');
+};
 
 // GET all projects (Searchable)
 router.get('/', authenticateToken, async (req, res) => {
@@ -40,10 +47,16 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // POST new project
-router.post('/', authenticateToken, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'drawing', maxCount: 1 }, { name: 'project', maxCount: 1 }]), async (req, res) => {
+router.post('/', authenticateToken, upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'drawing', maxCount: 1 },
+    { name: 'project', maxCount: 1 },
+    { name: 'galleryImages', maxCount: 3 }
+]), async (req, res) => {
     const {
         title, location, budget, status, description, progress_status,
-        client_id, slug, service_id, project_status, start_date, end_date, is_featured
+        client_id, slug, service_id, project_status, start_date, end_date,
+        is_featured, category
     } = req.body;
 
     const files = req.files || {};
@@ -51,17 +64,29 @@ router.post('/', authenticateToken, upload.fields([{ name: 'image', maxCount: 1 
     const drawing_url = files['drawing'] ? files['drawing'][0].path : null;
     const project_file_url = files['project'] ? files['project'][0].path : null;
 
+    let gallery_images = [];
+    if (files['galleryImages']) {
+        gallery_images = files['galleryImages'].map(f => f.path);
+    }
+    const gallery_json = JSON.stringify(gallery_images);
+
+    const finalSlug = slug ? slug : generateSlug(title || '');
+    const finalStatus = status || 'Active';
+    const featured = (is_featured === 'Yes' || is_featured === 'true' || is_featured === true || is_featured === '1' || is_featured === 1) ? 1 : 0;
+
     try {
         const [result] = await db.query(
             `INSERT INTO projects (
                 title, location, budget, status, description, description_html, progress_status, image_url,
-                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url,
+                category, gallery_images
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                title, location, budget, status || 'Active', description, description, progress_status || 'Not Started', image_url,
-                client_id || null, slug || null, service_id || null, project_status || null,
-                start_date || null, end_date || null, is_featured === 'Yes',
-                drawing_url, project_file_url
+                title, location, budget, finalStatus, description, description, progress_status || 'Not Started', image_url,
+                client_id || null, finalSlug, service_id || null, project_status || null,
+                start_date || null, end_date || null, featured,
+                drawing_url, project_file_url,
+                category || 'interior', gallery_json
             ]
         );
         res.status(201).json({ id: result.insertId, message: 'Project created' });
@@ -71,17 +96,68 @@ router.post('/', authenticateToken, upload.fields([{ name: 'image', maxCount: 1 
 });
 
 // PUT update project
-router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
-    const { title, location, budget, status, description, progress_status } = req.body;
+router.put('/:id', authenticateToken, upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'galleryImages', maxCount: 3 },
+    { name: 'drawing', maxCount: 1 },
+    { name: 'project', maxCount: 1 }
+]), async (req, res) => {
+    const {
+        title, location, budget, status, description, progress_status,
+        category, is_featured, slug, client_id, service_id, project_status, start_date, end_date
+    } = req.body;
     const id = req.params.id;
 
-    try {
-        let query = 'UPDATE projects SET title=?, location=?, budget=?, status=?, description=?, progress_status=?';
-        let params = [title, location, budget, status, description, progress_status];
+    const files = req.files || {};
 
-        if (req.file) {
+    try {
+        let query = 'UPDATE projects SET title=?, location=?, budget=?, status=?, description=?, progress_status=?, category=?, is_featured=?';
+        const featured = (is_featured === 'Yes' || is_featured === 'true' || is_featured === true || is_featured === '1' || is_featured === 1) ? 1 : 0;
+        let params = [title, location, budget, status, description, progress_status, category, featured];
+
+        if (slug) {
+            query += ', slug=?';
+            params.push(slug);
+        }
+        if (client_id) {
+            query += ', client_id=?';
+            params.push(client_id);
+        }
+        if (service_id) {
+            query += ', service_id=?';
+            params.push(service_id);
+        }
+        if (project_status) {
+            query += ', project_status=?';
+            params.push(project_status);
+        }
+        if (start_date) {
+            query += ', start_date=?';
+            params.push(start_date);
+        }
+        if (end_date) {
+            query += ', end_date=?';
+            params.push(end_date);
+        }
+
+        if (files['image']) {
             query += ', image_url=?';
-            params.push(req.file.path);
+            params.push(files['image'][0].path);
+        }
+
+        if (files['galleryImages']) {
+             const gallery_images = files['galleryImages'].map(f => f.path);
+             query += ', gallery_images=?';
+             params.push(JSON.stringify(gallery_images));
+        }
+
+        if (files['drawing']) {
+            query += ', drawing_url=?';
+            params.push(files['drawing'][0].path);
+        }
+        if (files['project']) {
+            query += ', project_file_url=?';
+            params.push(files['project'][0].path);
         }
 
         query += ' WHERE id=?';
@@ -111,6 +187,35 @@ router.patch('/:id/progress', authenticateToken, async (req, res) => {
     try {
         await db.query('UPDATE projects SET progress_status = ? WHERE id = ?', [progress_status, req.params.id]);
         res.json({ message: 'Progress updated' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// PATCH toggle status (active/inactive)
+router.patch('/:id/toggle', authenticateToken, async (req, res) => {
+    try {
+        // Get current status
+        const [rows] = await db.query('SELECT status FROM projects WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) return res.status(404).json({ message: 'Project not found' });
+
+        const newStatus = rows[0].status === 'Active' ? 'Inactive' : 'Active';
+        await db.query('UPDATE projects SET status = ? WHERE id = ?', [newStatus, req.params.id]);
+        res.json({ message: `Project status changed to ${newStatus}` });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// PATCH toggle featured
+router.patch('/:id/featured', authenticateToken, async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT is_featured FROM projects WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) return res.status(404).json({ message: 'Project not found' });
+
+        const newFeatured = !rows[0].is_featured;
+        await db.query('UPDATE projects SET is_featured = ? WHERE id = ?', [newFeatured, req.params.id]);
+        res.json({ message: `Project featured status changed` });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

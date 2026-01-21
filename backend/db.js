@@ -1,14 +1,43 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const dbPath = path.resolve(__dirname, 'cam.db');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+const db = new sqlite3.Database(dbPath);
 
-module.exports = pool.promise();
+const query = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    const trimmedSql = sql.trim().toUpperCase();
+
+    // SQLite uses ? for params, same as MySQL usually.
+
+    if (trimmedSql.startsWith('SELECT') || trimmedSql.startsWith('PRAGMA')) {
+      db.all(sql, params, (err, rows) => {
+        if (err) {
+          console.error("SQL Error:", err.message, "Query:", sql);
+          reject(err);
+        }
+        else resolve([rows, []]);
+      });
+    } else {
+      db.run(sql, params, function(err) {
+        if (err) {
+          console.error("SQL Error:", err.message, "Query:", sql);
+          reject(err);
+        }
+        else {
+            // MySQL returns { insertId, affectedRows, ... }
+            // SQLite 'this' context in callback has lastID and changes
+            const result = {
+                insertId: this.lastID,
+                affectedRows: this.changes,
+                // Add dummy properties to satisfy some mysql checks if any
+                warningStatus: 0,
+            };
+            resolve([result, []]);
+        }
+      });
+    }
+  });
+};
+
+module.exports = { query };
