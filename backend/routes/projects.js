@@ -7,7 +7,15 @@ const db = require('../db');
 router.get('/', async (req, res) => {
     try {
         const { active, category } = req.query;
-        let query = 'SELECT * FROM projects';
+        let query = `
+            SELECT
+                id, title, slug, location, budget as estimatedCost,
+                description, description_html,
+                image_url as coverImage,
+                gallery_images as galleryImages,
+                category, status, created_at
+            FROM projects`;
+
         const params = [];
         const conditions = [];
 
@@ -27,7 +35,15 @@ router.get('/', async (req, res) => {
         query += ' ORDER BY created_at DESC';
 
         const [projects] = await db.query(query, params);
-        res.json(projects);
+
+        // Parse galleryImages if it's a string
+        const formattedProjects = projects.map(p => ({
+            ...p,
+            galleryImages: typeof p.galleryImages === 'string' ? JSON.parse(p.galleryImages) : p.galleryImages,
+            isActive: p.status === 'Active'
+        }));
+
+        res.json(formattedProjects);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -37,8 +53,15 @@ router.get('/', async (req, res) => {
 router.get('/:slugOrId', async (req, res) => {
     try {
         const param = req.params.slugOrId;
-        // Check if numeric ID or Slug
-        let query = 'SELECT * FROM projects WHERE ';
+        let query = `
+            SELECT
+                id, title, slug, location, budget as estimatedCost,
+                description, description_html,
+                image_url as coverImage,
+                gallery_images as galleryImages,
+                category, status, created_at,
+                client_id, service_id, start_date, end_date, drawing_url, project_file_url
+            FROM projects WHERE `;
         let params = [];
 
         if (/^\d+$/.test(param)) {
@@ -49,9 +72,14 @@ router.get('/:slugOrId', async (req, res) => {
             params.push(param);
         }
 
-        const [projects] = await db.query(query, params);
-        if (projects.length === 0) return res.status(404).json({ message: 'Project not found' });
-        res.json(projects[0]);
+        const [rows] = await db.query(query, params);
+        if (rows.length === 0) return res.status(404).json({ message: 'Project not found' });
+
+        const project = rows[0];
+        project.galleryImages = typeof project.galleryImages === 'string' ? JSON.parse(project.galleryImages) : project.galleryImages;
+        project.isActive = project.status === 'Active';
+
+        res.json(project);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -173,6 +173,7 @@ async function setupDatabase() {
         cover_image VARCHAR(255),
         is_active BOOLEAN DEFAULT TRUE,
         slug VARCHAR(255) UNIQUE,
+        estimated_cost VARCHAR(100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -184,7 +185,8 @@ async function setupDatabase() {
         "ALTER TABLE services CHANGE COLUMN image_url cover_image VARCHAR(255)",
         "ALTER TABLE services ADD COLUMN category VARCHAR(50)",
         "ALTER TABLE services ADD COLUMN is_active BOOLEAN DEFAULT TRUE",
-        "ALTER TABLE services ADD COLUMN slug VARCHAR(255) UNIQUE"
+        "ALTER TABLE services ADD COLUMN slug VARCHAR(255) UNIQUE",
+        "ALTER TABLE services ADD COLUMN estimated_cost VARCHAR(100)"
     ];
 
     for (const query of serviceMigrationQueries) {

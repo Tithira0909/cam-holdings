@@ -2756,8 +2756,8 @@ async function loadServiceProperties(section, query = '') {
                 <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;" onerror="this.onerror=null;this.src='/placeholder.svg';"></td>
                 <td>${safe(item.title)}</td>
                 <td>${safe(item.category)}</td>
+                <td>${safe(item.estimated_cost || item.budget || '-')}</td>
                 <td>${safe(desc)}</td>
-                <td>${createdDate}</td>
                 <td><span class="badge ${statusClass}">${isActive ? 'Active' : 'Inactive'}</span></td>
                 <td>
                     <button class="btn-sm btn-edit" onclick="editListing(${item.id})">Edit</button>
@@ -2812,6 +2812,7 @@ window.editListing = async (id) => {
         // I'll check dashboard.html later. For now mapping what I can.
 
         if(form.querySelector('#li_name')) form.querySelector('#li_name').value = item.title;
+        if(form.querySelector('#li_estimated_cost')) form.querySelector('#li_estimated_cost').value = item.estimated_cost || '';
         if(form.querySelector('#li_description')) form.querySelector('#li_description').value = item.description;
         // Status?
         if(form.querySelector('#li_status')) form.querySelector('#li_status').value = item.is_active ? 'Active' : 'Draft';
@@ -2840,6 +2841,9 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
     // Form has 'name' -> we need 'title'.
     if (formData.has('name')) {
         formData.append('title', formData.get('name'));
+    }
+    if (formData.has('estimated_cost')) {
+        formData.append('estimatedCost', formData.get('estimated_cost'));
     }
     // Append category
     formData.append('category', config.category);

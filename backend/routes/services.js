@@ -87,7 +87,7 @@ router.get('/services/:slugOrId', async (req, res) => {
 // POST /api/admin/services
 router.post('/admin/services', authenticateToken, upload.single('coverImage'), async (req, res) => {
     try {
-        const { title, category, description, isActive } = req.body;
+        const { title, category, description, isActive, estimatedCost } = req.body;
         const cover_image = req.file ? req.file.path : null;
 
         if (!title) return res.status(400).json({ message: 'Title is required' });
@@ -102,8 +102,8 @@ router.post('/admin/services', authenticateToken, upload.single('coverImage'), a
         const is_active = isActive === 'true' || isActive === true ? 1 : 0;
 
         const [result] = await db.query(
-            'INSERT INTO services (title, category, description, cover_image, is_active, slug) VALUES (?, ?, ?, ?, ?, ?)',
-            [title, category, description, cover_image, is_active, slug]
+            'INSERT INTO services (title, category, description, cover_image, is_active, slug, estimated_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [title, category, description, cover_image, is_active, slug, estimatedCost]
         );
 
         res.status(201).json({ message: 'Service created', id: result.insertId });
@@ -116,7 +116,7 @@ router.post('/admin/services', authenticateToken, upload.single('coverImage'), a
 // PUT /api/admin/services/:id
 router.put('/admin/services/:id', authenticateToken, upload.single('coverImage'), async (req, res) => {
     try {
-        const { title, category, description, isActive } = req.body;
+        const { title, category, description, isActive, estimatedCost } = req.body;
         const id = req.params.id;
 
         const [current] = await db.query('SELECT * FROM services WHERE id = ?', [id]);
@@ -128,14 +128,13 @@ router.put('/admin/services/:id', authenticateToken, upload.single('coverImage')
         let slug = current[0].slug;
         if (title && title !== current[0].title) {
              slug = generateSlug(title);
-             // Unique check? Maybe skip for update simplicity or implement loop
         }
 
         const is_active = isActive === undefined ? current[0].is_active : (isActive === 'true' || isActive === true ? 1 : 0);
 
         await db.query(
-            'UPDATE services SET title=?, category=?, description=?, cover_image=?, is_active=?, slug=? WHERE id=?',
-            [title, category, description, cover_image, is_active, slug, id]
+            'UPDATE services SET title=?, category=?, description=?, cover_image=?, is_active=?, slug=?, estimated_cost=? WHERE id=?',
+            [title, category, description, cover_image, is_active, slug, estimatedCost, id]
         );
 
         res.json({ message: 'Service updated' });

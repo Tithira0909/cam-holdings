@@ -24,6 +24,9 @@ async function loadListings() {
 
     // API Call to unified services endpoint
     // Filter by active=true and category
+    // Note: client-api.js fetchPublic prepends /api/ if needed.
+    // If endpoint starts with /, it appends to BASE_URL/api.
+    // So /services -> BASE_URL/api/services.
     const endpoint = `/services?active=true&category=${encodeURIComponent(category)}`;
 
     try {
@@ -62,7 +65,7 @@ function renderItems(container, items) {
         container.innerHTML = '<p style="color:#aaa; text-align:center; grid-column:1/-1;">No items found matching your search.</p>';
         return;
     }
-    // We pass 'services' as sectionEndpoint if needed, but ServiceCard will use slug if available
+    // We pass 'services' as sectionEndpoint so card links to service-details
     container.innerHTML = items.map(item => ServiceCard(item, 'services', false)).join('');
 }
 

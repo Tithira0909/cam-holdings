@@ -21,6 +21,7 @@ async function loadAllServices() {
     renderSkeleton(grid);
 
     try {
+        // Fetch all active services
         const items = await fetchPublic('/services?active=true');
 
         allCombinedItems = Array.isArray(items) ? items : [];
@@ -57,7 +58,8 @@ function renderCombinedItems(container, items) {
         container.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No items found matching your search.</p>';
         return;
     }
-    // We pass true for showCategoryBadge to show the category
+    // We pass 'services' as sectionEndpoint so card links to service-details
+    // Pass true for showCategoryBadge to display category on card
     container.innerHTML = items.map(item =>
         ServiceCard(item, 'services', true, item.category)
     ).join('');
