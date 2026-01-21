@@ -20,50 +20,15 @@ async function loadAllServices() {
 
     renderSkeleton(grid);
 
-    const sources = [
-        { endpoint: 'public/real-estate-properties', label: 'Real Estate' },
-        { endpoint: 'public/design-architecture-properties', label: 'Design & Architecture' },
-        { endpoint: 'public/construction-properties', label: 'Construction' },
-        { endpoint: 'public/interiors-properties', label: 'Interiors' }
-    ];
-
     try {
-        const promises = sources.map(src =>
-            fetchPublic('/' + src.endpoint)
-                .then(data => ({ data, source: src }))
-                .catch(err => {
-                    console.error(`Failed to fetch ${src.endpoint}`, err);
-                    return { data: [], source: src };
-                })
-        );
+        const items = await fetchPublic('/services?active=true');
 
-        const results = await Promise.all(promises);
-
-        allCombinedItems = [];
-        results.forEach(res => {
-            if (Array.isArray(res.data)) {
-                // Filter Active only
-                const activeItems = res.data.filter(item => item.status === 'Active');
-                const itemsWithMeta = activeItems.map(item => ({
-                    ...item,
-                    _sectionEndpoint: res.source.endpoint,
-                    _categoryLabel: res.source.label
-                }));
-                allCombinedItems = allCombinedItems.concat(itemsWithMeta);
-            }
-        });
+        allCombinedItems = Array.isArray(items) ? items : [];
 
         if (allCombinedItems.length === 0) {
-            grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No active items found.</p>';
+            grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No active services found.</p>';
             return;
         }
-
-        // Sort by created_at descending
-        allCombinedItems.sort((a, b) => {
-            const dateA = new Date(a.created_at || 0);
-            const dateB = new Date(b.created_at || 0);
-            return dateB - dateA;
-        });
 
         renderCombinedItems(grid, allCombinedItems);
 
@@ -92,8 +57,9 @@ function renderCombinedItems(container, items) {
         container.innerHTML = '<p style="text-align:center; grid-column:1/-1;">No items found matching your search.</p>';
         return;
     }
+    // We pass true for showCategoryBadge to show the category
     container.innerHTML = items.map(item =>
-        ServiceCard(item, item._sectionEndpoint, true, item._categoryLabel)
+        ServiceCard(item, 'services', true, item.category)
     ).join('');
 }
 
@@ -103,10 +69,10 @@ function filterCombinedListings(query) {
 
     const lowerQuery = query.toLowerCase();
     const filtered = allCombinedItems.filter(item => {
-        const name = (item.name || '').toLowerCase();
+        const title = (item.title || item.name || '').toLowerCase();
         const desc = (item.description || '').toLowerCase();
-        const cat = (item._categoryLabel || '').toLowerCase();
-        return name.includes(lowerQuery) || desc.includes(lowerQuery) || cat.includes(lowerQuery);
+        const cat = (item.category || '').toLowerCase();
+        return title.includes(lowerQuery) || desc.includes(lowerQuery) || cat.includes(lowerQuery);
     });
 
     renderCombinedItems(grid, filtered);

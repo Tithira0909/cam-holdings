@@ -4,64 +4,55 @@ async function initProjects() {
     const grid = document.getElementById('gridCards');
     if (!grid) return;
 
-    // Show loading state or clear
     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading projects...</p>';
 
+    // Read category from URL if present
+    const params = new URLSearchParams(window.location.search);
+    const categoryFilter = params.get('category'); // e.g. 'Real Estate'
+
     try {
-        const projects = await fetchPublic('/projects');
+        let endpoint = '/projects?active=true';
+        if (categoryFilter) {
+            endpoint += `&category=${encodeURIComponent(categoryFilter)}`;
+        }
+
+        const projects = await fetchPublic(endpoint);
 
         if (projects.length === 0) {
             grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No projects found.</p>';
             return;
         }
 
-        grid.innerHTML = ''; // Clear loading
+        grid.innerHTML = '';
 
         projects.forEach(project => {
-            if (project.status === 'Inactive') return;
-
             const card = document.createElement('article');
             card.className = 'card';
 
-            // Infer tags
-            const text = (project.title + ' ' + project.description).toLowerCase();
+            const text = (project.title + ' ' + (project.description || '')).toLowerCase();
+            // Tags logic can remain client side or rely on backend category
             const tags = [];
-            if (text.includes('interior')) tags.push('interior');
-            if (text.includes('architecture')) tags.push('architecture');
-            if (text.includes('construction')) tags.push('construction');
-            if (text.includes('landscape')) tags.push('landscape');
-            if (text.includes('commercial')) tags.push('commercial');
+            if (project.category) tags.push(project.category.toLowerCase());
 
             card.dataset.tags = tags.join(' ');
             card.dataset.title = project.title;
             card.dataset.date = project.created_at ? project.created_at.split('T')[0] : '';
 
-            // Meta info
             const metaParts = [];
             if (project.location) metaParts.push(project.location);
             if (project.progress_status) metaParts.push(project.progress_status);
             const metaText = metaParts.join(' • ');
 
-            // Badge
-            const badgeText = tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project';
+            const badgeText = project.category || 'Project';
 
-            // Image Logic
-            const rawImage = project.image_url;
+            const rawImage = project.image_url || project.cover_image;
             const imageUrl = getImageUrl(rawImage);
 
-            console.log("coverImage raw:", rawImage);
-            console.log("final src:", imageUrl);
-
-            // Fallback UI
-            const fallbackHtml = `
-                <div class="fallback-placeholder">
-                    <span class="fallback-icon">📷</span>
-                    <span class="fallback-text">No Image Available</span>
-                </div>
-            `;
+            // Link to project details
+            const link = project.slug ? `project-details.html?slug=${project.slug}` : `project-details.html?id=${project.id}`;
 
             card.innerHTML = `
-                <a class="card-link" href="project-details.html?id=${project.id}">
+                <a class="card-link" href="${link}">
                     <div class="media-wrapper">
                         <img
                             src="${imageUrl}"
@@ -100,6 +91,7 @@ async function initProjects() {
 }
 
 function initFiltering() {
+    // Keep existing client-side filtering logic if chips are used
     const q = document.getElementById("q");
     const chips = document.getElementById("chips");
     const sort = document.getElementById("sort");
@@ -114,7 +106,7 @@ function initFiltering() {
     }
 
     function apply(){
-      const term = (q.value || "").trim().toLowerCase();
+      const term = (q?.value || "").trim().toLowerCase();
       const cards = getCards();
 
       let filtered = cards.filter(c => {
@@ -164,11 +156,13 @@ function initFiltering() {
 
     if(resetBtn){
       resetBtn.addEventListener("click", () => {
-        q.value = "";
+        if(q) q.value = "";
         activeTag = "all";
-        chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-        const allChip = chips.querySelector('[data-tag="all"]');
-        if (allChip) allChip.classList.add("active");
+        if(chips) {
+            chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+            const allChip = chips.querySelector('[data-tag="all"]');
+            if (allChip) allChip.classList.add("active");
+        }
         if (sort) sort.value = "featured";
         apply();
       });

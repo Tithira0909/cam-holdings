@@ -84,6 +84,8 @@ async function setupDatabase() {
         "ALTER TABLE projects ADD COLUMN slug VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN description_html TEXT",
         "ALTER TABLE projects ADD COLUMN service_id INT",
+        "ALTER TABLE projects ADD COLUMN category VARCHAR(50)",
+        "ALTER TABLE projects ADD COLUMN gallery_images JSON",
         "ALTER TABLE projects ADD COLUMN project_status VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN start_date DATE",
         "ALTER TABLE projects ADD COLUMN end_date DATE",
@@ -161,21 +163,40 @@ async function setupDatabase() {
     `);
     console.log('Service Types table created or already exists.');
 
-    // Create Services Table
+    // Create Services Table (Updated for Service Listings)
     await db.query(`
       CREATE TABLE IF NOT EXISTS services (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        service_type_id INT,
+        title VARCHAR(255) NOT NULL,
+        category VARCHAR(50),
         description TEXT,
-        image_url VARCHAR(255),
-        status ENUM('published', 'draft') DEFAULT 'draft',
+        cover_image VARCHAR(255),
+        is_active BOOLEAN DEFAULT TRUE,
+        slug VARCHAR(255) UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (service_type_id) REFERENCES service_types(id) ON DELETE SET NULL
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('Services table created or already exists.');
+
+    // Migration for Services Table
+    const serviceMigrationQueries = [
+        "ALTER TABLE services CHANGE COLUMN name title VARCHAR(255) NOT NULL",
+        "ALTER TABLE services CHANGE COLUMN image_url cover_image VARCHAR(255)",
+        "ALTER TABLE services ADD COLUMN category VARCHAR(50)",
+        "ALTER TABLE services ADD COLUMN is_active BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE services ADD COLUMN slug VARCHAR(255) UNIQUE"
+    ];
+
+    for (const query of serviceMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060 && error.errno !== 1054) {
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
+    console.log('Services table created or updated.');
 
     // Create Reviews Table
     await db.query(`
