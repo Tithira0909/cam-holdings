@@ -1,62 +1,75 @@
 import { fetchPublic, getImageUrl } from './client-api.js';
 
-async function initProjects() {
+let currentCategory = 'all';
+let currentSearch = '';
+let currentSort = 'featured';
+
+async function loadProjects() {
     const grid = document.getElementById('gridCards');
+    const empty = document.getElementById('empty');
     if (!grid) return;
 
-    // Show loading state or clear
     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading projects...</p>';
+    if (empty) empty.hidden = true;
 
     try {
-        // We use the existing /api/projects endpoint which is public
-        // However, api.js fetchPublic uses /api/ prefix.
-        // backend/routes/projects.js is mounted at /api/projects.
-        // So endpoint is /projects.
-        const projects = await fetchPublic('/projects');
+        const queryParams = new URLSearchParams({
+            active: 'true',
+            category: currentCategory === 'all' ? '' : currentCategory,
+            q: currentSearch,
+            sort: currentSort
+        });
+
+        // The fetchPublic function handles the /api prefix.
+        // We pass the path relative to /api.
+        const data = await fetchPublic(`/projects?${queryParams.toString()}`);
+
+        // Handle response format: new API returns { items: [...] }
+        const projects = Array.isArray(data) ? data : (data.items || []);
+
+        grid.innerHTML = '';
 
         if (projects.length === 0) {
-            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No projects found.</p>';
+            if (empty) empty.hidden = false;
+            else grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No projects found.</p>';
             return;
         }
 
-        grid.innerHTML = ''; // Clear loading
-
         projects.forEach(project => {
-            if (project.status === 'Inactive') return; // Filter out inactive if needed
-
             const card = document.createElement('article');
             card.className = 'card';
 
-            // Infer tags from title/description for filtering
-            const text = (project.title + ' ' + project.description).toLowerCase();
-            const tags = [];
-            if (text.includes('interior')) tags.push('interior');
-            if (text.includes('architecture')) tags.push('architecture');
-            if (text.includes('construction')) tags.push('construction');
-            if (text.includes('landscape')) tags.push('landscape');
-            if (text.includes('commercial')) tags.push('commercial');
-            // If no tags found, maybe default to 'all' (logic handles 'all' separately)
-
-            card.dataset.tags = tags.join(' ');
-            card.dataset.title = project.title;
-            card.dataset.date = project.created_at ? project.created_at.split('T')[0] : '';
-
-            // Meta info: Location • Progress or Budget
-            const metaParts = [];
-            if (project.location) metaParts.push(project.location);
-            if (project.progress_status) metaParts.push(project.progress_status);
-            const metaText = metaParts.join(' • ');
-
-            // Badge: First tag or 'Project'
-            const badgeText = tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project';
-
             const imageUrl = getImageUrl(project.image_url);
 
+            // Format Category
+            let categoryDisplay = 'Project';
+            if (project.category) {
+                // Capitalize
+                categoryDisplay = project.category.charAt(0).toUpperCase() + project.category.slice(1);
+            } else if (project.service_name) {
+                categoryDisplay = project.service_name;
+            }
+
+            // Meta: Location • Budget
+            const metaParts = [];
+            if (project.location) metaParts.push(project.location);
+            if (project.budget) {
+                // If it looks like a number, format it?
+                // DB has budget as TEXT (VARCHAR).
+                // We'll display as is for flexibility or simple format if desired.
+                metaParts.push(project.budget);
+            }
+            const metaText = metaParts.join(' • ');
+
+            // Link logic: prioritize slug
+            const linkParam = project.slug ? `slug=${project.slug}` : `id=${project.id}`;
+            const linkUrl = `project-details.html?${linkParam}`;
+
             card.innerHTML = `
-                <a class="card-link" href="project-details.html?id=${project.id}">
+                <a class="card-link" href="${linkUrl}">
                     <div class="media" style="background-image:url('${imageUrl}')"></div>
                     <div class="glass">
-                        <div class="badge">${badgeText}</div>
+                        <div class="badge">${categoryDisplay}</div>
                         <h3 class="title">${project.title}</h3>
                         <p class="meta">${metaText}</p>
                         <div class="line"></div>
@@ -69,103 +82,78 @@ async function initProjects() {
             grid.appendChild(card);
         });
 
-        // Initialize filtering logic after cards are added
-        initFiltering();
-
-        // Initialize animations if needed (from script.js?)
-        // script.js uses ScrollTrigger on elements. If we add them late, we might need refresh.
+        // Refresh ScrollTrigger if available (for animations)
         if (window.ScrollTrigger) {
             window.ScrollTrigger.refresh();
         }
-        // Also if script.js has specific project card animations, they might need re-init.
-        // But script.js runs on DOMContentLoaded. If we run async, we are later.
-        // We might need to manually trigger things or just let it be if it's scroll based and refresh handles it.
 
     } catch (error) {
         console.error('Error loading projects:', error);
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Error loading projects.</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Error loading projects. Check backend connection.</p>';
     }
 }
 
 function initFiltering() {
-    const q = document.getElementById("q");
+    const qInput = document.getElementById("q");
     const chips = document.getElementById("chips");
-    const sort = document.getElementById("sort");
-    const cardsWrap = document.getElementById("gridCards");
-    const empty = document.getElementById("empty");
+    const sortSelect = document.getElementById("sort");
     const resetBtn = document.getElementById("reset");
 
-    let activeTag = "all";
-
-    function getCards(){
-      return Array.from(cardsWrap.querySelectorAll(".card"));
-    }
-
-    function apply(){
-      const term = (q.value || "").trim().toLowerCase();
-      const cards = getCards();
-
-      // filter
-      let filtered = cards.filter(c => {
-        const tags = (c.dataset.tags || "").toLowerCase();
-        const title = (c.dataset.title || "").toLowerCase();
-        const tagOk = (activeTag === "all") || tags.includes(activeTag);
-        const termOk = !term || title.includes(term) || tags.includes(term);
-        return tagOk && termOk;
-      });
-
-      // sort
-      const mode = sort.value;
-      filtered.sort((a,b) => {
-        const ta = (a.dataset.title || "");
-        const tb = (b.dataset.title || "");
-        const da = new Date(a.dataset.date || "2000-01-01");
-        const db = new Date(b.dataset.date || "2000-01-01");
-        if(mode === "newest") return db - da;
-        if(mode === "oldest") return da - db;
-        if(mode === "az") return ta.localeCompare(tb);
-        return 0; // featured (keep HTML order)
-      });
-
-      // render: hide all then append filtered in order
-      cards.forEach(c => c.style.display = "none");
-      filtered.forEach(c => {
-        c.style.display = "";
-        cardsWrap.appendChild(c);
-      });
-
-      if (empty) {
-          empty.hidden = filtered.length !== 0;
-      }
-    }
-
-    if (chips) {
-        chips.addEventListener("click", (e) => {
-            const btn = e.target.closest(".chip");
-            if(!btn) return;
-            activeTag = btn.dataset.tag;
-            chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            apply();
+    // Search Debounce
+    let searchTimeout;
+    if (qInput) {
+        qInput.addEventListener("input", (e) => {
+            currentSearch = e.target.value.trim();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(loadProjects, 500);
         });
     }
 
-    if (q) q.addEventListener("input", apply);
-    if (sort) sort.addEventListener("change", apply);
-
-    if(resetBtn){
-      resetBtn.addEventListener("click", () => {
-        q.value = "";
-        activeTag = "all";
-        chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-        const allChip = chips.querySelector('[data-tag="all"]');
-        if (allChip) allChip.classList.add("active");
-        sort.value = "featured";
-        apply();
-      });
+    // Sort Change
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (e) => {
+            currentSort = e.target.value;
+            loadProjects();
+        });
     }
 
-    apply();
+    // Category Chips
+    if (chips) {
+        chips.addEventListener("click", (e) => {
+            const btn = e.target.closest(".chip");
+            if (!btn) return;
+
+            // UI Toggle
+            chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            currentCategory = btn.dataset.tag; // 'all', 'interior', etc.
+            loadProjects();
+        });
+    }
+
+    // Reset Button
+    if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+            if (qInput) qInput.value = "";
+            currentSearch = "";
+
+            currentCategory = "all";
+            if (chips) {
+                chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+                const allChip = chips.querySelector('[data-tag="all"]');
+                if (allChip) allChip.classList.add("active");
+            }
+
+            currentSort = "featured";
+            if (sortSelect) sortSelect.value = "featured";
+
+            loadProjects();
+        });
+    }
+
+    // Initial Load
+    loadProjects();
 }
 
-document.addEventListener('DOMContentLoaded', initProjects);
+document.addEventListener('DOMContentLoaded', initFiltering);

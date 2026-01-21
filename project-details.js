@@ -3,21 +3,23 @@ import { fetchPublic, getImageUrl } from './client-api.js';
 async function initProjectDetails() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
+    const slug = params.get('slug');
+    const identifier = slug || id;
 
     const loadingEl = document.getElementById('projectLoading');
     const contentEl = document.getElementById('projectContent');
     const errorEl = document.getElementById('projectError');
 
-    if (!id) {
+    if (!identifier) {
         if(loadingEl) loadingEl.style.display = 'none';
         if(errorEl) errorEl.style.display = 'grid';
         return;
     }
 
     try {
-        // Fetch project details using the single ID endpoint
-        // Endpoint: /projects/:id
-        const project = await fetchPublic(`/projects/${id}`);
+        // Fetch project details using the single ID endpoint (which now handles slug too)
+        // Endpoint: /projects/:slug
+        const project = await fetchPublic(`/projects/${identifier}`);
 
         if (!project || project.message === 'Project not found') {
             throw new Error('Project not found');

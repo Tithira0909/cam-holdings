@@ -536,9 +536,12 @@ window.editProject = async (id) => {
 
         const form = document.getElementById('projectForm');
         form.querySelector('#proj_title_input').value = project.title;
+        form.querySelector('#proj_slug_input').value = project.slug || '';
+        form.querySelector('#proj_category').value = project.category || 'interior';
         form.querySelector('#proj_loc').value = project.location || '';
         form.querySelector('#proj_budget').value = project.budget || '';
         form.querySelector('#proj_status').value = project.status || 'Active';
+        form.querySelector('#proj_featured').value = (project.is_featured === 1 || project.is_featured === true) ? 'Yes' : 'No';
         form.querySelector('#proj_desc_input').value = project.description || '';
 
         openProjectModalFunc();
