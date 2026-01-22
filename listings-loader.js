@@ -24,10 +24,17 @@ async function loadListings() {
     }
 
     try {
-        const listings = await fetchPublic(`/${apiSegment}`);
+        // Ensure we hit the public endpoint
+        const listings = await fetchPublic(`/public/${apiSegment}`);
 
         if (!listings || listings.length === 0) {
-            grid.innerHTML = '<p style="color:#aaa; text-align:center;">No active properties found.</p>';
+            grid.innerHTML = `
+                <div class="re-empty">
+                    <h3>No properties available</h3>
+                    <p>We are currently updating our exclusive listings. Please check back soon or contact us directly for private opportunities.</p>
+                    <a href="contact.html" class="re-card__btn" style="width:auto; margin-top:1rem; padding-inline:2rem;">Contact Us</a>
+                </div>
+            `;
             return;
         }
 
@@ -42,26 +49,27 @@ async function loadListings() {
 function createCard(item, section) {
     const imgUrl = getImageUrl(item.main_image);
     const title = item.name || 'Untitled';
-    const cost = item.estimated_cost || '';
+    const cost = item.estimated_cost ? `${item.estimated_cost}` : 'Price on Request';
     // Shorten description
-    const desc = item.description ? (item.description.substring(0, 100) + '...') : '';
+    const desc = item.description ? (item.description.substring(0, 120) + (item.description.length > 120 ? '...' : '')) : 'No description available.';
 
     const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
     return `
         <div class="re-card">
-            <a href="property.html?section=${section}&id=${item.id}" style="text-decoration:none; color:inherit;">
+            <a href="property.html?section=${section}&id=${item.id}" class="re-card__img-wrap">
                 <img src="${imgUrl}" alt="${safe(title)}" class="re-card__img" loading="lazy" onerror="this.onerror=null;this.src='/placeholder.svg';">
-                <div class="re-card__body">
-                    <h3 class="re-card__title">${safe(title)}</h3>
-                    <div class="re-card__loc" style="font-weight:bold; color:#d6b25e;">
-                        ${safe(cost)}
-                    </div>
-                    <p style="font-size:0.9rem; color:#aaa; margin-top:0.5rem;">${safe(desc)}</p>
-                </div>
             </a>
-            <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
-                <a href="property.html?section=${section}&id=${item.id}" class="re-card__btn">View Details</a>
+            <div class="re-card__body">
+                <a href="property.html?section=${section}&id=${item.id}" style="text-decoration:none;">
+                    <h3 class="re-card__title">${safe(title)}</h3>
+                </a>
+                <div class="re-card__cost">${safe(cost)}</div>
+                <p class="re-card__desc">${safe(desc)}</p>
+
+                <div class="re-card__actions">
+                     <a href="property.html?section=${section}&id=${item.id}" class="re-card__btn">View Details</a>
+                </div>
             </div>
         </div>
     `;
