@@ -546,7 +546,7 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
 
     const clientId = document.getElementById('np_client').value;
     const title = document.getElementById('np_title').value;
-    const featuredImage = document.getElementById('np_featured_image').files[0]; // If editing, might be optional but here strictly New Project
+    const featuredImage = document.getElementById('np_featured_image').files[0];
 
     if (!clientId) {
         document.getElementById('np_client_error').style.display = 'block';
@@ -558,7 +558,7 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
     }
     // Main image is required for new projects
     if (!featuredImage) {
-        alert('Featured Image is required'); // Inline error better but alert is minimal fallback
+        alert('Featured Image is required');
         isValid = false;
     }
 
@@ -600,6 +600,309 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
         console.error(e);
         alert('Error creating project');
     }
+});
+
+// --- EDIT PROJECT LOGIC (FIXED) ---
+let editProjectEditorInstance;
+let editGalleryFiles = []; // For adding new
+let removedGalleryImages = []; // Track removed existing images (paths)
+
+window.editProject = async (id) => {
+    try {
+        const response = await fetchAuth(`/api/admin/projects/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch project details');
+        const project = await response.json();
+
+        editingProjectId = id;
+
+        // Reset State
+        editGalleryFiles = [];
+        removedGalleryImages = [];
+        document.getElementById('editProjectForm').reset();
+
+        // Populate Fields
+        // Need to load dropdowns first (clients, services, quotations)
+        await Promise.all([
+            loadClientsForEdit(project.client_id),
+            loadServicesForEdit(project.service_id),
+            loadQuotationsForEdit(project.quotation_id)
+        ]);
+
+        const form = document.getElementById('editProjectForm');
+        form.querySelector('#ep_title').value = project.title;
+        form.querySelector('#ep_slug').value = project.slug || '';
+        form.querySelector('#ep_location').value = project.location || '';
+        form.querySelector('#ep_budget').value = project.budget || '';
+        form.querySelector('#ep_extensions').value = project.property_extensions || '';
+        form.querySelector('#ep_project_status').value = project.project_status || 'Quotation';
+        form.querySelector('#ep_status').value = project.status || 'Active';
+        form.querySelector('#ep_featured').value = project.is_featured ? 'Yes' : 'No';
+
+        if (project.start_date) form.querySelector('#ep_start_date').value = new Date(project.start_date).toISOString().split('T')[0];
+        if (project.end_date) form.querySelector('#ep_end_date').value = new Date(project.end_date).toISOString().split('T')[0];
+
+        // Editor
+        if (!editProjectEditorInstance) {
+            if (window.ClassicEditor) {
+                editProjectEditorInstance = await ClassicEditor.create(document.querySelector('#editProjectEditor'));
+            }
+        }
+        if (editProjectEditorInstance) editProjectEditorInstance.setData(project.description || '');
+
+        // Images Preview
+        const featPrev = document.getElementById('ep_featured_preview');
+        if (project.main_image) {
+            featPrev.innerHTML = `<img src="${getRelativeImageUrl(project.main_image)}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+            featPrev.innerHTML = 'No Image';
+        }
+
+        const drawPrev = document.getElementById('ep_drawing_preview');
+        if (project.drawing_url) {
+            drawPrev.innerHTML = `<a href="${getRelativeImageUrl(project.drawing_url)}" target="_blank">View Current Drawing</a>`;
+        } else {
+            drawPrev.innerHTML = 'No Drawing';
+        }
+
+        // Gallery
+        currentProjectGallery = project.gallery_images;
+        renderEditGallery(currentProjectGallery);
+
+        // Documents
+        renderProjectDocs(project.documents || []);
+
+        // Switch View
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-edit-project').classList.add('active');
+
+    } catch(e) {
+        console.error(e);
+        alert('Error loading project');
+    }
+};
+
+async function loadClientsForEdit(selectedId) {
+    try {
+        const response = await fetchAuth('/api/admin/clients');
+        const clients = await response.json();
+        const select = document.getElementById('ep_client');
+        select.innerHTML = '<option value="">---Select Client---</option>';
+        clients.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.textContent = `${c.first_name} ${c.last_name}`;
+            if (c.id === selectedId) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (e) {}
+}
+
+async function loadServicesForEdit(selectedId) {
+    try {
+        const response = await fetchAuth('/api/admin/services');
+        const items = await response.json();
+        const select = document.getElementById('ep_service');
+        select.innerHTML = '<option value="">Select Service</option>';
+        items.forEach(i => {
+            const option = document.createElement('option');
+            option.value = i.id;
+            option.textContent = i.name;
+            if (i.id === selectedId) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (e) {}
+}
+
+async function loadQuotationsForEdit(selectedId) {
+    try {
+        const response = await fetchAuth('/api/admin/quotations');
+        const items = await response.json();
+        const select = document.getElementById('ep_quotation');
+        select.innerHTML = '<option value="">Select Quotation</option>';
+        items.forEach(i => {
+            const option = document.createElement('option');
+            option.value = i.id;
+            option.textContent = `${i.reference_id} - ${i.first_name}`;
+            if (i.id === selectedId) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (e) {}
+}
+
+function renderEditGallery(existingJson) {
+    const container = document.getElementById('ep_gallery_preview');
+    container.innerHTML = '';
+
+    // Existing Images
+    let existing = [];
+    try { existing = typeof existingJson === 'string' ? JSON.parse(existingJson) : existingJson; } catch(e){}
+    if(!Array.isArray(existing)) existing = [];
+
+    existing.forEach(path => {
+        if(removedGalleryImages.includes(path)) return; // Skip removed
+
+        const div = document.createElement('div');
+        div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 4px; overflow: hidden; border: 1px solid #ccc;';
+        div.innerHTML = `
+            <img src="${getRelativeImageUrl(path)}" style="width:100%; height:100%; object-fit:cover;">
+            <button type="button" class="btn-remove-img" data-path="${path}" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; font-size: 10px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">&times;</button>
+        `;
+        div.querySelector('button').onclick = () => {
+            removedGalleryImages.push(path);
+            renderEditGallery(existingJson); // Re-render to hide
+        };
+        container.appendChild(div);
+    });
+
+    // New Pending Images
+    editGalleryFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 4px; overflow: hidden; border: 1px solid blue;';
+            div.innerHTML = `
+                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" onclick="removeEditGalleryFile(${index})" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; font-size: 10px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            `;
+            container.appendChild(div);
+        }
+        reader.readAsDataURL(file);
+    });
+}
+
+// Handler for adding new files in Edit
+document.getElementById('ep_gallery')?.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    files.forEach(f => editGalleryFiles.push(f));
+    // Trigger re-render. We need access to 'existingJson' which isn't global.
+    // Simplified: Just re-render new ones? No, mixed list.
+    // Hack: We don't have existing list easily accessible here.
+    // Let's store existing list in a global or data attrib?
+    // We will just fetch project again? No.
+    // Let's stick to the flow. Re-fetching `editProject` logic is easiest but resets changes.
+    // I'll make `renderEditGallery` use a stored global `currentProjectGallery`.
+    renderEditGallery(currentProjectGallery);
+    e.target.value = '';
+});
+let currentProjectGallery = [];
+// Update `editProject` to set `currentProjectGallery = project.gallery_images`
+
+window.removeEditGalleryFile = (index) => {
+    editGalleryFiles.splice(index, 1);
+    renderEditGallery(currentProjectGallery);
+};
+
+// Document Tables
+function renderProjectDocs(docs) {
+    const pBody = document.getElementById('projectDocsBody');
+    const cBody = document.getElementById('customerDocsBody');
+    pBody.innerHTML = '';
+    cBody.innerHTML = '';
+
+    docs.forEach(doc => {
+        const isLocked = doc.is_locked || doc.is_locked === 1 || doc.is_locked === 'true';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${safe(doc.name)}</td>
+            <td><a href="${getRelativeImageUrl(doc.file_path)}" target="_blank">View File</a></td>
+            <td>
+                <label class="switch">
+                    <input type="checkbox" ${isLocked ? 'checked' : ''} onchange="toggleDocLock(${doc.id}, this.checked)">
+                    <span class="slider round"></span>
+                </label>
+                ${isLocked ? 'Locked' : 'Unlocked'}
+            </td>
+            <td>
+                <button type="button" class="btn-sm btn-deactivate" onclick="deleteDoc(${doc.id})">Delete</button>
+            </td>
+        `;
+
+        if (doc.category === 'Customer') cBody.appendChild(tr);
+        else pBody.appendChild(tr);
+    });
+}
+
+window.addDocument = async (category) => {
+    const nameInput = document.getElementById(category === 'Project' ? 'new_pdoc_name' : 'new_cdoc_name');
+    const fileInput = document.getElementById(category === 'Project' ? 'new_pdoc_file' : 'new_cdoc_file');
+
+    if (!nameInput.value || !fileInput.files[0]) {
+        alert('Name and File required');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('project_id', editingProjectId);
+    fd.append('name', nameInput.value);
+    fd.append('category', category);
+    fd.append('file', fileInput.files[0]);
+
+    try {
+        const res = await fetchAuth('/api/admin/project-documents', { method: 'POST', body: fd });
+        if(res.ok) {
+            // Refresh docs
+            const pRes = await fetchAuth(`/api/admin/projects/${editingProjectId}`);
+            const p = await pRes.json();
+            renderProjectDocs(p.documents || []);
+            nameInput.value = '';
+            fileInput.value = '';
+        } else {
+            alert('Failed to upload');
+        }
+    } catch(e) { console.error(e); }
+};
+
+window.deleteDoc = async (id) => {
+    if(!confirm('Delete document?')) return;
+    try {
+        await fetchAuth(`/api/admin/project-documents/${id}`, { method: 'DELETE' });
+        // Refresh
+        const pRes = await fetchAuth(`/api/admin/projects/${editingProjectId}`);
+        const p = await pRes.json();
+        renderProjectDocs(p.documents || []);
+    } catch(e) { console.error(e); }
+};
+
+window.toggleDocLock = async (id, status) => {
+    try {
+        await fetchAuth(`/api/admin/project-documents/${id}/lock`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ is_locked: status })
+        });
+        // Optional: refresh to confirm UI state
+    } catch(e) { console.error(e); }
+};
+
+// Form Update Submission
+document.getElementById('editProjectForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(editProjectEditorInstance) {
+        document.getElementById('ep_description_hidden').value = editProjectEditorInstance.getData();
+    }
+
+    const formData = new FormData(e.target);
+
+    // Add new gallery files
+    editGalleryFiles.forEach(f => formData.append('gallery_images', f));
+
+    // Add removed list
+    formData.append('removed_gallery_images', JSON.stringify(removedGalleryImages));
+
+    try {
+        const response = await fetchAuth(`/api/admin/projects/${editingProjectId}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        if (response.ok) {
+            alert('Project updated!');
+            // Reload to reflect changes
+            editProject(editingProjectId);
+        } else {
+            alert('Failed to update');
+        }
+    } catch(e) { console.error(e); alert('Error'); }
 });
 
 // Project Modal (Used for Edit)

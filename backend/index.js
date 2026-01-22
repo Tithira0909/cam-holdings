@@ -31,6 +31,7 @@ const realEstatePropertiesRoutes = require('./routes/real_estate_properties');
 const designArchitecturePropertiesRoutes = require('./routes/design_architecture_properties');
 const constructionPropertiesRoutes = require('./routes/construction_properties');
 const interiorsPropertiesRoutes = require('./routes/interiors_properties');
+const adminProjectDocumentsRoutes = require('./routes/admin_project_documents');
 const path = require('path');
 const fs = require('fs');
 
@@ -84,6 +85,7 @@ app.use('/api/admin/property-services', propertyServiceRoutes);
 app.use('/api/admin/property-service-items', propertyServiceItemRoutes);
 app.use('/api/admin/settings', settingsRoutes);
 app.use('/api/admin/roles', rolesRoutes);
+app.use('/api/admin/project-documents', adminProjectDocumentsRoutes);
 app.use('/api', realEstatePropertiesRoutes);
 app.use('/api', designArchitecturePropertiesRoutes);
 app.use('/api', constructionPropertiesRoutes);
