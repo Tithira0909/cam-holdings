@@ -101,3 +101,15 @@
 127.0.0.1 - - [22/Jan/2026 12:33:38] "GET /placeholder.svg HTTP/1.1" 404 -
 127.0.0.1 - - [22/Jan/2026 12:33:38] code 404, message File not found
 127.0.0.1 - - [22/Jan/2026 12:33:38] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /project-details.html?id=99 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /project-details.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /client-api.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /images/footer-bg.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 13:35:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 13:35:18] "GET /uploads/test-img.jpg HTTP/1.1" 404 -
