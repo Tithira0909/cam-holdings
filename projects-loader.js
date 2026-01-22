@@ -52,9 +52,11 @@ async function initProjects() {
 
             // Image Priority: Main > Image > First Gallery
             let imgPath = project.main_image || project.image_url;
-            if (!imgPath && project.gallery_images) {
+            // Check project_images first, then gallery_images
+            const galleryField = project.project_images || project.gallery_images;
+            if (!imgPath && galleryField) {
                 try {
-                    const gal = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+                    const gal = typeof galleryField === 'string' ? JSON.parse(galleryField) : galleryField;
                     if (Array.isArray(gal) && gal.length > 0) imgPath = gal[0];
                 } catch(e){}
             }

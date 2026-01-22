@@ -43,9 +43,10 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'main_image', maxCount: 1 },
+    { name: 'project_images', maxCount: 10 },
+    { name: 'gallery_images', maxCount: 10 }, /* Keeping for legacy compatibility if needed */
     { name: 'drawing', maxCount: 1 },
-    { name: 'project', maxCount: 1 },
-    { name: 'gallery_images', maxCount: 10 }
+    { name: 'project', maxCount: 1 }
 ]), async (req, res) => {
     const {
         title, location, budget, status, description, progress_status,
@@ -58,24 +59,26 @@ router.post('/', authenticateToken, upload.fields([
     const drawing_url = files['drawing'] ? files['drawing'][0].path : null;
     const project_file_url = files['project'] ? files['project'][0].path : null;
 
-    // Handle Gallery Images
-    let galleryPaths = [];
-    if (files['gallery_images']) {
-        galleryPaths = files['gallery_images'].map(f => f.path);
+    // Handle Project Images (and legacy gallery_images)
+    let projectImagePaths = [];
+    if (files['project_images']) {
+        projectImagePaths = files['project_images'].map(f => f.path);
+    } else if (files['gallery_images']) {
+        projectImagePaths = files['gallery_images'].map(f => f.path);
     }
-    const gallery_json = JSON.stringify(galleryPaths);
+    const project_images_json = JSON.stringify(projectImagePaths);
 
     try {
         const [result] = await db.query(
             `INSERT INTO projects (
                 title, location, budget, status, description, description_html, progress_status, image_url, main_image,
-                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url, quotation_id, gallery_images
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url, quotation_id, gallery_images, project_images
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 title, location, budget, status || 'Active', description, description, progress_status || 'Not Started', image_url, main_image_url,
                 client_id || null, slug || null, service_id || null, project_status || null,
                 start_date || null, end_date || null, is_featured === 'Yes',
-                drawing_url, project_file_url, quotation_id || null, gallery_json
+                drawing_url, project_file_url, quotation_id || null, project_images_json, project_images_json
             ]
         );
         res.status(201).json({ id: result.insertId, message: 'Project created' });
@@ -88,14 +91,15 @@ router.post('/', authenticateToken, upload.fields([
 router.put('/:id', authenticateToken, upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'main_image', maxCount: 1 },
+    { name: 'project_images', maxCount: 10 },
+    { name: 'gallery_images', maxCount: 10 },
     { name: 'drawing', maxCount: 1 },
-    { name: 'project', maxCount: 1 },
-    { name: 'gallery_images', maxCount: 10 }
+    { name: 'project', maxCount: 1 }
 ]), async (req, res) => {
     const {
         title, location, budget, status, description, progress_status,
         client_id, slug, service_id, project_status, start_date, end_date, is_featured, quotation_id,
-        existing_gallery_images
+        existing_project_images, existing_gallery_images
     } = req.body;
     const id = req.params.id;
     const files = req.files || {};
@@ -130,31 +134,32 @@ router.put('/:id', authenticateToken, upload.fields([
             params.push(files['project'][0].path);
         }
 
-        // Handle Gallery Logic: Merge existing (kept) with new uploads
-        let finalGallery = [];
-        // 1. Existing
-        if (existing_gallery_images) {
+        // Handle Project Images Logic: Merge existing (kept) with new uploads
+        let finalImages = [];
+
+        // 1. Existing (check both field names for compatibility)
+        const existingRaw = existing_project_images || existing_gallery_images;
+        if (existingRaw) {
             try {
-                // If it's a string (from FormData), parse it. If array, use it.
-                const existing = Array.isArray(existing_gallery_images) ? existing_gallery_images : JSON.parse(existing_gallery_images);
-                if (Array.isArray(existing)) finalGallery = finalGallery.concat(existing);
+                const existing = Array.isArray(existingRaw) ? existingRaw : JSON.parse(existingRaw);
+                if (Array.isArray(existing)) finalImages = finalImages.concat(existing);
             } catch (e) {
-                // If parsing fails, maybe it's a single string path?
-                if (typeof existing_gallery_images === 'string') finalGallery.push(existing_gallery_images);
+                if (typeof existingRaw === 'string') finalImages.push(existingRaw);
             }
         }
+
         // 2. New
-        if (files['gallery_images']) {
+        if (files['project_images']) {
+            const newPaths = files['project_images'].map(f => f.path);
+            finalImages = finalImages.concat(newPaths);
+        } else if (files['gallery_images']) {
             const newPaths = files['gallery_images'].map(f => f.path);
-            finalGallery = finalGallery.concat(newPaths);
+            finalImages = finalImages.concat(newPaths);
         }
 
-        // Always update gallery_images, even if empty array (clearing them)
-        // Check if we touched gallery at all?
-        // If the user deleted all images, existing_gallery_images might be empty json "[]".
-        // So we should update it.
-        query += ', gallery_images=?';
-        params.push(JSON.stringify(finalGallery));
+        const finalJson = JSON.stringify(finalImages);
+        query += ', project_images=?, gallery_images=?';
+        params.push(finalJson, finalJson); // Update both for compatibility
 
         query += ' WHERE id=?';
         params.push(id);

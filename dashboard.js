@@ -415,55 +415,6 @@ async function loadProjects(query = '') {
 // --- NEW PROJECT / EDIT PROJECT PAGE LOGIC ---
 let projectEditorInstance;
 
-async function loadClientsForProjectForm() {
-    try {
-        const response = await fetchAuth('/api/admin/clients');
-        const clients = await response.json();
-        const select = document.getElementById('np_client');
-        select.innerHTML = '<option value="">---Select Client---</option>';
-        clients.forEach(c => {
-            const option = document.createElement('option');
-            option.value = c.id;
-            option.textContent = `${c.first_name} ${c.last_name}`;
-            select.appendChild(option);
-        });
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-async function loadServicesForProjectForm() {
-    try {
-        const response = await fetchAuth('/api/admin/services');
-        const services = await response.json();
-        const select = document.getElementById('np_service');
-        select.innerHTML = '<option value="">Select Service</option>';
-        services.forEach(s => {
-            const option = document.createElement('option');
-            option.value = s.id;
-            option.textContent = s.name;
-            select.appendChild(option);
-        });
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-async function loadQuotationsForProjectForm() {
-    try {
-        const response = await fetchAuth('/api/admin/quotations');
-        const items = await response.json();
-        const select = document.getElementById('np_quotation');
-        select.innerHTML = '<option value="">Select Quotation</option>';
-        items.forEach(q => {
-            const option = document.createElement('option');
-            option.value = q.id;
-            option.textContent = `${q.reference_id} - ${q.first_name} ${q.last_name || ''}`;
-            select.appendChild(option);
-        });
-    } catch (e) { console.error(e); }
-}
-
 async function initProjectEditor() {
     if (projectEditorInstance) return;
     try {
@@ -503,18 +454,9 @@ document.getElementById('np_main_image')?.addEventListener('change', function(e)
     }
 });
 
-document.getElementById('np_drawing')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const container = document.getElementById('drawingPreviewContainer');
-    if(file) {
-        container.innerHTML = `<div style="font-size:0.8rem; color:#2ecc71;">Selected: ${file.name}</div>`;
-        container.style.display = 'block';
-    }
-});
-
-// Helper to Render Existing Gallery
+// Helper to Render Existing Gallery (Project Images)
 function renderExistingGallery() {
-    const container = document.getElementById('galleryPreviewContainer');
+    const container = document.getElementById('projectImagesPreviewContainer');
     container.innerHTML = '';
 
     if (existingGalleryImages.length === 0) return;
@@ -578,8 +520,7 @@ if (openProjectBtn) {
 
         // Reset Previews
         document.getElementById('mainImagePreviewContainer').innerHTML = '';
-        document.getElementById('drawingPreviewContainer').innerHTML = '';
-        document.getElementById('galleryPreviewContainer').innerHTML = '';
+        document.getElementById('projectImagesPreviewContainer').innerHTML = '';
 
         // Update Title
         document.querySelector('#view-add-project h2').textContent = 'New Project';
@@ -589,10 +530,7 @@ if (openProjectBtn) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById('view-add-project').classList.add('active');
 
-        // Load Dependencies
-        loadClientsForProjectForm();
-        loadServicesForProjectForm();
-        loadQuotationsForProjectForm();
+        // Load Editor
         initProjectEditor();
     });
 }
@@ -612,23 +550,18 @@ window.editProject = async (id) => {
         form.querySelector('#np_title').value = project.title;
         form.querySelector('#np_slug').value = project.slug || '';
         form.querySelector('#np_location').value = project.location || '';
+        form.querySelector('#np_status').value = project.status || 'Active';
+
+        // Hidden fields preserve
+        form.querySelector('#np_client').value = project.client_id || '';
+        form.querySelector('#np_service').value = project.service_id || '';
+        form.querySelector('#np_quotation').value = project.quotation_id || '';
+        form.querySelector('#np_project_status').value = project.project_status || '';
         form.querySelector('#np_budget').value = project.budget || '';
 
         // Editor
         if(projectEditorInstance) projectEditorInstance.setData(project.description || '');
         else document.getElementById('np_description_hidden').value = project.description || '';
-
-        // Dropdowns
-        await loadClientsForProjectForm();
-        await loadServicesForProjectForm();
-        await loadQuotationsForProjectForm();
-
-        form.querySelector('#np_client').value = project.client_id || '';
-        form.querySelector('#np_service').value = project.service_id || '';
-        form.querySelector('#np_quotation').value = project.quotation_id || '';
-        form.querySelector('#np_project_status').value = project.project_status || 'Quotation';
-        form.querySelector('#np_status').value = project.status || 'Active';
-        form.querySelector('#np_featured').value = (project.is_featured === 1 || project.is_featured === true) ? 'Yes' : 'No';
 
         // Dates
         if(project.start_date) form.querySelector('#np_start_date').value = new Date(project.start_date).toISOString().split('T')[0];
@@ -646,20 +579,13 @@ window.editProject = async (id) => {
             mainCont.style.display = 'block';
         }
 
-        // Drawing Preview
-        const drawCont = document.getElementById('drawingPreviewContainer');
-        drawCont.style.display = 'block';
-        if(project.drawing_url) {
-            drawCont.innerHTML = `<a href="${getRelativeImageUrl(project.drawing_url)}" target="_blank" style="color:#3498db;">Current Drawing (Click to View)</a> <span style="font-size:0.8rem; color:#666;">(Upload new to replace)</span>`;
-        } else {
-            drawCont.innerHTML = '<span style="font-size:0.8rem; color:#666;">No drawing uploaded.</span>';
-        }
-
         // Gallery
         existingGalleryImages = [];
         try {
-            if(project.gallery_images) {
-                existingGalleryImages = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+            // Check project_images first, fallback to gallery_images
+            const rawImages = project.project_images || project.gallery_images;
+            if(rawImages) {
+                existingGalleryImages = typeof rawImages === 'string' ? JSON.parse(rawImages) : rawImages;
                 if(!Array.isArray(existingGalleryImages)) existingGalleryImages = [];
             }
         } catch(e) { console.error('Gallery parse error', e); }
@@ -689,7 +615,8 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
 
     const formData = new FormData(e.target);
 
-    // Append existing gallery
+    // Append existing images (using both field names for compatibility)
+    formData.append('existing_project_images', JSON.stringify(existingGalleryImages));
     formData.append('existing_gallery_images', JSON.stringify(existingGalleryImages));
 
     try {
@@ -714,7 +641,7 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
                 existingGalleryImages = [];
                 renderExistingGallery();
                 document.getElementById('mainImagePreviewContainer').innerHTML = '';
-                document.getElementById('drawingPreviewContainer').innerHTML = '';
+                document.getElementById('projectImagesPreviewContainer').innerHTML = '';
             }
             // Navigate back
             const projectsLink = document.querySelector('[data-view="projects"]');

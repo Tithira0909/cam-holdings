@@ -28,9 +28,12 @@ async function initProjectDetails() {
 
         // Image Priority: Main > Image > First Gallery
         let imgPath = project.main_image || project.image_url;
-        if (!imgPath && project.gallery_images) {
+        // Check project_images first, then gallery_images
+        const galleryRaw = project.project_images || project.gallery_images;
+
+        if (!imgPath && galleryRaw) {
             try {
-                const gal = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+                const gal = typeof galleryRaw === 'string' ? JSON.parse(galleryRaw) : galleryRaw;
                 if (Array.isArray(gal) && gal.length > 0) imgPath = gal[0];
             } catch(e){}
         }
@@ -114,8 +117,9 @@ async function initProjectDetails() {
         if (gallerySection && galleryGrid) {
             let galleryImages = [];
             try {
-                if (project.gallery_images) {
-                    galleryImages = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+                const raw = project.project_images || project.gallery_images;
+                if (raw) {
+                    galleryImages = typeof raw === 'string' ? JSON.parse(raw) : raw;
                 }
             } catch (e) { console.error('Error parsing gallery images', e); }
 
