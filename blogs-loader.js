@@ -1,6 +1,7 @@
 import { fetchPublic, getImageUrl } from './client-api.js';
 
 async function initBlogs() {
+    console.log("initBlogs started");
     const grid = document.getElementById('blogGrid');
     const featuredContainer = document.querySelector('.b-feed'); // Container that holds featured + grid
 
@@ -85,8 +86,10 @@ function createBlogCard(blog) {
     const snippet = getSnippet(blog.content_html);
     const typeDisplay = blog.type || 'Blog';
 
+    const linkUrl = `/blog.html?slug=${blog.slug || ''}&id=${blog.id}`;
+
     card.innerHTML = `
-        <a class="b-card-link" href="#">
+        <a class="b-card-link" href="${linkUrl}">
             <div class="b-media" style="background-image:url('${imageUrl}')"></div>
             <div class="b-glass">
             <div class="b-top">
@@ -128,8 +131,10 @@ function renderFeatured(blog, container) {
     const snippet = getSnippet(blog.content_html);
     const typeDisplay = blog.type || 'Featured';
 
+    const linkUrl = `/blog.html?slug=${blog.slug || ''}&id=${blog.id}`;
+
     featuredEl.innerHTML = `
-      <a class="b-featured-link" href="#">
+      <a class="b-featured-link" href="${linkUrl}">
         <div class="b-featured-media" style="background-image:url('${imageUrl}')"></div>
         <div class="b-featured-glass">
           <div class="b-row">
