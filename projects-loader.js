@@ -50,11 +50,12 @@ async function initProjects() {
             // Badge: First tag or 'Project'
             const badgeText = tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project';
 
-            const imageUrl = getImageUrl(project.image_url);
+            // Use thumbnail_image > main_image > image_url > fallback
+            const imageUrl = getImageUrl(project.thumbnail_image || project.main_image || project.image_url);
 
             card.innerHTML = `
                 <a class="card-link" href="project-details.html?id=${project.id}">
-                    <div class="media" style="background-image:url('${imageUrl}')"></div>
+                    <div class="media" style="background-image:url('${imageUrl}'); background-size: cover; background-position: center;"></div>
                     <div class="glass">
                         <div class="badge">${badgeText}</div>
                         <h3 class="title">${project.title}</h3>

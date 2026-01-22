@@ -26,9 +26,12 @@ async function initProjectDetails() {
         // Render Data
         document.title = `${project.title} | CAM Holdings`;
 
-        // Image
+        // Image - Prefer main_image, then fallback
         const imgEl = document.getElementById('pdImage');
-        if (imgEl) imgEl.src = getImageUrl(project.image_url);
+        if (imgEl) {
+            imgEl.src = getImageUrl(project.main_image || project.image_url || project.thumbnail_image);
+            imgEl.style.objectFit = 'cover';
+        }
 
         // Text Fields
         setText('pdTitle', project.title);

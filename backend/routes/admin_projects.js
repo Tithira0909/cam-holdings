@@ -40,28 +40,41 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // POST new project
-router.post('/', authenticateToken, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'drawing', maxCount: 1 }, { name: 'project', maxCount: 1 }]), async (req, res) => {
+router.post('/', authenticateToken, upload.fields([
+    { name: 'thumbnail_image', maxCount: 1 },
+    { name: 'main_image', maxCount: 1 },
+    { name: 'drawing', maxCount: 1 },
+    { name: 'project', maxCount: 1 }
+]), async (req, res) => {
     const {
         title, location, budget, status, description, progress_status,
         client_id, slug, service_id, project_status, start_date, end_date, is_featured
     } = req.body;
 
     const files = req.files || {};
-    const image_url = files['image'] ? files['image'][0].path : null;
+    // Backward compatibility: If no specific images but 'image' field was sent (legacy), we'd need to handle it.
+    // But since we control frontend, we'll switch to new names.
+    const thumbnail_image = files['thumbnail_image'] ? files['thumbnail_image'][0].path : null;
+    const main_image = files['main_image'] ? files['main_image'][0].path : null;
     const drawing_url = files['drawing'] ? files['drawing'][0].path : null;
     const project_file_url = files['project'] ? files['project'][0].path : null;
+
+    // Use main_image as legacy image_url for fallback
+    const image_url = main_image || thumbnail_image;
 
     try {
         const [result] = await db.query(
             `INSERT INTO projects (
                 title, location, budget, status, description, description_html, progress_status, image_url,
-                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url,
+                thumbnail_image, main_image
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 title, location, budget, status || 'Active', description, description, progress_status || 'Not Started', image_url,
                 client_id || null, slug || null, service_id || null, project_status || null,
                 start_date || null, end_date || null, is_featured === 'Yes',
-                drawing_url, project_file_url
+                drawing_url, project_file_url,
+                thumbnail_image, main_image
             ]
         );
         res.status(201).json({ id: result.insertId, message: 'Project created' });
@@ -71,7 +84,10 @@ router.post('/', authenticateToken, upload.fields([{ name: 'image', maxCount: 1 
 });
 
 // PUT update project
-router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
+router.put('/:id', authenticateToken, upload.fields([
+    { name: 'thumbnail_image', maxCount: 1 },
+    { name: 'main_image', maxCount: 1 }
+]), async (req, res) => {
     const { title, location, budget, status, description, progress_status } = req.body;
     const id = req.params.id;
 
@@ -79,9 +95,21 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
         let query = 'UPDATE projects SET title=?, location=?, budget=?, status=?, description=?, progress_status=?';
         let params = [title, location, budget, status, description, progress_status];
 
-        if (req.file) {
+        const files = req.files || {};
+
+        if (files['thumbnail_image']) {
+            query += ', thumbnail_image=?';
+            params.push(files['thumbnail_image'][0].path);
+        }
+
+        if (files['main_image']) {
+            query += ', main_image=?';
+            const path = files['main_image'][0].path;
+            params.push(path);
+
+            // Also update legacy image_url if main image changes
             query += ', image_url=?';
-            params.push(req.file.path);
+            params.push(path);
         }
 
         query += ' WHERE id=?';

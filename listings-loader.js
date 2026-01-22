@@ -60,7 +60,8 @@ async function processGrid(grid) {
 }
 
 function createCard(item, section) {
-    const imgUrl = getImageUrl(item.main_image);
+    // Prefer thumbnail_image for cards, then main_image, then fallback
+    const imgUrl = getImageUrl(item.thumbnail_image || item.main_image);
     const title = item.name || 'Untitled';
     const cost = item.estimated_cost || 'Price on Request';
     // Shorten description
