@@ -14,6 +14,28 @@ router.get('/services', async (req, res) => {
     }
 });
 
+// GET /blogs/slug/:slug - Fetch single blog by slug
+router.get('/blogs/slug/:slug', async (req, res) => {
+    try {
+        const [blogs] = await db.query("SELECT * FROM blogs WHERE slug = ? AND published_status = 'Published'", [req.params.slug]);
+        if (blogs.length === 0) return res.status(404).json({ message: 'Blog not found' });
+        res.json(blogs[0]);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// GET /blogs/:id - Fetch single blog by id
+router.get('/blogs/:id', async (req, res) => {
+    try {
+        const [blogs] = await db.query("SELECT * FROM blogs WHERE id = ? AND published_status = 'Published'", [req.params.id]);
+        if (blogs.length === 0) return res.status(404).json({ message: 'Blog not found' });
+        res.json(blogs[0]);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // GET /service-types
 router.get('/service-types', async (req, res) => {
     try {

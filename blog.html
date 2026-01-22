@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blog Details | CAM Holdings</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Specific styles for single blog page */
+    .blog-hero {
+      position: relative;
+      height: 60vh;
+      min-height: 400px;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: flex-end;
+    }
+    .blog-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, #0a0a0a, transparent);
+    }
+    .blog-hero-content {
+      position: relative;
+      z-index: 1;
+      padding: 4rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      text-align: center;
+    }
+    .blog-meta {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: #d6b25e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+    .blog-title {
+      font-size: 3rem;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .blog-body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      color: #ccc;
+      line-height: 1.8;
+      font-size: 1.1rem;
+    }
+    .blog-body h2, .blog-body h3 {
+      color: #fff;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+    .blog-body p {
+      margin-bottom: 1.5rem;
+    }
+    .blog-body img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 2rem 0;
+    }
+    .blog-nav {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .back-btn {
+      color: #d6b25e;
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+    @media(max-width: 768px) {
+        .blog-title { font-size: 2rem; }
+    }
+  </style>
+</head>
+
+<body class="cam-body">
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-left">
+      <a class="nav-link" href="/index.html">Home</a>
+      <a class="nav-link mega-trigger" href="/services.html" aria-haspopup="true" aria-expanded="false">Services</a>
+      <a class="nav-link" href="/projects.html">Projects</a>
+       <a class="nav-link active" href="/blogs.html">Blogs</a>
+      <a class="nav-link " href="/contact.html">Contact</a>
+    </div>
+
+    <a class="brand" href="/index.html" aria-label="CAM Holdings Home">
+      <img class="brand-mark" src="/cam-logo.png" alt="CAM Holdings Logo" />
+    </a>
+
+    <div class="nav-right">
+      <a class="pill pill-gold" href="get-a-quote.html">Get a Quote</a>
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+
+    <div class="mega" aria-hidden="true"></div>
+  </nav>
+
+  <div id="blog-content">
+      <div style="height: 100vh; display: flex; justify-content: center; align-items: center; color: white;">Loading...</div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-bg"></div>
+    <div class="wrap footer-wrap">
+      <div class="f-brand">
+        <div class="f-logo">
+          <span class="mark"></span>
+          <span class="txt">CAM</span>
+        </div>
+        <p class="f-copy">Luxury real-estate, design & construction — crafted with precision.</p>
+      </div>
+
+      <div class="f-cols">
+        <div>
+          <h4>Company</h4>
+          <a href="/about.html">About</a>
+          <a href="/projects.html">Projects</a>
+          <a href="/blogs.html">Blogs</a>
+        </div>
+        <div>
+          <h4>Support</h4>
+          <a href="/contact.html">Contact</a>
+          <a href="/index.html#book">Book</a>
+          <a href="/privacy.html">Privacy</a>
+        </div>
+        <div>
+          <h4>Social</h4>
+          <a href="#">Instagram</a>
+          <a href="#">TikTok</a>
+          <a href="#">YouTube</a>
+        </div>
+        <div>
+          <h4>Location</h4>
+          <a href="#">Sri Lanka</a>
+          <a href="#">Colombo</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/script.js"></script>
+  <script type="module" src="/blog.js"></script>
+</body>
+</html>
