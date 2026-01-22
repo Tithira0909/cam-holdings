@@ -5,11 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadListings() {
-    const grid = document.getElementById('listing-grid');
-    if (!grid) return;
+    // Select both the ID (legacy/single page) and class (multi-grid page)
+    const grids = document.querySelectorAll('#listing-grid, .js-listing-grid');
+    if (!grids.length) return;
 
+    grids.forEach(grid => processGrid(grid));
+}
+
+async function processGrid(grid) {
     // Map the HTML data-category to the API route segment
     const category = grid.dataset.category || '';
+    const limit = grid.dataset.limit ? parseInt(grid.dataset.limit, 10) : null;
+
     const sectionMap = {
         'Real Estate': 'real-estate-properties',
         'Design & Architecture': 'design-architecture-properties',
@@ -25,9 +32,11 @@ async function loadListings() {
 
     try {
         // Use the public endpoint prefix
-        const listings = await fetchPublic(`/public/${apiSegment}`);
+        let listings = await fetchPublic(`/public/${apiSegment}`);
 
         if (!listings || listings.length === 0) {
+            // Check if we should hide the section instead of showing empty state (optional, based on layout)
+            // For now, consistent empty state.
             grid.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                     <h3 style="color: #fff; margin-bottom: 0.5rem; font-family: 'Josefin Sans', sans-serif;">Coming Soon</h3>
@@ -37,10 +46,15 @@ async function loadListings() {
             return;
         }
 
+        // Apply limit if specified
+        if (limit && listings.length > limit) {
+            listings = listings.slice(0, limit);
+        }
+
         grid.innerHTML = listings.map(item => createCard(item, apiSegment)).join('');
 
     } catch (error) {
-        console.error('Error loading properties:', error);
+        console.error('Error loading properties for ' + category, error);
         grid.innerHTML = '<p style="color:red; text-align:center;">Failed to load properties. Please try again later.</p>';
     }
 }
