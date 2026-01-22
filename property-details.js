@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const property = await fetchPublic(`/${section}/${id}`);
+        const property = await fetchPublic(`/public/${section}/${id}`);
         renderProperty(property);
     } catch (error) {
         console.error('Error loading property:', error);

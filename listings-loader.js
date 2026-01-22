@@ -5,11 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadListings() {
-    const grid = document.getElementById('listing-grid');
-    if (!grid) return;
+    // Support multiple grids via class, fallback to ID for legacy/single pages
+    const grids = document.querySelectorAll('.js-listing-grid, #listing-grid');
+    if (grids.length === 0) return;
 
-    // Map the HTML data-category to the API route segment
-    const category = grid.dataset.category || '';
     const sectionMap = {
         'Real Estate': 'real-estate-properties',
         'Design & Architecture': 'design-architecture-properties',
@@ -17,32 +16,54 @@ async function loadListings() {
         'Interiors & Finishing': 'interiors-properties'
     };
 
-    const apiSegment = sectionMap[category];
-    if (!apiSegment) {
-        console.error('Unknown category:', category);
-        return;
-    }
+    // Use a Set to avoid processing the same element twice if it has both ID and class
+    const processedGrids = new Set();
 
-    try {
-        // Ensure we hit the public endpoint
-        const listings = await fetchPublic(`/public/${apiSegment}`);
+    for (const grid of grids) {
+        if (processedGrids.has(grid)) continue;
+        processedGrids.add(grid);
 
-        if (!listings || listings.length === 0) {
-            grid.innerHTML = `
-                <div class="re-empty">
-                    <h3>No properties available</h3>
-                    <p>We are currently updating our exclusive listings. Please check back soon or contact us directly for private opportunities.</p>
-                    <a href="contact.html" class="re-card__btn" style="width:auto; margin-top:1rem; padding-inline:2rem;">Contact Us</a>
-                </div>
-            `;
-            return;
+        const category = grid.dataset.category || '';
+        const apiSegment = sectionMap[category];
+
+        if (!apiSegment) {
+            console.error('Unknown category:', category);
+            continue;
         }
 
-        grid.innerHTML = listings.map(item => createCard(item, apiSegment)).join('');
+        // Add loading state if empty
+        if (!grid.innerHTML.trim()) {
+            grid.innerHTML = '<p style="color:white; text-align:center;">Loading...</p>';
+        }
 
-    } catch (error) {
-        console.error('Error loading properties:', error);
-        grid.innerHTML = '<p style="color:red; text-align:center;">Failed to load properties.</p>';
+        try {
+            // Ensure we hit the public endpoint
+            const listings = await fetchPublic(`/public/${apiSegment}`);
+
+            if (!listings || listings.length === 0) {
+                grid.innerHTML = `
+                    <div class="re-empty">
+                        <h3>No properties available</h3>
+                        <p>We are currently updating our exclusive listings for ${category}. Please check back soon or contact us directly.</p>
+                        <a href="contact.html" class="re-card__btn" style="width:auto; margin-top:1rem; padding-inline:2rem;">Contact Us</a>
+                    </div>
+                `;
+                continue;
+            }
+
+            // Optional: limit number of items if data-limit is present
+            let displayListings = listings;
+            const limit = grid.dataset.limit;
+            if (limit) {
+                displayListings = listings.slice(0, parseInt(limit));
+            }
+
+            grid.innerHTML = displayListings.map(item => createCard(item, apiSegment)).join('');
+
+        } catch (error) {
+            console.error(`Error loading properties for ${category}:`, error);
+            grid.innerHTML = '<p style="color:red; text-align:center;">Failed to load properties.</p>';
+        }
     }
 }
 
