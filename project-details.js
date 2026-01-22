@@ -107,6 +107,34 @@ async function initProjectDetails() {
             }
         }
 
+        // Gallery
+        const gallerySection = document.getElementById('pdGallerySection');
+        const galleryGrid = document.getElementById('pdGallery');
+
+        if (gallerySection && galleryGrid) {
+            let galleryImages = [];
+            try {
+                if (project.gallery_images) {
+                    galleryImages = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+                }
+            } catch (e) { console.error('Error parsing gallery images', e); }
+
+            if (Array.isArray(galleryImages) && galleryImages.length > 0) {
+                gallerySection.style.display = 'block';
+                galleryGrid.innerHTML = '';
+                galleryImages.forEach(img => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    const src = getImageUrl(img);
+                    item.innerHTML = `<img src="${src}" class="gallery-img" alt="Gallery Image">`;
+                    item.onclick = () => openLightbox(src);
+                    galleryGrid.appendChild(item);
+                });
+            } else {
+                gallerySection.style.display = 'none';
+            }
+        }
+
         // Show Content
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.style.display = 'block';
@@ -124,14 +152,50 @@ function setText(id, text) {
 }
 
 function createDocLink(label, url) {
-    const a = document.createElement('a');
-    a.href = getImageUrl(url);
-    a.target = '_blank';
-    a.className = 'btn ghost';
-    a.style.fontSize = '0.8rem';
-    a.style.padding = '0.6rem 1rem';
-    a.innerHTML = `<span>📄</span> ${label}`;
-    return a;
+    const fullUrl = getImageUrl(url);
+    const ext = fullUrl.split('.').pop().toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+
+    if (isImage) {
+        const div = document.createElement('a');
+        div.href = fullUrl;
+        div.target = '_blank';
+        div.className = 'doc-thumb-link';
+        div.innerHTML = `
+            <img src="${fullUrl}" class="doc-thumb" alt="${label}">
+            <span style="font-size:0.8rem;">${label}</span>
+        `;
+        return div;
+    } else {
+        const a = document.createElement('a');
+        a.href = fullUrl;
+        a.target = '_blank';
+        a.className = 'btn ghost';
+        a.style.fontSize = '0.8rem';
+        a.style.padding = '0.6rem 1rem';
+        a.innerHTML = `<span>📄</span> ${label}`;
+        return a;
+    }
 }
+
+// Lightbox Logic
+function openLightbox(src) {
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightboxImage');
+    if (lb && lbImg) {
+        lbImg.src = src;
+        lb.classList.add('active');
+    }
+}
+
+document.querySelector('.lightbox-close')?.addEventListener('click', () => {
+    document.getElementById('lightbox').classList.remove('active');
+});
+
+document.getElementById('lightbox')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+        document.getElementById('lightbox').classList.remove('active');
+    }
+});
 
 document.addEventListener('DOMContentLoaded', initProjectDetails);
