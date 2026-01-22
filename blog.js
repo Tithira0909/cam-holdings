@@ -5,6 +5,7 @@ async function initBlogDetails() {
     const slug = params.get('slug');
     const id = params.get('id');
 
+    const loadingEl = document.getElementById('blogLoading');
     const notFoundView = document.getElementById('notFoundView');
     const articleView = document.getElementById('blogArticle');
 
@@ -14,24 +15,36 @@ async function initBlogDetails() {
     }
 
     try {
-        let url = '';
+        let blog = null;
+
+        // Strategy: Try slug first, fallback to ID if slug fails (404) or is missing
         if (slug) {
-            url = `/api/blogs/slug/${slug}`;
-        } else {
-            url = `/api/blogs/${id}`;
+            try {
+                const response = await fetch(`/api/blogs/slug/${slug}`);
+                if (response.ok) {
+                    blog = await response.json();
+                } else if (response.status === 404 && id) {
+                    // Slug failed, try ID fallback
+                    console.warn(`Blog slug '${slug}' not found, falling back to ID '${id}'`);
+                    const resId = await fetch(`/api/blogs/${id}`);
+                    if (resId.ok) {
+                        blog = await resId.json();
+                    }
+                }
+            } catch (e) { console.error(e); }
         }
 
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            if (response.status === 404) {
-                showNotFound();
-                return;
-            }
-            throw new Error('Network response was not ok');
+        // If slug wasn't present, or slug logic failed to set blog (and didn't fallback yet)
+        if (!blog && id && !slug) {
+             const response = await fetch(`/api/blogs/${id}`);
+             if (response.ok) blog = await response.json();
         }
 
-        const blog = await response.json();
+        if (!blog) {
+            showNotFound();
+            return;
+        }
+
         renderBlog(blog);
 
     } catch (error) {
@@ -40,11 +53,13 @@ async function initBlogDetails() {
     }
 
     function showNotFound() {
+        if (loadingEl) loadingEl.style.display = 'none';
         if (notFoundView) notFoundView.style.display = 'block';
         if (articleView) articleView.style.display = 'none';
     }
 
     function renderBlog(blog) {
+        if (loadingEl) loadingEl.style.display = 'none';
         if (notFoundView) notFoundView.style.display = 'none';
         if (articleView) articleView.style.display = 'block';
 
