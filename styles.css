@@ -5475,3 +5475,117 @@ select:-webkit-autofill:focus {
   font-size: 1rem;
   line-height: 1.6;
 }
+
+/* ===============================
+   HOME PROJECTS (Real Estate)
+   Glassmorphism Overlay Style
+================================ */
+.home-projects-section {
+  position: relative;
+  padding: 80px 0;
+  background:
+    radial-gradient(900px 520px at 15% 20%, rgba(214,178,94,0.08), transparent 60%),
+    linear-gradient(180deg, #0a0a0a, #0e0e0e);
+  overflow: hidden;
+}
+
+.hp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 30px;
+}
+@media (max-width: 980px) {
+  .hp-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .hp-grid { grid-template-columns: 1fr; }
+}
+
+.glass-project-card {
+  position: relative;
+  height: 420px;
+  border-radius: 24px;
+  overflow: hidden;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  transform: translateZ(0);
+  background: #000;
+}
+.glass-project-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(214,178,94,0.5);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+
+.gpc-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.8s ease, filter 0.4s ease;
+  opacity: 0.85;
+}
+.glass-project-card:hover .gpc-bg {
+  transform: scale(1.06);
+  opacity: 1;
+  filter: contrast(1.05);
+}
+
+.gpc-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 10%, rgba(0,0,0,0.2) 60%, transparent);
+  z-index: 1;
+}
+
+.gpc-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 24px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Glass backdrop for text area (optional, user asked for "Bottom-left text overlay") */
+  /* backdrop-filter: blur(4px); */
+}
+
+.gpc-cat {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f3de9b; /* Gold */
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.gpc-title {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 1.65rem;
+  color: #fff;
+  line-height: 1.1;
+  margin: 0;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.gpc-tags {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  margin-top: 6px;
+  line-height: 1.4;
+  font-weight: 300;
+}
+
+/* Empty state for home projects */
+.hp-empty {
+  grid-column: 1 / -1;
+  padding: 3rem;
+  text-align: center;
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
