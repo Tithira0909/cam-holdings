@@ -44,7 +44,7 @@ async function initProjectDetails() {
         // Text Fields
         setText('pdTitle', project.title);
         setText('pdBadge', project.status || 'Active');
-        setText('pdLocation', project.location || 'N/A');
+        setText('pdLocation', project.location || 'Not provided');
         setText('pdService', project.service_name || 'General');
 
         // Category inference or from DB
@@ -62,8 +62,8 @@ async function initProjectDetails() {
         setText('pdCategory', category);
 
         // Formatting Budget
-        let budgetDisplay = 'TBD';
-        if (project.budget) {
+        let budgetDisplay = 'Not provided';
+        if (project.budget && project.budget !== '0' && project.budget !== '') {
             // Check if it's a number-like string
             const budgetNum = parseFloat(project.budget);
             if (!isNaN(budgetNum)) {
@@ -75,16 +75,10 @@ async function initProjectDetails() {
         setText('pdBudget', budgetDisplay);
 
         // Client
-        // Note: The API returns client_id. To show client name, we might need to fetch client details
-        // or check if the backend joins it. The current backend `GET /:id` (read previously)
-        // just does `SELECT * FROM projects`. So we might just show ID or generic info.
-        // If the project object has client_name (joined), use it. Else hide or show ID.
-        // Looking at memory/file reads, backend is simple select *.
-        // We will just show "Private Client" if not available, or the ID.
         setText('pdClient', project.client_name || 'Private Client');
 
         // Dates
-        const formatDate = (d) => d ? new Date(d).toLocaleDateString() : '-';
+        const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not provided';
         setText('pdStartDate', formatDate(project.start_date));
         setText('pdEndDate', formatDate(project.end_date));
 
