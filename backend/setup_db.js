@@ -282,9 +282,26 @@ async function setupDatabase() {
         content_html TEXT,
         published_status ENUM('Published', 'Unpublished') DEFAULT 'Unpublished',
         is_featured BOOLEAN DEFAULT FALSE,
+        is_approved BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Migration for Blogs Table
+    const blogMigrationQueries = [
+        "ALTER TABLE blogs ADD COLUMN is_approved BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE blogs ADD COLUMN slug VARCHAR(255) UNIQUE"
+    ];
+
+    for (const query of blogMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060 && error.errno !== 1061) {
+                 // console.log(`Migration note: ${error.message}`);
+            }
+        }
+    }
     console.log('Blogs table created or already exists.');
 
     // Quotation Settings Tables
