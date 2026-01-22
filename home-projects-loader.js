@@ -48,7 +48,7 @@ async function loadHomeProjects() {
 function renderEmpty(grid) {
     grid.innerHTML = `
         <div class="hp-empty">
-            <p style="color:#aaa;">New projects coming soon.</p>
+            <p style="color:var(--muted);">New projects coming soon.</p>
         </div>
     `;
 }

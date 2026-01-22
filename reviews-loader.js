@@ -13,7 +13,7 @@ async function initReviews() {
         const reviews = await fetchPublic('/public/reviews');
 
         if (!reviews || reviews.length === 0) {
-            grid.innerHTML = '<p style="text-align:center; width:100%; color:#888;">No reviews yet. Be the first!</p>';
+            grid.innerHTML = '<p style="text-align:center; width:100%; color:var(--muted);">No reviews yet. Be the first!</p>';
             return;
         }
 

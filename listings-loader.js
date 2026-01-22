@@ -33,7 +33,7 @@ async function loadListings() {
 
         // Add loading state if empty
         if (!grid.innerHTML.trim()) {
-            grid.innerHTML = '<p style="color:white; text-align:center;">Loading...</p>';
+            grid.innerHTML = '<p style="text-align:center; color:var(--muted);">Loading...</p>';
         }
 
         try {
