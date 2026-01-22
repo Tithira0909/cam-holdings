@@ -85,13 +85,16 @@ async function setupDatabase() {
         "ALTER TABLE projects ADD COLUMN description_html TEXT",
         "ALTER TABLE projects ADD COLUMN service_id INT",
         "ALTER TABLE projects ADD COLUMN project_status VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN quotation_id INT",
+        "ALTER TABLE projects ADD COLUMN property_extensions TEXT",
         "ALTER TABLE projects ADD COLUMN start_date DATE",
         "ALTER TABLE projects ADD COLUMN end_date DATE",
         "ALTER TABLE projects ADD COLUMN is_featured BOOLEAN DEFAULT FALSE",
         "ALTER TABLE projects ADD COLUMN drawing_url VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN thumbnail_image VARCHAR(255)",
-        "ALTER TABLE projects ADD COLUMN main_image VARCHAR(255)"
+        "ALTER TABLE projects ADD COLUMN main_image VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN gallery_images JSON"
     ];
 
     for (const query of projectMigrationQueries) {
@@ -246,6 +249,18 @@ async function setupDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Migration for Quotations Table
+    const quoteMigrationQueries = [
+        "ALTER TABLE quotations ADD COLUMN property_design_id INT"
+    ];
+    for (const query of quoteMigrationQueries) {
+        try {
+            await db.query(query);
+        } catch (error) {
+             if (error.errno !== 1060) {}
+        }
+    }
     console.log('Quotations table created or already exists.');
 
     // Create Document Types Table
@@ -284,25 +299,9 @@ async function setupDatabase() {
         content_html TEXT,
         published_status ENUM('Published', 'Unpublished') DEFAULT 'Unpublished',
         is_featured BOOLEAN DEFAULT FALSE,
-        is_approved BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-
-    // Migration for Blogs Table
-    const blogMigrationQueries = [
-        "ALTER TABLE blogs ADD COLUMN is_approved BOOLEAN DEFAULT FALSE"
-    ];
-
-    for (const query of blogMigrationQueries) {
-        try {
-            await db.query(query);
-        } catch (error) {
-             if (error.errno !== 1060) {
-                 // console.log(`Migration note: ${error.message}`);
-            }
-        }
-    }
     console.log('Blogs table created or already exists.');
 
     // Quotation Settings Tables

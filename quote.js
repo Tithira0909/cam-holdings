@@ -1,4 +1,33 @@
 // quote.js
+document.addEventListener('DOMContentLoaded', loadPropertyDesigns);
+
+async function loadPropertyDesigns() {
+    const select = document.getElementById('propertyDesign');
+    if (!select) return;
+
+    try {
+        const response = await fetch('/api/admin/property-designs/public'); // Using public endpoint added
+        if (!response.ok) throw new Error('Failed to load designs');
+        const designs = await response.json();
+
+        if (designs.length === 0) {
+            select.innerHTML = '<option value="">No active property designs available</option>';
+            return;
+        }
+
+        select.innerHTML = '<option value="">Select a Design (Optional)</option>';
+        designs.forEach(d => {
+            const option = document.createElement('option');
+            option.value = d.id;
+            option.textContent = d.name;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error(e);
+        select.innerHTML = '<option value="">Error loading designs</option>';
+    }
+}
+
 async function submitQuote() {
     const form = document.querySelector('.quote-form');
     if (!form) return;
@@ -21,6 +50,7 @@ async function submitQuote() {
         email: data.email,
         phone: data.phone,
         type: 'Quotation',
+        property_design_id: data.property_design_id || null,
         details: {
             location: data.location,
             service: data.service,

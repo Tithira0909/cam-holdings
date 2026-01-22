@@ -6,7 +6,12 @@ const { authenticateToken } = require('../middleware/auth');
 // GET /api/admin/quotations - Admin List
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM quotations ORDER BY created_at DESC');
+        const [rows] = await db.query(`
+            SELECT q.*, pd.name as property_design_name
+            FROM quotations q
+            LEFT JOIN property_designs pd ON q.property_design_id = pd.id
+            ORDER BY q.created_at DESC
+        `);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching quotations:', error);
@@ -17,7 +22,12 @@ router.get('/', authenticateToken, async (req, res) => {
 // GET /api/admin/quotations/:id - Admin Detail
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM quotations WHERE id = ?', [req.params.id]);
+        const [rows] = await db.query(`
+            SELECT q.*, pd.name as property_design_name
+            FROM quotations q
+            LEFT JOIN property_designs pd ON q.property_design_id = pd.id
+            WHERE q.id = ?
+        `, [req.params.id]);
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Quotation not found' });
         }

@@ -43,21 +43,27 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, upload.fields([
     { name: 'thumbnail_image', maxCount: 1 },
     { name: 'main_image', maxCount: 1 },
+    { name: 'gallery_images', maxCount: 10 },
     { name: 'drawing', maxCount: 1 },
     { name: 'project', maxCount: 1 }
 ]), async (req, res) => {
     const {
         title, location, budget, status, description, progress_status,
-        client_id, slug, service_id, project_status, start_date, end_date, is_featured
+        client_id, slug, service_id, project_status, quotation_id, property_extensions,
+        start_date, end_date, is_featured
     } = req.body;
 
     const files = req.files || {};
-    // Backward compatibility: If no specific images but 'image' field was sent (legacy), we'd need to handle it.
-    // But since we control frontend, we'll switch to new names.
     const thumbnail_image = files['thumbnail_image'] ? files['thumbnail_image'][0].path : null;
     const main_image = files['main_image'] ? files['main_image'][0].path : null;
     const drawing_url = files['drawing'] ? files['drawing'][0].path : null;
     const project_file_url = files['project'] ? files['project'][0].path : null;
+
+    let galleryImages = [];
+    if (files['gallery_images']) {
+        galleryImages = files['gallery_images'].map(f => f.path);
+    }
+    const gallery_images_json = JSON.stringify(galleryImages);
 
     // Use main_image as legacy image_url for fallback
     const image_url = main_image || thumbnail_image;
@@ -66,15 +72,16 @@ router.post('/', authenticateToken, upload.fields([
         const [result] = await db.query(
             `INSERT INTO projects (
                 title, location, budget, status, description, description_html, progress_status, image_url,
-                client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url,
-                thumbnail_image, main_image
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                client_id, slug, service_id, project_status, quotation_id, property_extensions,
+                start_date, end_date, is_featured, drawing_url, project_file_url,
+                thumbnail_image, main_image, gallery_images
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 title, location, budget, status || 'Active', description, description, progress_status || 'Not Started', image_url,
-                client_id || null, slug || null, service_id || null, project_status || null,
+                client_id || null, slug || null, service_id || null, project_status || null, quotation_id || null, property_extensions || null,
                 start_date || null, end_date || null, is_featured === 'Yes',
                 drawing_url, project_file_url,
-                thumbnail_image, main_image
+                thumbnail_image, main_image, gallery_images_json
             ]
         );
         res.status(201).json({ id: result.insertId, message: 'Project created' });

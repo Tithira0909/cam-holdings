@@ -296,6 +296,7 @@ window.previewQuotation = async (id) => {
         document.getElementById('qEmail').textContent = data.email;
         document.getElementById('qPhone').textContent = data.contact || '-';
         document.getElementById('qType').textContent = data.type;
+        document.getElementById('qPropertyDesign').textContent = data.property_design_name || '-';
 
         let dateTimeStr = '';
         if (data.date) dateTimeStr += new Date(data.date).toISOString().split('T')[0];
@@ -413,17 +414,18 @@ async function loadProjects(query = '') {
 
 // --- NEW PROJECT PAGE LOGIC ---
 let projectEditorInstance;
+let galleryFiles = []; // Store multiple files
 
 async function loadClientsForProjectForm() {
     try {
         const response = await fetchAuth('/api/admin/clients');
         const clients = await response.json();
         const select = document.getElementById('np_client');
-        select.innerHTML = '<option value="">Select Client</option>';
+        select.innerHTML = '<option value="">---Select Client---</option>';
         clients.forEach(c => {
             const option = document.createElement('option');
             option.value = c.id;
-            option.textContent = `${c.first_name} ${c.last_name}`;
+            option.textContent = `${c.first_name} ${c.last_name} (${c.email})`;
             select.appendChild(option);
         });
     } catch (e) {
@@ -448,6 +450,82 @@ async function loadServicesForProjectForm() {
     }
 }
 
+async function loadQuotationsForProjectForm() {
+    try {
+        const response = await fetchAuth('/api/admin/quotations');
+        const quotes = await response.json();
+        const select = document.getElementById('np_quotation');
+        select.innerHTML = '<option value="">Select Quotation (Optional)</option>';
+        quotes.forEach(q => {
+            const option = document.createElement('option');
+            option.value = q.id;
+            option.textContent = `${q.reference_id} - ${q.first_name} ${q.last_name || ''}`;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Slug Generator
+document.getElementById('np_title')?.addEventListener('input', function(e) {
+    const title = e.target.value;
+    const slug = title.toLowerCase().trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    document.getElementById('np_slug').value = slug;
+});
+
+// Featured Image Preview
+document.getElementById('np_featured_image')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('np_featured_preview');
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '<span style="color: #999; font-size: 0.8rem;">Preview</span>';
+    }
+});
+
+// Gallery Images Logic
+document.getElementById('np_gallery')?.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    files.forEach(file => {
+        galleryFiles.push(file);
+    });
+    renderGalleryPreview();
+    // Clear input so same file can be added again if needed (though unlikely)
+    e.target.value = '';
+});
+
+function renderGalleryPreview() {
+    const container = document.getElementById('np_gallery_preview');
+    container.innerHTML = '';
+    galleryFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 4px; overflow: hidden; border: 1px solid #ccc;';
+            div.innerHTML = `
+                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" onclick="removeGalleryImage(${index})" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; font-size: 10px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            `;
+            container.appendChild(div);
+        }
+        reader.readAsDataURL(file);
+    });
+}
+
+window.removeGalleryImage = (index) => {
+    galleryFiles.splice(index, 1);
+    renderGalleryPreview();
+};
+
 async function initProjectEditor() {
     if (projectEditorInstance) return;
     try {
@@ -462,11 +540,40 @@ async function initProjectEditor() {
 document.getElementById('addProjectForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Clear previous errors
+    document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+    let isValid = true;
+
+    const clientId = document.getElementById('np_client').value;
+    const title = document.getElementById('np_title').value;
+    const featuredImage = document.getElementById('np_featured_image').files[0]; // If editing, might be optional but here strictly New Project
+
+    if (!clientId) {
+        document.getElementById('np_client_error').style.display = 'block';
+        isValid = false;
+    }
+    if (!title) {
+        document.getElementById('np_title_error').style.display = 'block';
+        isValid = false;
+    }
+    // Main image is required for new projects
+    if (!featuredImage) {
+        alert('Featured Image is required'); // Inline error better but alert is minimal fallback
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
     if (projectEditorInstance) {
         document.getElementById('np_description_hidden').value = projectEditorInstance.getData();
     }
 
     const formData = new FormData(e.target);
+
+    // Append Gallery Files
+    galleryFiles.forEach(file => {
+        formData.append('gallery_images', file);
+    });
 
     try {
         const response = await fetchAuth('/api/admin/projects', {
@@ -477,6 +584,9 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
         if (response.ok) {
             alert('Project created successfully');
             e.target.reset();
+            galleryFiles = [];
+            renderGalleryPreview();
+            document.getElementById('np_featured_preview').innerHTML = '<span style="color: #999; font-size: 0.8rem;">Preview</span>';
             if(projectEditorInstance) projectEditorInstance.setData('');
 
             // Navigate back
@@ -516,6 +626,7 @@ if(openProjectModalBtn) {
         document.getElementById('view-add-project').classList.add('active');
         loadClientsForProjectForm();
         loadServicesForProjectForm();
+        loadQuotationsForProjectForm();
         initProjectEditor();
     });
 }

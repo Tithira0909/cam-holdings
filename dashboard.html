@@ -932,85 +932,119 @@
                     <span class="breadcrumb">Admin / New Project</span>
                 </div>
 
-                <div class="admin-form-light" style="max-width: 800px;">
+                <div class="admin-form-light" style="max-width: 900px;">
                     <form id="addProjectForm" enctype="multipart/form-data">
                         <div class="client-form-grid">
                             <div class="form-group">
-                                <label for="np_client">Select Client *</label>
-                                <select id="np_client" name="client_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="">Loading...</option>
+                                <label for="np_client">Select Client <span style="color:red">*</span></label>
+                                <select id="np_client" name="client_id" required>
+                                    <option value="">---Select Client---</option>
                                 </select>
+                                <span class="error-msg" id="np_client_error">Client is required</span>
                             </div>
+
                             <div class="form-group">
-                                <label for="np_title">Title *</label>
+                                <label for="np_title">Title <span style="color:red">*</span></label>
                                 <input type="text" id="np_title" name="title" required>
+                                <span class="error-msg" id="np_title_error">Title is required</span>
                             </div>
+
                             <div class="form-group">
-                                <label for="np_slug">Slug</label>
-                                <input type="text" id="np_slug" name="slug">
+                                <label for="np_slug">Slug (Auto-generated)</label>
+                                <input type="text" id="np_slug" name="slug" placeholder="slug-goes-here">
                             </div>
+
                             <div class="form-group">
                                 <label for="np_location">Location</label>
                                 <input type="text" id="np_location" name="location">
                             </div>
+
                             <div class="form-group">
-                                <label for="np_budget">Budget</label>
-                                <input type="text" id="np_budget" name="budget">
+                                <label for="np_budget">Budget (Currency)</label>
+                                <input type="text" id="np_budget" name="budget" placeholder="e.g. 5,000,000">
                             </div>
-                            <div class="form-group full-width">
-                                <label for="np_description">Description</label>
-                                <div id="projectEditor" style="color: black;"></div>
-                                <input type="hidden" name="description" id="np_description_hidden">
-                            </div>
+
                             <div class="form-group">
                                 <label for="np_service">Service</label>
-                                <select id="np_service" name="service_id" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="">Loading...</option>
+                                <select id="np_service" name="service_id">
+                                    <option value="">Select Service</option>
                                 </select>
                             </div>
+
+                            <div class="form-group full-width">
+                                <label for="np_description">Description</label>
+                                <div id="projectEditor" style="color: black; min-height: 150px; border: 1px solid #ccc; border-radius: 4px;"></div>
+                                <input type="hidden" name="description" id="np_description_hidden">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="np_extensions">Property Extensions</label>
+                                <input type="text" id="np_extensions" name="property_extensions" placeholder="e.g. Pool, Garden (comma separated)">
+                            </div>
+
                             <div class="form-group">
                                 <label for="np_project_status">Project Status</label>
-                                <select id="np_project_status" name="project_status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                <select id="np_project_status" name="project_status">
                                     <option value="Quotation">Quotation</option>
                                     <option value="Booking">Booking</option>
                                     <option value="In Progress">In Progress</option>
                                     <option value="Completed">Completed</option>
                                 </select>
                             </div>
+
+                            <div class="form-group">
+                                <label for="np_quotation">Quotation Reference</label>
+                                <select id="np_quotation" name="quotation_id">
+                                    <option value="">Select Quotation (Optional)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="np_status">Status</label>
+                                <select id="np_status" name="status">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+
                             <div class="form-group">
                                 <label for="np_start_date">Project Start Date</label>
                                 <input type="date" id="np_start_date" name="start_date">
                             </div>
+
                             <div class="form-group">
                                 <label for="np_end_date">Estimated End Date</label>
                                 <input type="date" id="np_end_date" name="end_date">
                             </div>
+
                             <div class="form-group">
-                                <label for="np_status">Status</label>
-                                <select id="np_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="np_featured">Featured</label>
-                                <select id="np_featured" name="is_featured" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="No">No</option>
+                                <label for="np_featured">Featured?</label>
+                                <select id="np_featured" name="is_featured">
+                                    <option value="No" selected>No</option>
                                     <option value="Yes">Yes</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="np_drawing">Drawing *</label>
-                                <input type="file" id="np_drawing" name="drawing" required>
+
+                            <div class="form-group full-width" style="border-top: 1px solid #eee; padding-top: 1rem; margin-top: 1rem;">
+                                <label for="np_featured_image">Featured Image <span style="color:red">*</span></label>
+                                <input type="file" id="np_featured_image" name="main_image" accept="image/*" required>
+                                <div id="np_featured_preview" style="margin-top: 10px; width: 150px; height: 100px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px;">
+                                    <span style="color: #999; font-size: 0.8rem;">Preview</span>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="np_project_file">Project *</label>
-                                <input type="file" id="np_project_file" name="project" required>
+
+                            <div class="form-group full-width">
+                                <label for="np_gallery">Project Images (Multiple)</label>
+                                <input type="file" id="np_gallery" name="gallery_images" accept="image/*" multiple>
+                                <div id="np_gallery_preview" style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <!-- Dynamic thumbnails will appear here -->
+                                </div>
                             </div>
                         </div>
 
-                        <div class="full-width" style="margin-top: 1rem;">
-                            <button type="submit" class="btn-primary">Create Project</button>
+                        <div class="full-width" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem; display: flex; justify-content: flex-end;">
+                            <button type="button" class="btn-secondary" style="margin-right: 1rem;" onclick="document.querySelector('[data-view=\'projects\']').click()">Cancel</button>
+                            <button type="submit" class="btn-primary">Save Project</button>
                         </div>
                     </form>
                 </div>
@@ -1871,6 +1905,7 @@
                 <p><strong>Email:</strong> <span id="qEmail"></span></p>
                 <p><strong>Contact:</strong> <span id="qPhone"></span></p>
                 <p><strong>Type:</strong> <span id="qType"></span></p>
+                <p><strong>Property Design:</strong> <span id="qPropertyDesign"></span></p>
                 <p><strong>Date/Time:</strong> <span id="qDateTime"></span></p>
                 <div style="margin-top: 1rem;">
                     <strong>Details:</strong>

@@ -3,7 +3,17 @@ const router = express.Router();
 const db = require('../db');
 const { authenticateToken } = require('../middleware/auth');
 
-// GET
+// GET Public Active Designs
+router.get('/public', async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM property_designs WHERE status = 'Active' ORDER BY name ASC");
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// GET All (Admin)
 router.get('/', authenticateToken, async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM property_designs ORDER BY created_at DESC');
