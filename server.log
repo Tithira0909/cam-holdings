@@ -223,3 +223,30 @@
 127.0.0.1 - - [22/Jan/2026 14:24:45] "GET /uploads/g3.jpg HTTP/1.1" 404 -
 127.0.0.1 - - [22/Jan/2026 14:24:45] code 404, message File not found
 127.0.0.1 - - [22/Jan/2026 14:24:45] "GET /uploads/g1.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /reviews-loader.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /script.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /listings-loader.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /home-projects-loader.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:40] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /iterate/plan.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /assets/mega/realestate.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /client-api.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /frames/frame_0100.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /assets/noise.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:40] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:40] "GET /images/footer-bg.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:41] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:41] "GET /api/public/reviews HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:41] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:41] "GET /api/public/real-estate-properties HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:39:42] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:39:42] "GET /uploads/img.jpg HTTP/1.1" 404 -
