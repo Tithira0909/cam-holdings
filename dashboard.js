@@ -1567,6 +1567,7 @@ function showMessage(element, text, type) {
 // --- BLOGS LOGIC ---
 let blogSearchTimeout;
 let editorInstance;
+let editingBlogId = null;
 
 document.getElementById('blogSearch')?.addEventListener('input', (e) => {
     clearTimeout(blogSearchTimeout);
@@ -1584,27 +1585,31 @@ async function loadBlogs(query = '') {
 
         tbody.innerHTML = '';
         if (blogs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No blogs found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No blogs found</td></tr>';
             return;
         }
 
         blogs.forEach(blog => {
-            const statusClass = blog.published_status === 'Published' ? 'badge-active' : 'badge-inactive';
+            const publishedClass = blog.published_status === 'Published' ? 'badge-active' : 'badge-not-approved';
+            const approvedClass = blog.is_approved ? 'badge-approved' : 'badge-inactive';
+            const approvedText = blog.is_approved ? 'Approved' : 'Pending';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${safe(blog.title)}</td>
-                <td>${safe(blog.type)}</td>
-                <td><span class="badge ${statusClass}">${safe(blog.published_status)}</span></td>
+                <td><span class="badge ${approvedClass}" style="cursor:pointer;" onclick="toggleBlogApproval(${blog.id}, ${blog.is_approved})">${approvedText}</span></td>
+                <td><span class="badge ${publishedClass}" style="cursor:pointer;" onclick="toggleBlogPublish(${blog.id})">${safe(blog.published_status)}</span></td>
+                <td>${safe(blog.type || 'Uncategorized')}</td>
                 <td>
-                    <button class="btn-sm btn-deactivate" onclick="deleteBlog(${blog.id})">Delete</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteBlog(${blog.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="white" style="vertical-align:middle; margin-right:4px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete</button>
+                    <button class="btn-sm btn-edit" onclick="editBlog(${blog.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="white" style="vertical-align:middle; margin-right:4px;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Edit</button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     } catch (error) {
         console.error('Error loading blogs:', error);
-        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading blogs</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading blogs</td></tr>';
     }
 }
 
@@ -1612,12 +1617,66 @@ async function loadBlogs(query = '') {
 const addBlogNavBtn = document.getElementById('addBlogNavBtn');
 if (addBlogNavBtn) {
     addBlogNavBtn.addEventListener('click', () => {
+        // Reset form state
+        editingBlogId = null;
+        document.getElementById('addBlogForm').reset();
+        if(editorInstance) editorInstance.setData('');
+        document.querySelector('#view-add-blog h2').textContent = 'New Blog';
+        document.querySelector('#addBlogForm button[type="submit"]').textContent = 'Create Blog';
+
         // Switch view manually to Add Blog
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById('view-add-blog').classList.add('active');
         initEditor();
     });
 }
+
+// Edit Blog Logic
+window.editBlog = async (id) => {
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}`);
+        if(!response.ok) throw new Error('Failed to fetch blog');
+        const blog = await response.json();
+
+        editingBlogId = id;
+        document.querySelector('#view-add-blog h2').textContent = 'Edit Blog';
+        document.querySelector('#addBlogForm button[type="submit"]').textContent = 'Update Blog';
+
+        // Populate Form
+        const form = document.getElementById('addBlogForm');
+        form.querySelector('#new_blog_title').value = blog.title;
+        form.querySelector('#new_blog_type').value = blog.type;
+        form.querySelector('#new_blog_status').value = blog.published_status;
+        form.querySelector('#new_blog_is_approved').value = blog.is_approved ? 'true' : 'false';
+        form.querySelector('#new_blog_is_featured').value = blog.is_featured ? 'Yes' : 'No';
+
+        // Initialize editor and set data
+        await initEditor();
+        if(editorInstance) editorInstance.setData(blog.content_html || '');
+
+        // Switch View
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-add-blog').classList.add('active');
+
+    } catch (error) {
+        console.error(error);
+        alert('Error loading blog details');
+    }
+};
+
+window.toggleBlogApproval = async (id, currentStatus) => {
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}/toggle-approve`, { method: 'PATCH' });
+        if(response.ok) loadBlogs();
+    } catch(e) { console.error(e); }
+};
+
+window.toggleBlogPublish = async (id) => {
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}/toggle-publish`, { method: 'PATCH' });
+        if(response.ok) loadBlogs();
+    } catch(e) { console.error(e); }
+};
 
 async function initEditor() {
     if (editorInstance) return;
@@ -1640,26 +1699,35 @@ document.getElementById('addBlogForm')?.addEventListener('submit', async (e) => 
     const formData = new FormData(e.target);
 
     try {
-        const response = await fetchAuth('/api/admin/blogs', {
-            method: 'POST',
+        let url = '/api/admin/blogs';
+        let method = 'POST';
+
+        if (editingBlogId) {
+            url = `/api/admin/blogs/${editingBlogId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetchAuth(url, {
+            method: method,
             body: formData
         });
 
         if (response.ok) {
-            alert('Blog created successfully');
+            alert(editingBlogId ? 'Blog updated successfully' : 'Blog created successfully');
             e.target.reset();
             if(editorInstance) editorInstance.setData('');
+            editingBlogId = null;
 
             // Navigate back to list (Simulate click on sidebar link)
             const blogsLink = document.querySelector('[data-view="blogs"]');
             if (blogsLink) blogsLink.click();
         } else {
             const data = await response.json();
-            alert(data.message || 'Failed to create blog');
+            alert(data.message || 'Failed to save blog');
         }
     } catch (e) {
         console.error(e);
-        alert('Error creating blog');
+        alert('Error saving blog');
     }
 });
 
