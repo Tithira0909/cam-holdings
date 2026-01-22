@@ -366,6 +366,7 @@ window.viewMessage = async (id) => {
 let editingProjectId = null;
 let projectProgressId = null;
 let projectSearchTimeout;
+let existingGalleryImages = []; // Array of strings (paths)
 
 document.getElementById('projectSearch')?.addEventListener('input', (e) => {
     clearTimeout(projectSearchTimeout);
@@ -379,7 +380,7 @@ async function loadProjects(query = '') {
     try {
         const url = query ? `/api/admin/projects?search=${encodeURIComponent(query)}` : '/api/admin/projects';
         const response = await fetchAuth(url);
-        if (!response.ok) throw new Error('Failed to fetch projects'); // Check ok for consistency
+        if (!response.ok) throw new Error('Failed to fetch projects');
         const projects = await response.json();
 
         tbody.innerHTML = '';
@@ -411,7 +412,7 @@ async function loadProjects(query = '') {
     }
 }
 
-// --- NEW PROJECT PAGE LOGIC ---
+// --- NEW PROJECT / EDIT PROJECT PAGE LOGIC ---
 let projectEditorInstance;
 
 async function loadClientsForProjectForm() {
@@ -419,7 +420,7 @@ async function loadClientsForProjectForm() {
         const response = await fetchAuth('/api/admin/clients');
         const clients = await response.json();
         const select = document.getElementById('np_client');
-        select.innerHTML = '<option value="">Select Client</option>';
+        select.innerHTML = '<option value="">---Select Client---</option>';
         clients.forEach(c => {
             const option = document.createElement('option');
             option.value = c.id;
@@ -448,6 +449,21 @@ async function loadServicesForProjectForm() {
     }
 }
 
+async function loadQuotationsForProjectForm() {
+    try {
+        const response = await fetchAuth('/api/admin/quotations');
+        const items = await response.json();
+        const select = document.getElementById('np_quotation');
+        select.innerHTML = '<option value="">Select Quotation</option>';
+        items.forEach(q => {
+            const option = document.createElement('option');
+            option.value = q.id;
+            option.textContent = `${q.reference_id} - ${q.first_name} ${q.last_name || ''}`;
+            select.appendChild(option);
+        });
+    } catch (e) { console.error(e); }
+}
+
 async function initProjectEditor() {
     if (projectEditorInstance) return;
     try {
@@ -459,97 +475,191 @@ async function initProjectEditor() {
     }
 }
 
+// Slug Generation
+document.getElementById('np_title')?.addEventListener('input', function(e) {
+    if (!editingProjectId || document.getElementById('np_slug').value === '') {
+        const title = e.target.value;
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        document.getElementById('np_slug').value = slug;
+    }
+});
+
+// File Previews
+document.getElementById('np_drawing')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const container = document.getElementById('drawingPreviewContainer');
+    if(file) {
+        container.innerHTML = `<div style="font-size:0.8rem; color:#2ecc71;">Selected: ${file.name}</div>`;
+        container.style.display = 'block';
+    }
+});
+
+// Helper to Render Existing Gallery
+function renderExistingGallery() {
+    const container = document.getElementById('galleryPreviewContainer');
+    container.innerHTML = '';
+
+    if (existingGalleryImages.length === 0) return;
+
+    existingGalleryImages.forEach((path, index) => {
+        const wrap = document.createElement('div');
+        wrap.style.position = 'relative';
+        wrap.style.width = '100px';
+        wrap.style.height = '100px';
+
+        const img = document.createElement('img');
+        img.src = getRelativeImageUrl(path);
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '4px';
+        img.style.border = '1px solid #444';
+
+        const btn = document.createElement('button');
+        btn.innerHTML = '&times;';
+        btn.style.position = 'absolute';
+        btn.style.top = '-5px';
+        btn.style.right = '-5px';
+        btn.style.background = 'red';
+        btn.style.color = 'white';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '50%';
+        btn.style.width = '20px';
+        btn.style.height = '20px';
+        btn.style.cursor = 'pointer';
+        btn.style.fontSize = '12px';
+        btn.style.display = 'flex';
+        btn.style.alignItems = 'center';
+        btn.style.justifyContent = 'center';
+
+        btn.onclick = (e) => {
+            e.preventDefault();
+            existingGalleryImages.splice(index, 1);
+            renderExistingGallery();
+        };
+
+        wrap.appendChild(img);
+        wrap.appendChild(btn);
+        container.appendChild(wrap);
+    });
+}
+
+// Add Project Button Handler
+const openProjectBtn = document.getElementById('openProjectModalBtn');
+if (openProjectBtn) {
+    openProjectBtn.addEventListener('click', () => {
+        // Reset State
+        editingProjectId = null;
+        existingGalleryImages = [];
+
+        // Reset Form
+        const form = document.getElementById('addProjectForm');
+        form.reset();
+        document.getElementById('np_description_hidden').value = '';
+        if(projectEditorInstance) projectEditorInstance.setData('');
+
+        // Reset Previews
+        document.getElementById('drawingPreviewContainer').innerHTML = '';
+        document.getElementById('galleryPreviewContainer').innerHTML = '';
+
+        // Update Title
+        document.querySelector('#view-add-project h2').textContent = 'New Project';
+        form.querySelector('button[type="submit"]').textContent = 'Create Project';
+
+        // Switch View
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-add-project').classList.add('active');
+
+        // Load Dependencies
+        loadClientsForProjectForm();
+        loadServicesForProjectForm();
+        loadQuotationsForProjectForm();
+        initProjectEditor();
+    });
+}
+
+// Edit Project Handler
+window.editProject = async (id) => {
+    try {
+        const response = await fetchAuth('/api/admin/projects'); // Ideally fetch single /:id
+        const projects = await response.json();
+        const project = projects.find(p => p.id === id);
+        if(!project) return;
+
+        editingProjectId = id;
+
+        // Populate Form
+        const form = document.getElementById('addProjectForm');
+        form.querySelector('#np_title').value = project.title;
+        form.querySelector('#np_slug').value = project.slug || '';
+        form.querySelector('#np_location').value = project.location || '';
+        form.querySelector('#np_budget').value = project.budget || '';
+
+        // Editor
+        if(projectEditorInstance) projectEditorInstance.setData(project.description || '');
+        else document.getElementById('np_description_hidden').value = project.description || '';
+
+        // Dropdowns
+        await loadClientsForProjectForm();
+        await loadServicesForProjectForm();
+        await loadQuotationsForProjectForm();
+
+        form.querySelector('#np_client').value = project.client_id || '';
+        form.querySelector('#np_service').value = project.service_id || '';
+        form.querySelector('#np_quotation').value = project.quotation_id || '';
+        form.querySelector('#np_project_status').value = project.project_status || 'Quotation';
+        form.querySelector('#np_status').value = project.status || 'Active';
+        form.querySelector('#np_featured').value = (project.is_featured === 1 || project.is_featured === true) ? 'Yes' : 'No';
+
+        // Dates
+        if(project.start_date) form.querySelector('#np_start_date').value = new Date(project.start_date).toISOString().split('T')[0];
+        if(project.end_date) form.querySelector('#np_end_date').value = new Date(project.end_date).toISOString().split('T')[0];
+
+        // Drawing Preview
+        const drawCont = document.getElementById('drawingPreviewContainer');
+        drawCont.style.display = 'block';
+        if(project.drawing_url) {
+            drawCont.innerHTML = `<a href="${getRelativeImageUrl(project.drawing_url)}" target="_blank" style="color:#3498db;">Current Drawing (Click to View)</a> <span style="font-size:0.8rem; color:#666;">(Upload new to replace)</span>`;
+        } else {
+            drawCont.innerHTML = '<span style="font-size:0.8rem; color:#666;">No drawing uploaded.</span>';
+        }
+
+        // Gallery
+        existingGalleryImages = [];
+        try {
+            if(project.gallery_images) {
+                existingGalleryImages = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+                if(!Array.isArray(existingGalleryImages)) existingGalleryImages = [];
+            }
+        } catch(e) { console.error('Gallery parse error', e); }
+
+        renderExistingGallery();
+
+        // Switch View
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-add-project').classList.add('active');
+        document.querySelector('#view-add-project h2').textContent = 'Edit Project';
+        form.querySelector('button[type="submit"]').textContent = 'Update Project';
+
+        initProjectEditor();
+
+    } catch(e) {
+        console.error(e);
+        alert('Error loading project details');
+    }
+};
+
+// Form Submit
 document.getElementById('addProjectForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     if (projectEditorInstance) {
         document.getElementById('np_description_hidden').value = projectEditorInstance.getData();
     }
 
     const formData = new FormData(e.target);
 
-    try {
-        const response = await fetchAuth('/api/admin/projects', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (response.ok) {
-            alert('Project created successfully');
-            e.target.reset();
-            if(projectEditorInstance) projectEditorInstance.setData('');
-
-            // Navigate back
-            const projectsLink = document.querySelector('[data-view="projects"]');
-            if (projectsLink) projectsLink.click();
-        } else {
-            const data = await response.json();
-            alert(data.message || 'Failed to create project');
-        }
-    } catch (e) {
-        console.error(e);
-        alert('Error creating project');
-    }
-});
-
-// Project Modal (Used for Edit)
-const projectModal = document.getElementById('projectModal');
-const openProjectModalBtn = document.getElementById('openProjectModalBtn');
-const closeProjectModalBtn = document.getElementById('closeProjectModal');
-const cancelProjectBtn = document.getElementById('cancelProjectBtn');
-
-function openProjectModalFunc() {
-    projectModal.classList.add('active');
-}
-function closeProjectModalFunc() {
-    projectModal.classList.remove('active');
-    document.getElementById('projectForm').reset();
-    editingProjectId = null;
-    document.querySelector('#projectModal h2').textContent = 'New Project';
-    document.querySelector('#projectModal button[type="submit"]').textContent = 'Save Project';
-}
-
-if(openProjectModalBtn) {
-    openProjectModalBtn.addEventListener('click', () => {
-        // Switch view to Add Project Page
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.getElementById('view-add-project').classList.add('active');
-        loadClientsForProjectForm();
-        loadServicesForProjectForm();
-        initProjectEditor();
-    });
-}
-if(closeProjectModalBtn) closeProjectModalBtn.addEventListener('click', closeProjectModalFunc);
-if(cancelProjectBtn) cancelProjectBtn.addEventListener('click', closeProjectModalFunc);
-
-window.editProject = async (id) => {
-    try {
-        const response = await fetchAuth('/api/admin/projects');
-        const projects = await response.json();
-        const project = projects.find(p => p.id === id);
-
-        if(!project) return;
-
-        editingProjectId = id;
-        document.querySelector('#projectModal h2').textContent = 'Edit Project';
-        document.querySelector('#projectModal button[type="submit"]').textContent = 'Update Project';
-
-        const form = document.getElementById('projectForm');
-        form.querySelector('#proj_title_input').value = project.title;
-        form.querySelector('#proj_loc').value = project.location || '';
-        form.querySelector('#proj_budget').value = project.budget || '';
-        form.querySelector('#proj_status').value = project.status || 'Active';
-        form.querySelector('#proj_desc_input').value = project.description || '';
-
-        openProjectModalFunc();
-    } catch(e) {
-        console.error(e);
-    }
-};
-
-document.getElementById('projectForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
+    // Append existing gallery
+    formData.append('existing_gallery_images', JSON.stringify(existingGalleryImages));
 
     try {
         let url = '/api/admin/projects';
@@ -566,9 +676,17 @@ document.getElementById('projectForm')?.addEventListener('submit', async (e) => 
         });
 
         if (response.ok) {
-            closeProjectModalFunc();
-            loadProjects();
-            alert(editingProjectId ? 'Project updated!' : 'Project created!');
+            alert(editingProjectId ? 'Project updated successfully' : 'Project created successfully');
+            if(!editingProjectId) {
+                e.target.reset();
+                if(projectEditorInstance) projectEditorInstance.setData('');
+                existingGalleryImages = [];
+                renderExistingGallery();
+                document.getElementById('drawingPreviewContainer').innerHTML = '';
+            }
+            // Navigate back
+            const projectsLink = document.querySelector('[data-view="projects"]');
+            if (projectsLink) projectsLink.click();
         } else {
             const data = await response.json();
             alert(data.message || 'Failed to save project');

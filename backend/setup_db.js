@@ -89,7 +89,9 @@ async function setupDatabase() {
         "ALTER TABLE projects ADD COLUMN end_date DATE",
         "ALTER TABLE projects ADD COLUMN is_featured BOOLEAN DEFAULT FALSE",
         "ALTER TABLE projects ADD COLUMN drawing_url VARCHAR(255)",
-        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)"
+        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN quotation_id INT",
+        "ALTER TABLE projects ADD COLUMN gallery_images JSON"
     ];
 
     for (const query of projectMigrationQueries) {
