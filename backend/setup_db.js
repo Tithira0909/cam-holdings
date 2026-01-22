@@ -91,7 +91,8 @@ async function setupDatabase() {
         "ALTER TABLE projects ADD COLUMN drawing_url VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)",
         "ALTER TABLE projects ADD COLUMN quotation_id INT",
-        "ALTER TABLE projects ADD COLUMN gallery_images JSON"
+        "ALTER TABLE projects ADD COLUMN gallery_images JSON",
+        "ALTER TABLE projects ADD COLUMN main_image VARCHAR(255)"
     ];
 
     for (const query of projectMigrationQueries) {

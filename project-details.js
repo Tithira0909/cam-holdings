@@ -26,9 +26,17 @@ async function initProjectDetails() {
         // Render Data
         document.title = `${project.title} | CAM Holdings`;
 
-        // Image
+        // Image Priority: Main > Image > First Gallery
+        let imgPath = project.main_image || project.image_url;
+        if (!imgPath && project.gallery_images) {
+            try {
+                const gal = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+                if (Array.isArray(gal) && gal.length > 0) imgPath = gal[0];
+            } catch(e){}
+        }
+
         const imgEl = document.getElementById('pdImage');
-        if (imgEl) imgEl.src = getImageUrl(project.image_url);
+        if (imgEl) imgEl.src = getImageUrl(imgPath);
 
         // Text Fields
         setText('pdTitle', project.title);

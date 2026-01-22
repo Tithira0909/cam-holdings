@@ -42,6 +42,7 @@ router.get('/', authenticateToken, async (req, res) => {
 // POST new project
 router.post('/', authenticateToken, upload.fields([
     { name: 'image', maxCount: 1 },
+    { name: 'main_image', maxCount: 1 },
     { name: 'drawing', maxCount: 1 },
     { name: 'project', maxCount: 1 },
     { name: 'gallery_images', maxCount: 10 }
@@ -53,6 +54,7 @@ router.post('/', authenticateToken, upload.fields([
 
     const files = req.files || {};
     const image_url = files['image'] ? files['image'][0].path : null;
+    const main_image_url = files['main_image'] ? files['main_image'][0].path : null;
     const drawing_url = files['drawing'] ? files['drawing'][0].path : null;
     const project_file_url = files['project'] ? files['project'][0].path : null;
 
@@ -66,11 +68,11 @@ router.post('/', authenticateToken, upload.fields([
     try {
         const [result] = await db.query(
             `INSERT INTO projects (
-                title, location, budget, status, description, description_html, progress_status, image_url,
+                title, location, budget, status, description, description_html, progress_status, image_url, main_image,
                 client_id, slug, service_id, project_status, start_date, end_date, is_featured, drawing_url, project_file_url, quotation_id, gallery_images
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                title, location, budget, status || 'Active', description, description, progress_status || 'Not Started', image_url,
+                title, location, budget, status || 'Active', description, description, progress_status || 'Not Started', image_url, main_image_url,
                 client_id || null, slug || null, service_id || null, project_status || null,
                 start_date || null, end_date || null, is_featured === 'Yes',
                 drawing_url, project_file_url, quotation_id || null, gallery_json
@@ -85,6 +87,7 @@ router.post('/', authenticateToken, upload.fields([
 // PUT update project
 router.put('/:id', authenticateToken, upload.fields([
     { name: 'image', maxCount: 1 },
+    { name: 'main_image', maxCount: 1 },
     { name: 'drawing', maxCount: 1 },
     { name: 'project', maxCount: 1 },
     { name: 'gallery_images', maxCount: 10 }
@@ -113,6 +116,10 @@ router.put('/:id', authenticateToken, upload.fields([
         if (files['image']) {
             query += ', image_url=?';
             params.push(files['image'][0].path);
+        }
+        if (files['main_image']) {
+            query += ', main_image=?';
+            params.push(files['main_image'][0].path);
         }
         if (files['drawing']) {
             query += ', drawing_url=?';

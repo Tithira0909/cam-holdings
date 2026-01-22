@@ -485,6 +485,24 @@ document.getElementById('np_title')?.addEventListener('input', function(e) {
 });
 
 // File Previews
+document.getElementById('np_main_image')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const container = document.getElementById('mainImagePreviewContainer');
+    container.innerHTML = '';
+    if(file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = document.createElement('img');
+            img.src = evt.target.result;
+            img.style.width = '150px';
+            img.style.borderRadius = '4px';
+            container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+        container.style.display = 'block';
+    }
+});
+
 document.getElementById('np_drawing')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
     const container = document.getElementById('drawingPreviewContainer');
@@ -559,6 +577,7 @@ if (openProjectBtn) {
         if(projectEditorInstance) projectEditorInstance.setData('');
 
         // Reset Previews
+        document.getElementById('mainImagePreviewContainer').innerHTML = '';
         document.getElementById('drawingPreviewContainer').innerHTML = '';
         document.getElementById('galleryPreviewContainer').innerHTML = '';
 
@@ -614,6 +633,18 @@ window.editProject = async (id) => {
         // Dates
         if(project.start_date) form.querySelector('#np_start_date').value = new Date(project.start_date).toISOString().split('T')[0];
         if(project.end_date) form.querySelector('#np_end_date').value = new Date(project.end_date).toISOString().split('T')[0];
+
+        // Main Image Preview
+        const mainCont = document.getElementById('mainImagePreviewContainer');
+        mainCont.innerHTML = '';
+        if (project.main_image) {
+            const img = document.createElement('img');
+            img.src = getRelativeImageUrl(project.main_image);
+            img.style.width = '150px';
+            img.style.borderRadius = '4px';
+            mainCont.appendChild(img);
+            mainCont.style.display = 'block';
+        }
 
         // Drawing Preview
         const drawCont = document.getElementById('drawingPreviewContainer');
@@ -682,6 +713,7 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
                 if(projectEditorInstance) projectEditorInstance.setData('');
                 existingGalleryImages = [];
                 renderExistingGallery();
+                document.getElementById('mainImagePreviewContainer').innerHTML = '';
                 document.getElementById('drawingPreviewContainer').innerHTML = '';
             }
             // Navigate back

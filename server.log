@@ -126,3 +126,56 @@
 127.0.0.1 - - [22/Jan/2026 13:42:16] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
 127.0.0.1 - - [22/Jan/2026 13:42:16] code 404, message File not found
 127.0.0.1 - - [22/Jan/2026 13:42:16] "GET /placeholder.svg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /project-details.html?id=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /project-details.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /client-api.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /images/footer-bg.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:17] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:17] "GET /uploads/main.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /project-details.html?id=2 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /project-details.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /client-api.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /images/footer-bg.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /uploads/old.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /project-details.html?id=3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /project-details.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /client-api.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /images/footer-bg.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /uploads/gal1.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /projects.html HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /projects-loader.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /script.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /client-api.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /images/projects-hero.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /images/footer-bg.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /assets/fonts/batchan/Batchan.otf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /uploads/main.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 14:09:18] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 14:09:18] "GET /uploads/old.jpg HTTP/1.1" 404 -
