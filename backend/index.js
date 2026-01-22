@@ -31,6 +31,7 @@ const realEstatePropertiesRoutes = require('./routes/real_estate_properties');
 const designArchitecturePropertiesRoutes = require('./routes/design_architecture_properties');
 const constructionPropertiesRoutes = require('./routes/construction_properties');
 const interiorsPropertiesRoutes = require('./routes/interiors_properties');
+const serviceListingRoutes = require('./routes/service_listings');
 const path = require('path');
 const fs = require('fs');
 
@@ -88,6 +89,7 @@ app.use('/api', realEstatePropertiesRoutes);
 app.use('/api', designArchitecturePropertiesRoutes);
 app.use('/api', constructionPropertiesRoutes);
 app.use('/api', interiorsPropertiesRoutes);
+app.use('/api', serviceListingRoutes);
 
 // Basic health check
 app.get('/', (req, res) => {

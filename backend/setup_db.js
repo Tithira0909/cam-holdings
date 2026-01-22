@@ -478,6 +478,23 @@ async function setupDatabase() {
     `);
     console.log('interiors_properties table created.');
 
+    // 5. Service Listings (Unified Table)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS service_listings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category VARCHAR(50) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100),
+        short_description TEXT,
+        main_image VARCHAR(255),
+        sub_images JSON,
+        status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('service_listings table created.');
+
 
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);

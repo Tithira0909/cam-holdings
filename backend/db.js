@@ -1,14 +1,30 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const dbPath = path.resolve(__dirname, 'cam.db');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+const db = new sqlite3.Database(dbPath);
 
-module.exports = pool.promise();
+// Promisify query
+function query(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    // Basic heuristic: if it starts with SELECT, use all, else run.
+    const trimmed = sql.trim().toUpperCase();
+    if (trimmed.startsWith('SELECT') || trimmed.startsWith('PRAGMA')) {
+      db.all(sql, params, (err, rows) => {
+        if (err) return reject(err);
+        resolve([rows, []]); // Match [rows, fields]
+      });
+    } else {
+      db.run(sql, params, function(err) {
+        if (err) return reject(err);
+        resolve([{
+          insertId: this.lastID,
+          affectedRows: this.changes,
+          changedRows: this.changes
+        }, []]);
+      });
+    }
+  });
+}
+
+module.exports = { query };
