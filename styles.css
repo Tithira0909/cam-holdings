@@ -5525,11 +5525,41 @@ select:-webkit-autofill:focus {
   overflow: hidden;
 }
 
+/* Header Row Layout */
+.hp-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+.hp-head-left {
+  max-width: 840px;
+}
+/* Ensure section-head margin doesn't conflict */
+.hp-head-left.section-head { margin-bottom: 0; }
+
+.hp-head-right {
+  flex-shrink: 0;
+  margin-bottom: 10px; /* Slight optical alignment */
+}
+
+@media (max-width: 768px) {
+  .hp-head-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hp-head-right {
+    margin-bottom: 0;
+    margin-top: 10px;
+  }
+}
+
 .hp-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  margin-top: 30px;
+  margin-top: 0;
   width: 100%; /* Ensure full width of parent */
 }
 @media (max-width: 980px) {
@@ -5541,7 +5571,7 @@ select:-webkit-autofill:focus {
 
 .glass-project-card {
   position: relative;
-  height: 340px;
+  height: 280px; /* Reduced from 340px */
   border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
