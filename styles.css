@@ -5337,6 +5337,7 @@ select:-webkit-autofill:focus {
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
+/* Ensure inputs are consistent with textarea/select */
 .lr-form input,
 .lr-form textarea,
 .lr-form select {
@@ -5540,8 +5541,8 @@ select:-webkit-autofill:focus {
 
 .glass-project-card {
   position: relative;
-  height: 420px;
-  border-radius: 24px;
+  height: 340px;
+  border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
   border: 1px solid rgba(255,255,255,0.15);
