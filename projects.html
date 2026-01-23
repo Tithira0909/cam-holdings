@@ -37,34 +37,21 @@
 
 
   <!-- HERO -->
-  <section class="p-hero" id="top">
-    <div class="p-hero-bg"></div>
-    <div class="p-hero-overlay"></div>
+  <section class="projects-hero" id="top">
+    <div class="hero-bg" style="background-image: url('/images/projects-hero.jpg');"></div>
+    <div class="hero-overlay"></div>
 
-    <div class="wrap p-hero-inner">
-      <div class="kicker"><span class="dot"></span> Portfolio</div>
-      <h1 class="h1">Signature Projects, Built With Precision</h1>
-      <p class="sub">
-        Interiors • Architecture • Construction • Landscape — curated work across Sri Lanka.
-      </p>
+    <div class="wrap hero-content">
+      <div class="hero-header">
+        <div class="kicker"><span class="dot"></span> Portfolio</div>
+        <h1 class="h2" style="font-size:3.5rem;">Signature Projects</h1>
+        <p class="hero-sub">
+          Interiors • Architecture • Construction • Landscape — curated work across Sri Lanka.
+        </p>
 
-     
-<div class="services-hero-actions">
-        <a class="btn primary" href="#grid">Explore Projects</a>
-        <a class="btn ghost" href="/projects.html">Book Consultation</a>
-      </div>
-      <div class="hero-metrics">
-        <div class="metric">
-          <div class="m-num">120+</div>
-          <div class="m-lbl">Delivered</div>
-        </div>
-        <div class="metric">
-          <div class="m-num">Premium</div>
-          <div class="m-lbl">Finishes</div>
-        </div>
-        <div class="metric">
-          <div class="m-num">12+</div>
-          <div class="m-lbl">Years</div>
+        <div class="hero-actions">
+          <a class="btn primary" href="#grid">Explore Projects</a>
+          <a class="btn ghost" href="contact.html">Book Consultation</a>
         </div>
       </div>
     </div>
@@ -101,9 +88,10 @@
   <!-- GRID -->
   <main class="section" id="grid">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head" data-reveal="up">
+        <div class="kicker"><span class="dot"></span> Portfolio</div>
         <h2 class="h2">Featured Collection</h2>
-        <p>Tap a project to view details. (Demo cards — replace images/titles with yours.)</p>
+        <p>Tap a project to view details.</p>
       </div>
 
       <div class="grid" id="gridCards">
@@ -123,10 +111,10 @@
   <!-- CTA STRIP -->
   <section class="cta-strip">
     <div class="wrap cta-inner">
-      <div>
+      <div class="section-head" style="margin-bottom:0;" data-reveal="up">
         <div class="kicker"><span class="dot"></span> Ready</div>
         <h2 class="h2">Let’s Build Your Next Signature Space</h2>
-        <p class="sub2">Share your idea — we’ll suggest the best package and timeline.</p>
+        <p>Share your idea — we’ll suggest the best package and timeline.</p>
       </div>
       <div class="cta-actions">
         <a class="btn primary" href="/contact.html">Get Quote</a>
