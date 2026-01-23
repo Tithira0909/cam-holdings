@@ -26,7 +26,7 @@
     .blog-details-hero-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+      background: linear-gradient(to bottom, rgba(247, 244, 238, 0.4), rgba(247, 244, 238, 1));
       z-index: 1;
     }
     .blog-details-hero-content {
@@ -44,17 +44,18 @@
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: var(--accent, #d6b25e);
+      color: var(--gold);
+      font-weight: 600;
     }
     .blog-title {
       font-size: 3rem;
       line-height: 1.1;
       margin: 0 0 1rem 0;
-      color: white;
+      color: var(--fg);
       font-family: var(--font-display, serif);
     }
     .blog-date {
-      color: #ccc;
+      color: var(--muted);
       font-size: 0.95rem;
     }
 
@@ -62,25 +63,25 @@
       max-width: 900px;
       margin: 0 auto;
       padding: 2rem;
-      color: #e0e0e0;
+      color: var(--fg);
       font-size: 1.1rem;
       line-height: 1.8;
     }
 
     /* Content Typography */
-    .blog-content h2 { color: var(--accent, #d6b25e); font-size: 2rem; margin-top: 3rem; margin-bottom: 1rem; }
-    .blog-content h3 { color: white; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
-    .blog-content p { margin-bottom: 1.5rem; color: #b0b0b0; }
-    .blog-content ul, .blog-content ol { margin-bottom: 1.5rem; padding-left: 2rem; color: #b0b0b0; }
+    .blog-content h2 { color: var(--gold); font-size: 2rem; margin-top: 3rem; margin-bottom: 1rem; }
+    .blog-content h3 { color: var(--fg); font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
+    .blog-content p { margin-bottom: 1.5rem; color: var(--muted); }
+    .blog-content ul, .blog-content ol { margin-bottom: 1.5rem; padding-left: 2rem; color: var(--muted); }
     .blog-content li { margin-bottom: 0.5rem; }
-    .blog-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 2rem 0; border: 1px solid rgba(255,255,255,0.1); }
-    .blog-content blockquote { border-left: 3px solid var(--accent, #d6b25e); padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: white; }
+    .blog-content img { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem 0; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+    .blog-content blockquote { border-left: 3px solid var(--gold); padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: var(--fg); }
 
     .blog-nav-footer {
       max-width: 900px;
       margin: 4rem auto;
       padding: 0 2rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      border-top: 1px solid var(--border-color);
       padding-top: 2rem;
       display: flex;
       justify-content: space-between;
@@ -91,8 +92,8 @@
       padding: 10rem 2rem;
       text-align: center;
     }
-    .blog-not-found h1 { color: white; margin-bottom: 1rem; }
-    .blog-not-found p { color: #888; margin-bottom: 2rem; }
+    .blog-not-found h1 { color: var(--fg); margin-bottom: 1rem; }
+    .blog-not-found p { color: var(--muted); margin-bottom: 2rem; }
 
     @media (max-width: 768px) {
       .blog-title { font-size: 2rem; }
@@ -121,7 +122,7 @@
 
   <!-- CONTENT WRAPPER -->
   <main id="blogMain">
-    <div class="loading-state" id="blogLoading" style="min-height: 50vh; display: grid; place-items: center; color: rgba(255,255,255,0.5);">
+    <div class="loading-state" id="blogLoading" style="min-height: 50vh; display: grid; place-items: center; color: var(--muted);">
       Loading resource...
     </div>
 
@@ -161,17 +162,39 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-bg"></div>
-    <div class="wrap footer-wrap">
-      <div class="f-brand">
-        <div class="f-logo"><span class="mark"></span><span class="txt">CAM</span></div>
-        <p class="f-copy">Luxury real-estate, design & construction — crafted with precision.</p>
+  <footer class="adaline-footer">
+    <div class="footer-bg" aria-hidden="true"></div>
+    <div class="footer-overlay" aria-hidden="true"></div>
+
+    <div class="footer-wrap">
+      <div class="footer-brand">
+        <a class="footer-logo" href="/">
+          <span class="logo-mark"></span>
+          <span class="logo-text">CAM HOLDINGS</span>
+        </a>
+        <p class="footer-copy">© 2025 CAM Holdings. All rights reserved.</p>
       </div>
-      <div class="f-cols">
-        <div><h4>Company</h4><a href="/about.html">About</a><a href="/projects.html">Projects</a><a href="/blogs.html">Blogs</a></div>
-        <div><h4>Support</h4><a href="/contact.html">Contact</a><a href="/index.html#book">Book</a></div>
-        <div><h4>Social</h4><a href="#">Instagram</a><a href="#">YouTube</a></div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4 class="footer-title">COMPANY</h4>
+          <a class="footer-link" href="/services.html">Services</a>
+          <a class="footer-link" href="/projects.html">Projects</a>
+          <a class="footer-link" href="/contact.html">Contact</a>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">RESOURCES</h4>
+          <a class="footer-link" href="#privacy">Privacy Policy</a>
+          <a class="footer-link" href="#terms">Terms of Service</a>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">CONNECT</h4>
+          <a class="footer-link" href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+          <a class="footer-link" href="https://linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a class="footer-link" href="https://youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+        </div>
       </div>
     </div>
   </footer>

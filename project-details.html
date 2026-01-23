@@ -21,8 +21,9 @@
       position: relative;
       border-radius: 20px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      background: #fff;
+      box-shadow: var(--shadow);
     }
     .pd-main-img {
       width: 100%;
@@ -36,6 +37,7 @@
       font-size: clamp(2rem, 3vw, 3rem);
       margin-bottom: 10px;
       line-height: 1.1;
+      color: var(--fg);
     }
 
     .pd-badge {
@@ -43,36 +45,39 @@
       padding: 6px 12px;
       border-radius: 99px;
       border: 1px solid var(--gold);
-      color: var(--gold2);
+      color: var(--gold);
       font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       margin-bottom: 20px;
+      background: rgba(201, 162, 78, 0.1);
+      font-weight: 600;
     }
 
     .pd-facts {
       display: grid;
       gap: 16px;
       margin: 24px 0;
-      padding: 20px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      padding: 24px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
     }
     .fact-row {
       display: flex;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid var(--border-color);
       padding-bottom: 12px;
     }
     .fact-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .fact-label { color: rgba(255,255,255,0.5); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .fact-val { color: rgba(255,255,255,0.9); font-weight: 500; }
+    .fact-label { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    .fact-val { color: var(--fg); font-weight: 500; font-size: 0.95rem; }
 
     .pd-desc {
       margin-top: 40px;
       line-height: 1.8;
-      color: rgba(255,255,255,0.8);
+      color: var(--muted);
       font-size: 1.05rem;
     }
     .pd-desc p { margin-bottom: 1em; }
@@ -88,25 +93,26 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      color: rgba(255,255,255,0.6);
+      color: var(--muted);
       margin-bottom: 20px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
+      font-weight: 600;
     }
-    .back-link:hover { color: var(--gold2); }
+    .back-link:hover { color: var(--gold); }
 
     .loading-state {
       min-height: 50vh;
       display: grid;
       place-items: center;
       font-size: 1.2rem;
-      color: rgba(255,255,255,0.5);
+      color: var(--muted);
     }
 
     /* Gallery & Lightbox */
     .pd-gallery {
-      margin-top: 40px;
+      margin-top: 60px;
       margin-bottom: 40px;
     }
     .gallery-grid {
@@ -117,14 +123,16 @@
     .gallery-item {
       aspect-ratio: 4/3;
       overflow: hidden;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
       cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
     }
     .gallery-item:hover {
-      transform: scale(1.02);
-      border-color: var(--gold2);
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow: var(--shadow);
     }
     .gallery-img {
       width: 100%;
@@ -138,7 +146,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.95);
+      background: rgba(255,255,255,0.95);
       z-index: 1000;
       display: flex;
       justify-content: center;
@@ -146,6 +154,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s;
+      backdrop-filter: blur(5px);
     }
     .lightbox.active {
       opacity: 1;
@@ -154,18 +163,19 @@
     .lightbox-img {
       max-width: 90%;
       max-height: 90vh;
-      border-radius: 4px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     }
     .lightbox-close {
       position: absolute;
       top: 20px;
       right: 30px;
-      color: white;
-      font-size: 2rem;
+      color: var(--fg);
+      font-size: 3rem;
       cursor: pointer;
       background: none;
       border: none;
+      line-height: 1;
     }
 
     .doc-thumb-link {
@@ -174,16 +184,18 @@
         align-items: center;
         gap: 8px;
         text-decoration: none;
-        color: rgba(255,255,255,0.8);
+        color: var(--muted);
         transition: color 0.2s;
     }
-    .doc-thumb-link:hover { color: var(--gold2); }
+    .doc-thumb-link:hover { color: var(--gold); }
     .doc-thumb {
         width: 100px;
         height: 100px;
         object-fit: cover;
-        border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: #fff;
+        padding: 4px;
     }
   </style>
 </head>
@@ -282,13 +294,13 @@
 
         <!-- Full Description Row -->
         <div class="pd-desc">
-            <h3 class="h2" style="font-size: 1.5rem; margin-bottom: 20px; color: var(--gold2);">Project Overview</h3>
+            <h3 class="h2" style="font-size: 1.5rem; margin-bottom: 20px; color: var(--fg);">Project Overview</h3>
             <div id="pdDescription"></div>
         </div>
 
         <!-- Gallery Row -->
         <div class="pd-gallery" id="pdGallerySection" style="display:none;">
-            <h3 class="h2" style="font-size: 1.5rem; margin-bottom: 20px; color: var(--gold2);">Project Gallery</h3>
+            <h3 class="h2" style="font-size: 1.5rem; margin-bottom: 20px; color: var(--fg);">Project Gallery</h3>
             <div class="gallery-grid" id="pdGallery"></div>
         </div>
       </div>
@@ -323,40 +335,38 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-bg"></div>
-    <div class="wrap footer-wrap">
-      <div class="f-brand">
-        <div class="f-logo">
-          <span class="mark"></span>
-          <span class="txt">CAM</span>
-        </div>
-        <p class="f-copy">Luxury real-estate, design & construction — crafted with precision.</p>
+  <footer class="adaline-footer">
+    <div class="footer-bg" aria-hidden="true"></div>
+    <div class="footer-overlay" aria-hidden="true"></div>
+
+    <div class="footer-wrap">
+      <div class="footer-brand">
+        <a class="footer-logo" href="/">
+          <span class="logo-mark"></span>
+          <span class="logo-text">CAM HOLDINGS</span>
+        </a>
+        <p class="footer-copy">© 2025 CAM Holdings. All rights reserved.</p>
       </div>
 
-      <div class="f-cols">
-        <div>
-          <h4>Company</h4>
-          <a href="/about.html">About</a>
-          <a href="/projects.html">Projects</a>
-          <a href="/services.html">Services</a>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4 class="footer-title">COMPANY</h4>
+          <a class="footer-link" href="/services.html">Services</a>
+          <a class="footer-link" href="/projects.html">Projects</a>
+          <a class="footer-link" href="/contact.html">Contact</a>
         </div>
-        <div>
-          <h4>Support</h4>
-          <a href="/contact.html">Contact</a>
-          <a href="/index.html#book">Book</a>
-          <a href="/privacy.html">Privacy</a>
+
+        <div class="footer-col">
+          <h4 class="footer-title">RESOURCES</h4>
+          <a class="footer-link" href="#privacy">Privacy Policy</a>
+          <a class="footer-link" href="#terms">Terms of Service</a>
         </div>
-        <div>
-          <h4>Social</h4>
-          <a href="#">Instagram</a>
-          <a href="#">TikTok</a>
-          <a href="#">YouTube</a>
-        </div>
-        <div>
-          <h4>Location</h4>
-          <a href="#">Sri Lanka</a>
-          <a href="#">Colombo</a>
+
+        <div class="footer-col">
+          <h4 class="footer-title">CONNECT</h4>
+          <a class="footer-link" href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+          <a class="footer-link" href="https://linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a class="footer-link" href="https://youtube.com" target="_blank" rel="noreferrer">YouTube</a>
         </div>
       </div>
     </div>
