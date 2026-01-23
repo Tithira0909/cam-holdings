@@ -5219,7 +5219,7 @@ select:-webkit-autofill:focus {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2rem;
-    max-width: 1000px;
+    width: 100%;
     margin: 0 auto;
     padding: 2rem;
 
@@ -5232,9 +5232,9 @@ select:-webkit-autofill:focus {
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     .lr-grid {
-        grid-template-columns: 1fr 1.2fr;
+        grid-template-columns: 1fr 1fr;
         gap: 3rem;
         align-items: start;
         padding: 3rem;
@@ -5252,6 +5252,7 @@ select:-webkit-autofill:focus {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    width: 100%;
 
     /* CAM Luxury Style */
     background: rgba(255, 255, 255, 0.03);
@@ -5292,7 +5293,8 @@ select:-webkit-autofill:focus {
     /* Transparent, inside grid */
 }
 .lr-form .form-row {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: block;
 }
 .lr-form label {
     display: block;
@@ -5307,13 +5309,13 @@ select:-webkit-autofill:focus {
 .lr-form textarea,
 .lr-form select {
     width: 100%;
-    padding: 0.85rem 1rem;
+    padding: 1rem;
     border: 1px solid rgba(214,178,94,0.25);
-    border-radius: 12px;
+    border-radius: 16px;
     background: rgba(0,0,0,0.3);
     color: #fff;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1rem;
     outline: none;
     transition: all 0.2s ease;
 }
@@ -5333,6 +5335,7 @@ select:-webkit-autofill:focus {
 .lr-form .star-rating-input {
     display: flex;
     gap: 6px;
+    align-items: center;
 }
 .lr-form .star-rating-input span {
     color: rgba(255,255,255,0.2); /* Muted gray empty */
