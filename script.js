@@ -458,7 +458,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     setCanvasSize();
 
-    const currentFrame = (i) => `/frames/frame_${String(i + 1).padStart(4, "0")}.jpg`;
+    const currentFrame = (i) => `/frames/${String(i + 1).padStart(3, "0")}.png`;
     const images = new Array(frameCount);
     let lastFrame = -1;
 
