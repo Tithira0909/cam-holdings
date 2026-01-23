@@ -811,7 +811,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       // Exclude elements inside pinned stages (they are handled by initPinnedSectionsSnapped)
-      if (el.closest("#projects, #packages, #book, #reviews")) return;
+      // Also exclude #exclusive-properties as it has a custom stagger sequence
+      if (el.closest("#projects, #packages, #book, #reviews, #exclusive-properties")) return;
 
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
@@ -1218,7 +1219,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // Premium Hover Tilt (subtle)
 // ===============================
 function initTiltCards() {
-  const cards = document.querySelectorAll("[data-tilt], .service-card, .metric");
+  // Added .re-card and .re-empty for exclusive properties micro-interaction
+  const cards = document.querySelectorAll("[data-tilt], .service-card, .metric, .re-card, .re-empty");
   if (!cards.length) return;
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -1431,8 +1433,45 @@ function initServicesAnimations() {
   }
 }
 
+// ===============================
+// Exclusive Properties Animation
+// ===============================
+function initExclusivePropertiesAnimations() {
+  const sec = document.getElementById("exclusive-properties");
+  if (!sec || !window.gsap) return;
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: sec,
+      start: "top 75%",
+      toggleActions: "play none none reverse"
+    }
+  });
+
+  // Stagger sequence: Kicker -> Title -> Subtitle -> Grid (Card) -> Button
+  // We select the specific elements to ensure correct order
+  const kicker = sec.querySelector(".kicker");
+  const title = sec.querySelector(".h2");
+  const sub = sec.querySelector(".section-head p");
+  const grid = sec.querySelector(".re-grid"); // This acts as the container/card
+  const btn = sec.querySelector(".btn");
+
+  const targets = [kicker, title, sub, grid, btn].filter(Boolean);
+
+  if (targets.length) {
+    tl.from(targets, {
+      y: 20,
+      opacity: 0,
+      duration: 0.85,
+      ease: "power3.out",
+      stagger: 0.12
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initProjectsAnimations();
   initServicesAnimations();
   initProjectsTilt();
+  initExclusivePropertiesAnimations();
 });
