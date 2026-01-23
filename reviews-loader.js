@@ -33,12 +33,12 @@ async function initReviews() {
 
             card.innerHTML = `
                 <div class="review-top">
-                    <div class="stars" style="color:var(--gold); letter-spacing:2px;">${stars}</div>
+                    <div class="stars">${stars}</div>
                     <span class="review-pill">${source}</span>
                 </div>
                 <p class="review-text">"${msg}"</p>
                 <div class="review-footer">
-                    <span class="review-name" style="color:var(--gold); font-weight:600;">${name}</span>
+                    <span class="review-name">${name}</span>
                 </div>
             `;
 
