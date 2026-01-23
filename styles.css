@@ -667,6 +667,38 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 }
 .idot.active{ background: var(--gold); box-shadow:0 0 0 4px rgba(214,178,94,0.14); }
 
+/* Iterate Tabs */
+.iterate-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.itab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 8px 16px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 999px;
+}
+
+.itab:hover {
+  color: var(--gold2);
+}
+
+.itab.active {
+  color: #fff;
+  border: 1px solid var(--gold);
+  background: transparent;
+  box-shadow: 0 0 12px rgba(214,178,94,0.15);
+}
+
 /* main content layout */
 .iterate-wrap{
   width: min(var(--itMax), calc(100% - (var(--pagePad) * 2)));
