@@ -44,7 +44,7 @@ async function loadListings() {
                 grid.innerHTML = `
                     <div class="re-empty">
                         <h3>No properties available</h3>
-                        <p>We are currently updating our exclusive listings for ${category}. Please check back soon or contact us directly.</p>
+                        <p>Our curated selection of premium properties is currently being updated. Contact us for exclusive off-market opportunities.</p>
                     </div>
                 `;
                 continue;

@@ -1484,7 +1484,7 @@ function initExclusivePropertiesAnimations() {
   const kicker = sec.querySelector(".kicker");
   const title = sec.querySelector(".h2");
   const sub = sec.querySelector(".section-head p:not(.kicker)");
-  const grid = sec.querySelector(".re-grid");
+  const grid = sec.querySelector("#listing-grid");
   const buttons = sec.querySelectorAll(".re-actions .btn");
 
   // 1. Heading Fade In + Up
