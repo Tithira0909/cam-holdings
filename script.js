@@ -1077,43 +1077,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const banner = document.querySelector(".book-cta-banner");
     if (!banner) return;
 
+    // Use new selectors based on refactor
     const icon = banner.querySelector(".book-icon-circle");
-    const title = banner.querySelector(".book-cta-title");
-    const sub = banner.querySelector(".book-cta-sub");
-    const btn = banner.querySelector(".book-cta-right .btn");
+    const title = banner.querySelector("h2");
+    const text = banner.querySelector(".book-text");
+    const btn = banner.querySelector(".book-action .btn");
 
-    // Banner fades in and moves up
+    // Banner card itself - matching "Recent Projects" fade in
     gsap.fromTo(
       banner,
-      { y: 40, autoAlpha: 0 },
+      { y: 24, autoAlpha: 0 },
       {
         y: 0,
         autoAlpha: 1,
-        duration: 0.9,
+        duration: 0.85,
         ease: "power3.out",
         scrollTrigger: {
           trigger: banner,
-          start: "top 85%",
+          start: "top 82%",
           toggleActions: "play none none reverse"
         }
       }
     );
 
-    // Inner elements stagger
-    const items = [icon, title, sub, btn].filter(Boolean);
+    // Inner items Stagger: Icon -> Title -> Text -> Button
+    const items = [icon, title, text, btn].filter(Boolean);
     if (items.length) {
       gsap.fromTo(
         items,
-        { y: 20, autoAlpha: 0 },
+        { y: 14, autoAlpha: 0 },
         {
           y: 0,
           autoAlpha: 1,
           duration: 0.6,
           ease: "power3.out",
-          stagger: 0.1,
+          stagger: 0.08,
+          delay: 0.1, // Slight delay after banner starts
           scrollTrigger: {
             trigger: banner,
-            start: "top 85%",
+            start: "top 82%",
             toggleActions: "play none none reverse"
           }
         }

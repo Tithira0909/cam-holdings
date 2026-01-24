@@ -1117,10 +1117,15 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   pointer-events: none;
 }
 
-/* LEFT: Icon Circle */
-.book-cta-left {
-  flex: 0 0 auto;
+.book-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 12px;
+  max-width: 650px;
 }
+
 .book-icon-circle {
   width: 64px;
   height: 64px;
@@ -1132,70 +1137,52 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   justify-content: center;
   color: var(--gold);
   box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  margin-bottom: 4px;
 }
 
-/* CENTER: Text */
-.book-cta-center {
-  flex: 1;
-}
-.book-cta-title {
-  font-family: "Josefin Sans", sans-serif;
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 600; /* Strong heading */
-  letter-spacing: 0.02em;
+.book-cta-banner .h2 {
+  margin: 0;
   line-height: 1.1;
-  color: #fff;
-  margin-bottom: 8px;
-  text-transform: uppercase;
 }
-.book-cta-sub {
+
+.book-text {
   font-size: 1rem;
-  line-height: 1.5;
-  color: rgba(255,255,255,0.8); /* Ivory/Muted */
-  max-width: 65ch;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.75); /* Muted warm-gray */
+  max-width: 55ch;
   margin: 0;
 }
 
-/* RIGHT: Button */
-.book-cta-right {
+.book-action {
   flex: 0 0 auto;
 }
-.book-cta-right .btn {
-  min-width: 220px; /* Make it substantial */
+
+.book-action .btn {
+  min-width: 220px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
-}
-.book-cta-right .btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(214,178,94,0.25);
-  border-color: rgba(214,178,94,0.65);
 }
 
 /* RESPONSIVE */
 @media (max-width: 980px) {
   .book-cta-banner {
     flex-direction: column;
-    text-align: center;
-    padding: 40px 24px;
+    text-align: left;
+    align-items: flex-start;
+    padding: 30px 24px;
     gap: 24px;
   }
 
-  .book-cta-center {
+  .book-head {
     width: 100%;
+    align-items: flex-start;
   }
 
-  .book-cta-right {
+  .book-action {
     width: 100%;
-    display: flex;
-    justify-content: center;
   }
-  .book-cta-right .btn {
-    width: 100%; /* Full width on mobile */
-  }
-
-  .book-icon-circle {
-    margin: 0 auto; /* Center icon on mobile stack */
+  .book-action .btn {
+    width: 100%;
   }
 }
 
