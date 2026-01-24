@@ -5546,7 +5546,7 @@ select:-webkit-autofill:focus {
 .re-empty {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 3rem 2rem;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(214,178,94,0.15);
   border-radius: 20px;
@@ -5556,9 +5556,16 @@ select:-webkit-autofill:focus {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  min-height: 280px;
+  min-height: 260px; /* Medium height */
   box-shadow: 0 18px 60px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
+.re-empty:hover {
+  transform: translateY(-4px);
+  border-color: rgba(214,178,94,0.35);
+  box-shadow: 0 22px 70px rgba(0,0,0,0.60);
+}
+
 .re-empty h3 {
   font-size: 1.5rem;
   color: #f3de9b;
@@ -5728,6 +5735,13 @@ select:-webkit-autofill:focus {
   gap: 1rem;
   margin-top: 2rem;
 }
+.re-actions .btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.re-actions .btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(214,178,94,0.15);
+}
 
 @media (max-width: 768px) {
   .re-actions {
@@ -5738,16 +5752,6 @@ select:-webkit-autofill:focus {
     width: 100%;
     justify-content: center;
   }
-}
-
-/* Real Estate Mobile & Hover */
-.re-empty {
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.re-empty:hover {
-  transform: translateY(-4px);
-  border-color: rgba(214,178,94,0.35);
-  box-shadow: 0 22px 70px rgba(0,0,0,0.60);
 }
 
 @media (max-width: 768px) {

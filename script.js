@@ -1499,11 +1499,11 @@ function initExclusivePropertiesAnimations() {
     });
   }
 
-  // 2. Card/Grid Scale (0.98 -> 1)
+  // 2. Card/Grid Fade Up (no scale)
   if (grid) {
     tl.fromTo(grid,
-      { opacity: 0, scale: 0.98 },
-      { opacity: 1, scale: 1, duration: 0.85, ease: "power3.out" },
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.85, ease: "power3.out" },
       "-=0.4"
     );
   }
