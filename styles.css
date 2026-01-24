@@ -5667,3 +5667,44 @@ select:-webkit-autofill:focus {
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.1);
 }
+
+/* ===============================
+   Real Estate Actions
+================================ */
+.re-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .re-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .re-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Real Estate Mobile & Hover */
+.re-empty {
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.re-empty:hover {
+  transform: translateY(-4px);
+  border-color: rgba(214,178,94,0.35);
+  box-shadow: 0 22px 70px rgba(0,0,0,0.60);
+}
+
+@media (max-width: 768px) {
+  #exclusive-properties .section-head {
+    text-align: center;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}

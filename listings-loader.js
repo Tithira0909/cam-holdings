@@ -45,7 +45,6 @@ async function loadListings() {
                     <div class="re-empty">
                         <h3>No properties available</h3>
                         <p>We are currently updating our exclusive listings for ${category}. Please check back soon or contact us directly.</p>
-                        <a href="contact.html" class="re-card__btn" style="width:auto; margin-top:1rem; padding-inline:2rem;">Contact Us</a>
                     </div>
                 `;
                 continue;
