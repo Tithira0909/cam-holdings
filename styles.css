@@ -1164,6 +1164,12 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   min-width: 220px; /* Make it substantial */
   font-weight: 600;
   letter-spacing: 0.08em;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.book-cta-right .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(214,178,94,0.25);
+  border-color: rgba(214,178,94,0.65);
 }
 
 /* RESPONSIVE */
@@ -1183,6 +1189,9 @@ canvas{ width:100%; height:100%; object-fit:cover; }
     width: 100%;
     display: flex;
     justify-content: center;
+  }
+  .book-cta-right .btn {
+    width: 100%; /* Full width on mobile */
   }
 
   .book-icon-circle {

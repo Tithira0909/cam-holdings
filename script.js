@@ -1040,29 +1040,27 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
 
-    // ---------------- Book (Intro -> Form -> Points/Actions)
+    // ---------------- Book (Banner Fade -> Inner Stagger)
     makeStepStage({
       id: "book",
-      beats: 3,
-      endVh: 130,
+      beats: 2, /* fewer beats needed for a single banner */
+      endVh: 80, /* shorter scroll distance */
       onBuild: ({ sec, tl }) => {
-        const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
-        const card = sec.querySelector(".book-form");
-        const fields = sec.querySelectorAll(".book-form label, .book-form .bc-row");
-        const points = sec.querySelectorAll(".book-benefits .benefit");
-        const actions = sec.querySelectorAll(".bc-actions .btn");
+        // Main banner container
+        const banner = sec.querySelector(".book-cta-banner");
 
-        scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
-        scrubReveal(tl, [card], { at: 0.50, stagger: 0 });
-        scrubReveal(tl, fields, { at: 0.56, stagger: 0.04 });
+        // Inner elements for stagger
+        const icon = sec.querySelector(".book-icon-circle");
+        const title = sec.querySelector(".book-cta-title");
+        const sub = sec.querySelector(".book-cta-sub");
+        const btn = sec.querySelector(".book-cta-right .btn");
 
-        scrubReveal(tl, points, { at: 0.76, stagger: 0.08 });
-        scrubReveal(tl, actions, { at: 0.84, stagger: 0.05 });
+        // 1. Reveal Banner Card first (fade up)
+        scrubReveal(tl, [banner], { at: 0.02, fromY: 24 });
 
-        points.forEach((p, i) => {
-          gsap.set(p, { y: 10 });
-          tl.to(p, { y: -8, duration: 1 }, 0.70 + i * 0.04);
-        });
+        // 2. Stagger inner content (Icon -> Title -> Sub -> Button)
+        const innerItems = [icon, title, sub, btn].filter(Boolean);
+        scrubReveal(tl, innerItems, { at: 0.35, stagger: 0.12, fromY: 14 });
       },
     });
 
