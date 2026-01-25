@@ -1449,9 +1449,6 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 }
 
 @media (max-width: 860px){
-  .nav-left{ display:none; }
-  .pill{ display:none; }
-  .hamburger{ display:inline-flex; }
   .mega{ display:none; }
 
   h1{ font-size:2.05rem; letter-spacing:0.04em; }
