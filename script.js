@@ -1086,11 +1086,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Banner card itself - matching "Recent Projects" fade in
     gsap.fromTo(
       banner,
-      { y: 24, autoAlpha: 0 },
+      { y: 30, autoAlpha: 0, scale: 0.95, filter: "blur(12px)" },
       {
         y: 0,
         autoAlpha: 1,
-        duration: 0.85,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: 1.0,
         ease: "power3.out",
         scrollTrigger: {
           trigger: banner,
