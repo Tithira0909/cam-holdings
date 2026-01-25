@@ -237,9 +237,12 @@ em{ font-style:normal; color:var(--gold2); }
   width:auto; height:64px; object-fit:contain;
   filter: drop-shadow(0 6px 18px rgba(214,178,94,0.22));
 }
-@media (max-width: 860px) {
+@media (max-width: 992px) {
   .brand-mark { height: 48px; }
   :root { --navH: 88px; }
+  .nav-left { display: none !important; }
+  .pill { display: none !important; }
+  .hamburger { display: inline-flex !important; }
 }
 .brand-text{
   display: none;
@@ -385,57 +388,92 @@ em{ font-style:normal; color:var(--gold2); }
 /* ===============================
    Drawer
 ================================ */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.nav-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .drawer{
   position:fixed;
-  inset:0;
-  z-index:90;
-  display:none;
-  justify-content:flex-end;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(3px);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index:95;
+  width:min(320px, 85vw);
+  background: linear-gradient(180deg, rgba(15,15,15,0.98), rgba(8,8,8,0.99));
+  border-left:1px solid rgba(214,178,94,0.22);
+  box-shadow: -10px 0 40px rgba(0,0,0,0.6);
+  padding: 24px;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.drawer.open{ display:flex; }
-.drawer-panel{
-  width:min(380px, 88vw);
-  height:100%;
-  background: linear-gradient(180deg, rgba(15,15,15,0.95), rgba(10,10,10,0.98));
-  border-left:1px solid rgba(214,178,94,0.18);
-  box-shadow: var(--shadow);
-  padding: 1rem;
-  overflow:auto;
+.drawer.open{ transform: translateX(0); }
+
+.drawer-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
+
 .drawer-top{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding-bottom: .9rem;
-  border-bottom:1px solid rgba(255,255,255,0.18);
+  padding-bottom: 20px;
+  border-bottom:1px solid rgba(255,255,255,0.12);
+  margin-bottom: 24px;
 }
 .drawer-brand{ display:flex; align-items:center; gap:10px; }
-.drawer-brand img{ width:42px; height:42px; object-fit:contain; }
-.drawer-brand strong{ display:block; letter-spacing:.08em; font-family:"Josefin Sans","Warband Stencil","Batchan",sans-serif; }
-.drawer-brand span{ display:block; color:rgba(255,255,255,.55); font-size:.85rem; margin-top:2px; }
+.drawer-brand img{ height:32px; width: auto; object-fit:contain; }
+
 .drawer-close{
-  width:44px; height:44px;
+  width:40px; height:40px;
   border-radius:12px;
-  border:1px solid rgba(255,255,255,0.22);
-  background: rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.9);
   cursor:pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
 }
-.drawer-links{ display:grid; gap:10px; padding: 1rem 0; }
-.drawer-links a{
-  display:flex; align-items:center;
-  padding: 0.95rem 1rem;
-  border-radius: 14px;
-  border:1px solid rgba(255,255,255,0.22);
-  background: rgba(0,0,0,0.28);
-  text-transform:none;
-  letter-spacing:.02em;
-  font-size:.95rem;
+.drawer-close:hover { background: rgba(255,255,255,0.12); border-color: rgba(214,178,94,0.3); color: var(--gold); }
+
+.drawer-links{ display:flex; flex-direction: column; gap:12px; margin-bottom: auto; }
+.drawer-links .nav-link{
+  display:block;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
-.drawer-links a:hover{ border-color: rgba(214,178,94,0.35); background: rgba(255,255,255,0.16); }
-.drawer-links .drawer-cta{
-  border-color: rgba(214,178,94,0.35);
-  background: linear-gradient(180deg, rgba(214,178,94,0.16), rgba(214,178,94,0.06));
+.drawer-links .nav-link:last-child { border-bottom: none; }
+.drawer-links .nav-link:hover{ color: var(--gold2); padding-left: 6px; }
+
+.drawer-cta{
+  margin-top: 24px;
+  width: 100%;
+  justify-content: center;
+}
+
+.drawer-foot {
+  margin-top: 24px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 16px;
 }
 
 /* ===============================

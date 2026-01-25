@@ -331,17 +331,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------------------------
-  // Mobile drawer
+  // Mobile drawer (Refined)
   // -------------------------
   function initMobileDrawer() {
     const hamburger = document.querySelector(".hamburger");
     const drawer = document.querySelector(".drawer");
     const drawerClose = document.querySelector(".drawer-close");
+    const overlay = document.querySelector(".nav-overlay");
 
     const openDrawer = () => {
       if (!drawer || !hamburger) return;
       drawer.classList.add("open");
+      overlay?.classList.add("open");
       drawer.setAttribute("aria-hidden", "false");
+      overlay?.setAttribute("aria-hidden", "false");
       hamburger.setAttribute("aria-expanded", "true");
       document.body.style.overflow = "hidden";
     };
@@ -349,15 +352,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeDrawer = () => {
       if (!drawer || !hamburger) return;
       drawer.classList.remove("open");
+      overlay?.classList.remove("open");
       drawer.setAttribute("aria-hidden", "true");
+      overlay?.setAttribute("aria-hidden", "true");
       hamburger.setAttribute("aria-expanded", "false");
       document.body.style.overflow = "";
     };
 
     hamburger?.addEventListener("click", () => (drawer?.classList.contains("open") ? closeDrawer() : openDrawer()));
     drawerClose?.addEventListener("click", closeDrawer);
-    drawer?.addEventListener("click", (e) => e.target === drawer && closeDrawer());
+    overlay?.addEventListener("click", closeDrawer);
+
+    // Close on any link click inside drawer
     drawer?.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeDrawer));
+
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drawer?.classList.contains("open")) {
+        closeDrawer();
+      }
+    });
   }
 
   // -------------------------
