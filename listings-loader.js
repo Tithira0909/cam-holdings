@@ -41,11 +41,17 @@ async function loadListings() {
             const listings = await fetchPublic(`/public/${apiSegment}`);
 
             if (!listings || listings.length === 0) {
+                // Render a single placeholder card in the style of a project card
                 grid.innerHTML = `
-                    <div class="re-empty">
-                        <h3>No properties available</h3>
-                        <p>Our curated selection of premium properties is currently being updated. Contact us for exclusive off-market opportunities.</p>
-                    </div>
+                    <a href="contact.html" class="glass-project-card">
+                        <div class="gpc-bg" style="background-image: url('/placeholder.svg'); filter: grayscale(1) opacity(0.3);"></div>
+                        <div class="gpc-overlay"></div>
+                        <div class="gpc-content">
+                            <div class="gpc-cat">Coming Soon</div>
+                            <h3 class="gpc-title">No properties available</h3>
+                            <div class="gpc-tags">Our exclusive portfolio is being curated. Contact us for private off-market opportunities.</div>
+                        </div>
+                    </a>
                 `;
                 continue;
             }
