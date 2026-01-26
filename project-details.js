@@ -28,7 +28,7 @@ async function initProjectDetails() {
 
         // Image
         const imgEl = document.getElementById('pdImage');
-        if (imgEl) imgEl.src = getImageUrl(project.image_url);
+        if (imgEl) imgEl.src = getImageUrl(project.main_image || project.image_url);
 
         // Text Fields
         setText('pdTitle', project.title);

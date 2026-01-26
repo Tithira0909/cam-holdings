@@ -507,6 +507,8 @@ function closeProjectModalFunc() {
     editingProjectId = null;
     document.querySelector('#projectModal h2').textContent = 'New Project';
     document.querySelector('#projectModal button[type="submit"]').textContent = 'Save Project';
+    document.getElementById('projMainImagePreviewContainer').style.display = 'none';
+    document.getElementById('proj_main_image').setAttribute('required', 'true');
 }
 
 if(openProjectModalBtn) {
@@ -540,6 +542,20 @@ window.editProject = async (id) => {
         form.querySelector('#proj_budget').value = project.budget || '';
         form.querySelector('#proj_status').value = project.status || 'Active';
         form.querySelector('#proj_desc_input').value = project.description || '';
+
+        // Handle Main Image Preview
+        const prevContainer = document.getElementById('projMainImagePreviewContainer');
+        const prevImg = document.getElementById('projMainImagePreview');
+        const fileInput = document.getElementById('proj_main_image');
+
+        if (project.main_image) {
+            prevImg.src = getRelativeImageUrl(project.main_image);
+            prevContainer.style.display = 'block';
+            fileInput.removeAttribute('required');
+        } else {
+            prevContainer.style.display = 'none';
+            fileInput.setAttribute('required', 'true');
+        }
 
         openProjectModalFunc();
     } catch(e) {
@@ -2815,6 +2831,24 @@ document.getElementById('li_main_image')?.addEventListener('change', function(e)
     const file = e.target.files[0];
     const container = document.getElementById('mainImagePreviewContainer');
     const img = document.getElementById('mainImagePreview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            container.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        container.style.display = 'none';
+    }
+});
+
+// Project Image Preview Handler
+document.getElementById('proj_main_image')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const container = document.getElementById('projMainImagePreviewContainer');
+    const img = document.getElementById('projMainImagePreview');
 
     if (file) {
         const reader = new FileReader();

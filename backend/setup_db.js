@@ -69,6 +69,7 @@ async function setupDatabase() {
         progress_status VARCHAR(255) DEFAULT 'Not Started',
         description TEXT,
         image_url VARCHAR(255),
+        main_image VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -89,7 +90,8 @@ async function setupDatabase() {
         "ALTER TABLE projects ADD COLUMN end_date DATE",
         "ALTER TABLE projects ADD COLUMN is_featured BOOLEAN DEFAULT FALSE",
         "ALTER TABLE projects ADD COLUMN drawing_url VARCHAR(255)",
-        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)"
+        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN main_image VARCHAR(255)"
     ];
 
     for (const query of projectMigrationQueries) {
