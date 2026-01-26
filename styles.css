@@ -5657,235 +5657,147 @@ select:-webkit-autofill:focus {
 }
 
 /* ===============================
-   OUR TESTIMONIALS (Custom Section)
+   OUR TESTIMONIALS (Themed)
 ================================ */
 #testimonials {
-  position: relative;
-  padding: 100px 0;
-  background: linear-gradient(135deg, #0b1023 0%, #161e35 100%); /* Dark Navy */
-  color: #fff;
+  /* Inherits .section-dark styles */
   overflow: hidden;
 }
 
-/* Subtle Ring Pattern Background */
-.tm-bg-pattern {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.06;
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.8) 0%, transparent 20%),
-    radial-gradient(circle at 90% 80%, rgba(255,255,255,0.8) 0%, transparent 20%);
-  z-index: 0;
-}
-/* Additional decorative rings using pseudo-elements */
-#testimonials::before,
-#testimonials::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.05);
-  pointer-events: none;
-  z-index: 0;
-}
-#testimonials::before {
-  width: 600px;
-  height: 600px;
-  top: -200px;
-  left: -200px;
-}
-#testimonials::after {
-  width: 400px;
-  height: 400px;
-  bottom: -100px;
-  right: -100px;
-}
-
-#testimonials .wrap {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-/* Header */
-.tm-head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-.tm-label {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.6);
-  margin-bottom: 8px;
-}
-.tm-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.1;
-  font-family: "Josefin Sans", sans-serif;
-}
-
-/* Carousel Track */
 .tm-track {
   display: flex;
   gap: 24px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding-bottom: 40px; /* Space for shadow/hover */
+  padding: 10px 4px 40px; /* space for shadow */
   scrollbar-width: none;
   cursor: grab;
 }
 .tm-track::-webkit-scrollbar { display: none; }
 .tm-track.dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; }
 
-/* Testimonial Card */
+/* Luxury Card Style */
 .tm-card {
   flex: 0 0 calc(33.333% - 16px);
   min-width: 300px;
   scroll-snap-align: start;
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  color: #333;
-  position: relative;
+
+  /* Luxury Theme Styles */
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.4);
+
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.tm-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-/* Purple Header Strip */
-.tm-card-header {
-  height: 60px;
-  background: #6a4c93; /* Purple */
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
 }
 
-/* Avatar */
+.tm-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(214,178,94,0.35); /* Gold hover */
+  box-shadow: 0 22px 70px rgba(0,0,0,0.55);
+}
+
+.tm-card-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
 .tm-avatar {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  border: 4px solid #fff;
-  position: absolute;
-  bottom: -20px;
-  left: 24px;
+  border: 1px solid rgba(214,178,94,0.3); /* Gold border */
   overflow: hidden;
-  background: #eee;
+  background: rgba(0,0,0,0.2);
 }
 .tm-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Card Content */
-.tm-card-body {
-  padding: 34px 24px 24px; /* Top padding clears avatar */
-  flex: 1;
+.tm-meta {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
-
 .tm-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #222;
-  margin-bottom: 2px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 1.05rem;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 .tm-role {
-  font-size: 0.8rem;
-  color: #777;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.6);
 }
 
 .tm-stars {
-  color: #f1c40f; /* Gold/Yellow for stars */
-  font-size: 0.9rem;
+  color: var(--gold);
+  font-size: 0.8rem;
   letter-spacing: 2px;
+  margin-top: 2px;
+}
+
+.tm-body {
+  flex: 1;
   margin-bottom: 16px;
 }
-
 .tm-text {
   font-size: 0.95rem;
-  line-height: 1.6;
-  color: #555;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.8);
   font-style: italic;
-  margin-bottom: 20px;
 }
 
-/* Bottom Elements */
-.tm-footer {
+.tm-foot {
   margin-top: auto;
   display: flex;
   justify-content: flex-end;
-  align-items: flex-end;
-  position: relative;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 12px;
 }
-
 .tm-quote-icon {
-  font-size: 3rem;
+  font-size: 2rem;
   line-height: 1;
-  color: rgba(0,0,0,0.06);
+  color: rgba(214,178,94,0.2); /* Faint gold */
   font-family: serif;
 }
 
-/* Green Accent */
-.tm-accent {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-bottom: 20px solid #2ecc71; /* Green */
-  border-left: 20px solid transparent;
-}
-/* OR just a line */
-.tm-card::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, #2ecc71); /* Green fade */
-}
-
-/* Pagination Dots */
+/* Dots */
 .tm-dots {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 20px;
 }
 .tm-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: rgba(255,255,255,0.2);
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
   padding: 0;
+  transition: all 0.3s ease;
 }
 .tm-dot.active {
-  background: #2ecc71; /* Green active dot */
-  transform: scale(1.2);
+  background: var(--gold);
+  box-shadow: 0 0 0 4px rgba(214,178,94,0.15);
+  transform: scale(1.1);
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .tm-card { flex: 0 0 calc(50% - 12px); } /* 2 cards */
+  .tm-card { flex: 0 0 calc(50% - 12px); }
 }
 @media (max-width: 640px) {
-  .tm-card { flex: 0 0 100%; } /* 1 card */
-  .tm-head { align-items: center; text-align: center; }
+  .tm-card { flex: 0 0 100%; }
 }
