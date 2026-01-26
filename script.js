@@ -10,7 +10,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import { bookSectionConfig } from "./book-appointment-section.js";
+import { bookSectionConfig, initBookForm } from "./book-appointment-section.js";
 
 // Expose for loaders
 window.gsap = gsap;
@@ -123,12 +123,17 @@ document.addEventListener("DOMContentLoaded", () => {
   initReviewsSlider();
 
   // -------------------------------------------------------
-  // 11) FOOTER REVEAL (single)
+  // 11) BOOK FORM INIT
+  // -------------------------------------------------------
+  initBookForm();
+
+  // -------------------------------------------------------
+  // 12) FOOTER REVEAL (single)
   // -------------------------------------------------------
   initFooterReveal();
 
   // -------------------------------------------------------
-  // 12) REFRESH ONCE (and on resize)
+  // 13) REFRESH ONCE (and on resize)
   // -------------------------------------------------------
   requestAnimationFrame(() => ScrollTrigger.refresh());
   window.addEventListener("resize", () => requestAnimationFrame(() => ScrollTrigger.refresh()));

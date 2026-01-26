@@ -425,67 +425,63 @@
 
 
         <!-- BOOK APPOINTMENT -->
-        <section class="section" id="book">
-          <div class="wrap">
-            <div class="hp-head-row" data-stagger>
-              <div class="hp-head-left section-head" data-stagger-item>
-                <p class="kicker"><span class="dot"></span> Book an Appointment</p>
-                <h2 class="h2">Start Your Journey</h2>
-                <p>Schedule a consultation with our experts to discuss your vision and next steps.</p>
+        <section class="section section-dark" id="book">
+          <div class="wrap book-split" data-stagger>
+            <!-- Left: Text + CTA -->
+            <div class="book-text" data-stagger-item>
+              <div class="section-head">
+                <p class="kicker"><span class="dot"></span> Consultation</p>
+                <h2 class="h2">Book a Free Consultation</h2>
+                <p>Discuss your vision with our experts and get a clear roadmap for your project.</p>
               </div>
-              <div class="hp-head-right" data-stagger-item>
-                <a href="/contact.html" class="btn ghost">Contact Us</a>
-              </div>
+              <a href="#bookFormCard" class="btn primary">Book an Appointment</a>
             </div>
 
-            <div class="packages-grid" data-stagger>
-              <article class="pkg book-card" data-stagger-item>
-                <div class="pkg-top">
-                  <div class="pkg-name">Discovery Call</div>
-                  <div class="pkg-tag">Free</div>
+            <!-- Right: Form Card -->
+            <div class="book-form-card" id="bookFormCard" data-stagger-item>
+              <form id="bookForm" class="contact-form">
+                <div class="field">
+                  <label for="bf-name">Full Name</label>
+                  <input type="text" id="bf-name" name="name" placeholder="Enter your name" required>
                 </div>
-                <ul class="pkg-list">
-                  <li>Initial project assessment</li>
-                  <li>Scope & budget alignment</li>
-                  <li>Process walkthrough</li>
-                  <li>Q&A session (30 mins)</li>
-                </ul>
-                <div class="pkg-actions">
-                  <a class="btn primary" href="/contact.html">Book Now</a>
-                </div>
-              </article>
 
-              <article class="pkg book-card pkg-feature" data-stagger-item>
-                <div class="pkg-top">
-                  <div class="pkg-name">Site Inspection</div>
-                  <div class="pkg-tag gold">Recommended</div>
+                <div class="field">
+                  <label for="bf-email">Email Address</label>
+                  <input type="email" id="bf-email" name="email" placeholder="name@example.com" required>
                 </div>
-                <ul class="pkg-list">
-                  <li>On-site evaluation</li>
-                  <li>Feasibility check</li>
-                  <li>Rough estimate guidance</li>
-                  <li>Risk assessment (2 hours)</li>
-                </ul>
-                <div class="pkg-actions">
-                  <a class="btn primary" href="/contact.html">Schedule Visit</a>
-                </div>
-              </article>
 
-              <article class="pkg book-card" data-stagger-item>
-                <div class="pkg-top">
-                  <div class="pkg-name">Design Workshop</div>
-                  <div class="pkg-tag">Premium</div>
+                <div class="form-row">
+                  <div class="field">
+                    <label for="bf-phone">Phone Number</label>
+                    <input type="tel" id="bf-phone" name="phone" placeholder="+94 ..." required>
+                  </div>
+                  <div class="field">
+                    <label for="bf-date">Preferred Date</label>
+                    <input type="date" id="bf-date" name="date">
+                  </div>
                 </div>
-                <ul class="pkg-list">
-                  <li>In-depth design brief</li>
-                  <li>Material exploration</li>
-                  <li>Concept sketching</li>
-                  <li>Strategic roadmap (Half day)</li>
-                </ul>
-                <div class="pkg-actions">
-                  <a class="btn primary" href="/contact.html">Reserve Slot</a>
+
+                <div class="field">
+                  <label for="bf-service">Service Type</label>
+                  <select id="bf-service" name="service" required>
+                    <option value="" disabled selected>Select a service</option>
+                    <option value="Real Estate">Real Estate & Development</option>
+                    <option value="Architecture">Architecture & Design</option>
+                    <option value="Construction">Construction & Management</option>
+                    <option value="Interiors">Interiors & Finishing</option>
+                  </select>
                 </div>
-              </article>
+
+                <div class="field">
+                  <label for="bf-message">Message (Optional)</label>
+                  <textarea id="bf-message" name="message" rows="3" placeholder="Any specific requirements?"></textarea>
+                </div>
+
+                <div class="form-actions" style="margin-top: 20px;">
+                  <button type="submit" class="btn primary" style="width:100%;">Submit Request</button>
+                </div>
+                <div id="bookSuccess" class="form-msg success" style="display:none;">Request submitted successfully!</div>
+              </form>
             </div>
           </div>
         </section>

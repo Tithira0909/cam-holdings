@@ -13,31 +13,63 @@ export const bookSectionConfig = {
   beats: 3,
   endVh: 130,
   onBuild: ({ sec, tl }) => {
-    // Select elements
-    const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
-    const cards = sec.querySelectorAll(".pkg, .book-card"); // Select cards
-    const buttons = sec.querySelectorAll(".pkg-actions .btn"); // Buttons inside cards
-
-    // 1. Header Reveal
-    scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
-
-    // 2. Cards Reveal
-    scrubReveal(tl, cards, { at: 0.50, stagger: 0.10 });
-
-    // 3. Buttons (if needed separately, but usually inside cards they animate with card)
-    // However, in packages they are animated separately?
-    // In packages onBuild: scrubReveal(tl, buttons, ...)
-    // If buttons are inside cards, animating them separately might be for effect.
-    // I'll keep it simple: just animate header and cards.
-    // But if I use exactly the package structure, I might want the button stagger too.
-    if (buttons.length > 0) {
-        scrubReveal(tl, buttons, { at: 0.78, stagger: 0.05 });
+    // FIX: Remove data-reveal from section-head to prevent global reveal logic
+    // from hiding it (since it skips #book but the CSS [data-reveal] still applies).
+    const head = sec.querySelector(".section-head");
+    if (head) {
+        head.removeAttribute("data-reveal");
+        gsap.set(head, { autoAlpha: 1, y: 0 });
     }
 
-    // Parallax effect for cards
-    cards.forEach((card, i) => {
-      gsap.set(card, { y: 14 });
-      tl.to(card, { y: -10, duration: 1 }, 0.34 + i * 0.03);
-    });
+    // Select elements using the split structure
+    const leftText = sec.querySelector(".book-text");
+    const rightForm = sec.querySelector(".book-form-card");
+
+    // Left Content Stagger (Head, P, CTA)
+    if (leftText) {
+        // Select children of section-head + the button
+        const textItems = leftText.querySelectorAll(".section-head > *, .btn");
+        scrubReveal(tl, textItems, { at: 0.02, stagger: 0.08 });
+    }
+
+    // Right Form Reveal (Slide Up + Fade)
+    if (rightForm) {
+        gsap.set(rightForm, { autoAlpha: 0, y: 40 });
+        tl.to(rightForm, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out"
+        }, 0.15); // Start slightly after text
+    }
   },
 };
+
+export function initBookForm() {
+    const form = document.getElementById("bookForm");
+    const successMsg = document.getElementById("bookSuccess");
+
+    if (!form) return;
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // Basic validation check (HTML5 'required' handles mostly, but we can double check)
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        console.log("Form Submitted:", data);
+
+        // Show success
+        if (successMsg) {
+            successMsg.style.display = "block";
+            // Optional: Hide button or form fields
+            const btn = form.querySelector('button[type="submit"]');
+            if(btn) {
+                btn.textContent = "Sent";
+                btn.disabled = true;
+                btn.classList.add("ghost"); // Visual feedback
+            }
+        }
+    });
+}
