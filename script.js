@@ -1054,37 +1054,12 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
 
-    // ---------------- Reviews (Intro -> Cards -> Nav/Dots)
-    makeStepStage({
-      id: "reviews",
-      beats: 3,
-      endVh: 130,
-      onBuild: ({ sec, tl }) => {
-        const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
-        const reviews = sec.querySelectorAll(".review");
-        const dots = sec.querySelectorAll(".rv-dot");
-        const arrows = sec.querySelectorAll(".rv-nav");
-
-        scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
-        scrubReveal(tl, reviews, { at: 0.50, stagger: 0.10 });
-        scrubReveal(tl, arrows, { at: 0.78, stagger: 0.04 });
-        scrubReveal(tl, dots, { at: 0.84, stagger: 0.02 });
-
-        reviews.forEach((r, i) => {
-          gsap.set(r, { y: 14 });
-          tl.to(r, { y: -10, duration: 1 }, 0.34 + i * 0.03);
-        });
-      },
-    });
   }
 
   // -------------------------
   // Reviews slider (track + dots + arrows + drag)
   // -------------------------
   function initReviewsSlider() {
-    if (window.__CAM_REVIEWS_SLIDER__) return;
-    window.__CAM_REVIEWS_SLIDER__ = true;
-
     const root = document.getElementById("reviews");
     const track = document.getElementById("reviewsTrack");
     const dotsWrap = document.getElementById("reviewsDots");
@@ -1092,26 +1067,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const next = root?.querySelector(".rv-next");
     if (!root || !track) return;
 
-    const cards = Array.from(track.querySelectorAll(".review"));
-    if (!cards.length) return;
-
-    // Build dots
+    let cards = [];
     let dots = [];
-    if (dotsWrap) {
-      dotsWrap.innerHTML = "";
-      cards.forEach((_, i) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "rv-dot" + (i === 0 ? " active" : "");
-        b.setAttribute("aria-label", `Go to review ${i + 1}`);
-        b.addEventListener("click", () => scrollToIndex(i));
-        dotsWrap.appendChild(b);
-      });
-      dots = Array.from(dotsWrap.querySelectorAll(".rv-dot"));
-    }
+
+    const setup = () => {
+      cards = Array.from(track.querySelectorAll(".review"));
+      if (!cards.length) return;
+
+      // Build dots
+      if (dotsWrap) {
+        dotsWrap.innerHTML = "";
+        cards.forEach((_, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "rv-dot" + (i === 0 ? " active" : "");
+          b.setAttribute("aria-label", `Go to review ${i + 1}`);
+          b.addEventListener("click", () => scrollToIndex(i));
+          dotsWrap.appendChild(b);
+        });
+        dots = Array.from(dotsWrap.querySelectorAll(".rv-dot"));
+      }
+    };
 
     const cardStep = () => {
-      if (cards.length < 2) return cards[0].offsetWidth + 16;
+      if (cards.length < 2) return cards[0]?.offsetWidth + 16 || 300;
       const a = cards[0].offsetLeft;
       const b = cards[1].offsetLeft;
       return Math.max(1, b - a);
@@ -1166,6 +1145,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => setActiveDot(activeIndex()));
     });
+
+    // Initial setup + Listen for dynamic load
+    setup();
+    window.addEventListener('reviews-loaded', setup);
   }
 
   // -------------------------
