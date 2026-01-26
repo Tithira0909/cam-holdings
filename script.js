@@ -122,11 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initReviewsSlider();
 
   // -------------------------------------------------------
-  // 10.5) BOOK CTA ANIMATION (Standard Reveal)
-  // -------------------------------------------------------
-  initBookCTAAnimation();
-
-  // -------------------------------------------------------
   // 11) FOOTER REVEAL (single)
   // -------------------------------------------------------
   initFooterReveal();
@@ -1081,62 +1076,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       },
     });
-  }
-
-  // -------------------------
-  // Book CTA Animation (Standard ScrollTrigger)
-  // -------------------------
-  function initBookCTAAnimation() {
-    if (reduceMotion()) return;
-    const banner = document.querySelector(".book-cta-banner");
-    if (!banner) return;
-
-    // Use new selectors based on refactor
-    const icon = banner.querySelector(".book-icon-circle");
-    const title = banner.querySelector("h2");
-    const text = banner.querySelector(".book-text");
-    const btn = banner.querySelector(".book-action .btn");
-
-    // Banner card itself - matching "Recent Projects" fade in
-    gsap.fromTo(
-      banner,
-      { y: 30, autoAlpha: 0, scale: 0.95, filter: "blur(12px)" },
-      {
-        y: 0,
-        autoAlpha: 1,
-        scale: 1,
-        filter: "blur(0px)",
-        duration: 1.0,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: banner,
-          start: "top 82%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-
-    // Inner items Stagger: Icon -> Title -> Text -> Button
-    const items = [icon, title, text, btn].filter(Boolean);
-    if (items.length) {
-      gsap.fromTo(
-        items,
-        { y: 14, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.6,
-          ease: "power3.out",
-          stagger: 0.08,
-          delay: 0.1, // Slight delay after banner starts
-          scrollTrigger: {
-            trigger: banner,
-            start: "top 82%",
-            toggleActions: "play none none reverse"
-          }
-        }
-      );
-    }
   }
 
   // -------------------------
