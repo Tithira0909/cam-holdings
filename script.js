@@ -912,7 +912,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function initGlobalHoverTilt() {
     if (reduceMotion() || !isDesktop()) return;
 
-    const cards = gsap.utils.toArray(".project-card, .pkg, .review");
+    const cards = gsap.utils.toArray(".project-card, .pkg, .review, .review-card");
     cards.forEach((card) => {
       const onMove = (e) => {
         const r = card.getBoundingClientRect();
@@ -1386,9 +1386,54 @@ function initExclusivePropertiesAnimations() {
   }
 }
 
+// ===============================
+// Reviews Section Animation
+// ===============================
+function initReviewsAnimations() {
+  const sec = document.getElementById("reviews");
+  if (!sec || !window.gsap) return;
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: sec,
+      start: "top 75%",
+      toggleActions: "play none none reverse"
+    }
+  });
+
+  const kicker = sec.querySelector(".kicker");
+  const title = sec.querySelector(".h2");
+  const sub = sec.querySelector(".section-head p:not(.kicker)");
+  const cards = sec.querySelectorAll(".review-card");
+
+  // 1. Heading Fade In + Up
+  const headTargets = [kicker, title, sub].filter(Boolean);
+  if (headTargets.length) {
+    tl.from(headTargets, {
+      y: 20,
+      opacity: 0,
+      duration: 0.85,
+      ease: "power3.out",
+      stagger: 0.12
+    });
+  }
+
+  // 2. Cards Fade Up Staggered
+  if (cards.length) {
+    tl.from(cards, {
+      y: 30,
+      opacity: 0,
+      duration: 0.85,
+      ease: "power3.out",
+      stagger: 0.12
+    }, "-=0.4");
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initProjectsAnimations();
   initServicesAnimations();
   initProjectsTilt();
   initExclusivePropertiesAnimations();
+  initReviewsAnimations();
 });

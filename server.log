@@ -60,3 +60,9 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+2:33:25 PM [vite] (client) page reload index.html
+2:34:08 PM [vite] (client) page reload script.js
+2:36:07 PM [vite] http proxy error: /api/projects
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
