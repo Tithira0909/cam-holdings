@@ -66,3 +66,5 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+5:34:23 PM [vite] (client) hmr update /styles.css?direct
+5:40:14 PM [vite] (client) hmr update /styles.css?direct
