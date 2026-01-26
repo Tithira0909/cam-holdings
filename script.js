@@ -11,6 +11,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { bookSectionConfig, initBookForm } from "./book-appointment-section.js";
+import { initTestimonialsSection } from "./testimonials-section.js";
 
 // Expose for loaders
 window.gsap = gsap;
@@ -126,6 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // 11) BOOK FORM INIT
   // -------------------------------------------------------
   initBookForm();
+
+  // -------------------------------------------------------
+  // 11.5) TESTIMONIALS INIT
+  // -------------------------------------------------------
+  initTestimonialsSection();
 
   // -------------------------------------------------------
   // 12) FOOTER REVEAL (single)

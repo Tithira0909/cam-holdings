@@ -54,3 +54,6 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+1:26:04 PM [vite] (client) hmr update /styles.css?direct
+1:27:53 PM [vite] (client) page reload index.html
+1:28:16 PM [vite] (client) page reload script.js
