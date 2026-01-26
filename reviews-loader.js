@@ -57,21 +57,7 @@ async function initReviews() {
         });
 
         // Re-initialize slider if needed (if script.js runs before this)
-        if (window.__CAM_REVIEWS_SLIDER__ === true) {
-             // Dispatch event to tell script.js to re-calc dots if it's listening,
-             // or we rely on user interaction to update.
-             // Actually, the initReviewsSlider in script.js sets up event listeners on the track.
-             // But it builds dots *once* based on children. We need to rebuild dots.
-             // Since we can't easily call initReviewsSlider again without exposing it,
-             // let's try to manually trigger a custom event or check if we can re-run logic.
-             // For now, let's assume script.js might need a reload or we dispatch a custom event if we implemented that.
-             // But simpler: just manually dispatch a resize event which might trigger updates if implemented,
-             // OR, better, we can just let it be. The script.js runs on DOMContentLoaded.
-             // This loader also runs on DOMContentLoaded. If this runs *after* script.js, the track is empty when script.js runs.
-             // We should probably emit an event that script.js listens to, or make script.js robust.
-             // I'll update script.js to listen for 'reviews-loaded'.
-             window.dispatchEvent(new Event('reviews-loaded'));
-        }
+        window.dispatchEvent(new Event('reviews-loaded'));
 
         // Entrance Animation
         if (window.gsap) {
@@ -87,97 +73,6 @@ async function initReviews() {
     }
 }
 
-// --- FORM LOGIC ---
-function initReviewForm() {
-    const form = document.getElementById('leaveReviewForm');
-    const msgEl = document.getElementById('reviewMsg');
-
-    if (!form) return;
-
-    // Star Rating UI
-    const starContainer = document.getElementById('starRatingInput');
-    const ratingInput = document.getElementById('ratingInput');
-    const stars = starContainer ? starContainer.querySelectorAll('span') : [];
-
-    function updateStars(val) {
-        stars.forEach(s => {
-            const v = parseInt(s.dataset.val);
-            if (v <= val) s.classList.add('selected');
-            else s.classList.remove('selected');
-        });
-        if(ratingInput) ratingInput.value = val;
-    }
-
-    if (starContainer) {
-        stars.forEach(s => {
-            s.addEventListener('click', () => updateStars(parseInt(s.dataset.val)));
-            s.addEventListener('mouseenter', () => {
-                const val = parseInt(s.dataset.val);
-                stars.forEach(st => {
-                    const v = parseInt(st.dataset.val);
-                    if (v <= val) st.classList.add('hover');
-                    else st.classList.remove('hover');
-                });
-            });
-        });
-        starContainer.addEventListener('mouseleave', () => {
-            stars.forEach(s => s.classList.remove('hover'));
-        });
-    }
-
-    // Submit
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = form.querySelector('button[type="submit"]');
-        btn.disabled = true;
-        const originalText = btn.textContent;
-        btn.textContent = 'Submitting...';
-        if(msgEl) msgEl.textContent = '';
-
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-
-        // Basic validation
-        if (!data.name || !data.message) {
-            if(msgEl) {
-                msgEl.textContent = 'Please fill in all required fields.';
-                msgEl.className = 'form-msg error';
-            }
-            btn.disabled = false;
-            btn.textContent = originalText;
-            return;
-        }
-
-        try {
-            // POST to /public/reviews
-            await postPublic('/public/reviews', data);
-
-            if(msgEl) {
-                msgEl.textContent = 'Thanks! Your review is pending approval.';
-                msgEl.className = 'form-msg success';
-            }
-            form.reset();
-            updateStars(5); // Reset stars
-
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.textContent = originalText;
-                if(msgEl) msgEl.textContent = '';
-            }, 5000);
-
-        } catch (error) {
-            console.error(error);
-            if(msgEl) {
-                msgEl.textContent = 'Failed to submit review. Please try again.';
-                msgEl.className = 'form-msg error';
-            }
-            btn.disabled = false;
-            btn.textContent = originalText;
-        }
-    });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     initReviews();
-    initReviewForm();
 });

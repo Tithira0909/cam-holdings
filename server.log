@@ -1,0 +1,29 @@
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /script.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /home-projects-loader.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /listings-loader.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /reviews-loader.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /assets/mega/realestate.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /iterate/plan.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /client-api.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /frames/frame_0100.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /assets/noise.png HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /real-estate.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /images/footer-bg.jpg HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /api/public/reviews HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /api/public/real-estate-properties HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:49] "GET /api/projects HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jan/2026 05:40:51] code 404, message File not found
+127.0.0.1 - - [26/Jan/2026 05:40:51] "GET /placeholder.svg HTTP/1.1" 404 -
