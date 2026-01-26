@@ -10,6 +10,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { bookSectionConfig } from "./book-appointment-section.js";
 
 // Expose for loaders
 window.gsap = gsap;
@@ -1053,6 +1054,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       },
     });
+
+    // ---------------- Book Appointment (Imported Config)
+    makeStepStage(bookSectionConfig);
 
   }
 
