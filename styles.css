@@ -5334,11 +5334,17 @@ select:-webkit-autofill:focus {
     background:
       radial-gradient(900px 520px at 50% 35%, rgba(0,0,0,0.20), rgba(0,0,0,0.80) 72%),
       linear-gradient(180deg, #070707, #0b0b0b);
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+    padding: 2.5rem 0;
     border-top: 1px solid rgba(214,178,94,0.10);
     position: relative;
     overflow: hidden;
+}
+
+#leave-review .wrap {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 #leave-review .h2 {
@@ -5346,6 +5352,8 @@ select:-webkit-autofill:focus {
     text-shadow: 0 10px 30px rgba(0,0,0,0.5);
     position: relative;
     display: inline-block;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
 }
 #leave-review .h2::after {
     content: "";
@@ -5360,10 +5368,10 @@ select:-webkit-autofill:focus {
 .lr-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
     width: 100%;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1.5rem;
 
     /* Glass Panel */
     background: rgba(255,255,255,0.04);
@@ -5377,9 +5385,9 @@ select:-webkit-autofill:focus {
 @media (min-width: 1024px) {
     .lr-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 3rem;
+        gap: 2rem;
         align-items: start;
-        padding: 3rem;
+        padding: 2rem;
     }
 }
 
@@ -5393,7 +5401,7 @@ select:-webkit-autofill:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     width: 100%;
 
     /* CAM Luxury Style */
@@ -5406,7 +5414,7 @@ select:-webkit-autofill:focus {
     text-transform: none;
     letter-spacing: 0.5px;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 0.9rem;
 
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -5435,7 +5443,7 @@ select:-webkit-autofill:focus {
     /* Transparent, inside grid */
 }
 .lr-form .form-row {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     display: block;
 }
 .lr-form label {
@@ -5452,13 +5460,13 @@ select:-webkit-autofill:focus {
 .lr-form textarea,
 .lr-form select {
     width: 100%;
-    padding: 1rem;
+    padding: 0.75rem;
     border: 1px solid rgba(214,178,94,0.25);
     border-radius: 16px;
     background: rgba(0,0,0,0.3);
     color: #fff;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 0.9rem;
     outline: none;
     transition: all 0.2s ease;
 }
