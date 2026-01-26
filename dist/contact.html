@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact • CAM Holdings (PVT) LTD</title>
+  <script type="module" crossorigin src="/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="/assets/script-C0LdHWuA.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/styles-DJb2gFSh.css">
+</head>
+
+<body class="page page-contact">
+
+  <!-- NAV (keep your same nav) -->
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-left">
+      <a class="nav-link" href="/index.html">Home</a>
+      <a class="nav-link mega-trigger" href="/services.html" aria-haspopup="true" aria-expanded="false">Services</a>
+      <a class="nav-link" href="/projects.html">Projects</a>
+       <a class="nav-link" href="/blogs.html">Blogs</a>
+      <a class="nav-link active" href="/contact.html">Contact</a>
+    </div>
+
+    <a class="brand" href="/index.html" aria-label="CAM Holdings Home">
+      <img class="brand-mark" src="/cam-logo.png" alt="CAM Holdings Logo" />
+    </a>
+
+    <div class="nav-right">
+      <a class="pill pill-gold" href="get-a-quote.html">Get a Quote</a>
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+
+    <!-- your MEGA here -->
+    <div class="mega" aria-hidden="true">
+      <!-- keep your existing mega markup -->
+    </div>
+  </nav>
+
+  <!-- Drawer (keep yours) -->
+  <div class="drawer" aria-hidden="true">
+    <div class="drawer-panel" role="dialog" aria-label="Menu">
+      <button class="drawer-close" aria-label="Close menu">×</button>
+      <a href="/services.html" class="drawer-link">Services</a>
+      <a href="/projects.html" class="drawer-link">Projects</a>
+      <a href="/index.html#packages" class="drawer-link">Packages</a>
+      <a href="/contact.html" class="drawer-link">Contact</a>
+      <div class="drawer-cta">
+        <a class="btn primary" href="#contactForm">Get a Quote</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <header class="section contact-hero">
+    <div class="wrap">
+      <div class="kicker"><span class="dot"></span> Contact</div>
+      <h1 class="h2" style="margin-top:14px;">Let’s build something premium.</h1>
+      <p class="muted" style="margin-top:12px; max-width:72ch; line-height:1.75;">
+        Tell us your scope and location. We’ll reply with a clear plan, timeline guidance, and next-step actions.
+      </p>
+
+      <div class="contact-chips">
+        <span class="chip">Architecture</span>
+        <span class="chip">Construction</span>
+        <span class="chip">Interiors</span>
+        <span class="chip">Real Estate</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTACT GRID -->
+  <section class="section">
+    <div class="wrap contact-grid">
+
+      <!-- Left: Form -->
+      <div class="contact-card" id="contactForm">
+        <div class="contact-card-top">
+          <div class="kicker"><span class="dot"></span> Project inquiry</div>
+          <h2 class="h2" style="margin-top:14px;">Send details</h2>
+          <p class="muted" style="margin-top:10px;">We respond within 24–48 hours with the next steps.</p>
+        </div>
+
+        <form class="contact-form" action="#" method="post">
+          <div class="form-row">
+            <div class="field">
+              <label for="name">Full name</label>
+              <input id="name" name="name" type="text" placeholder="Your name" required />
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" placeholder="+94 ..." required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@email.com" required />
+            </div>
+            <div class="field">
+              <label for="service">Service</label>
+              <select id="service" name="service" required>
+                <option value="" disabled selected>Select service</option>
+                <option>Architecture & Planning</option>
+                <option>Construction Delivery</option>
+                <option>Interiors & Finishing</option>
+                <option>Project Management</option>
+                <option>Real Estate & Property</option>
+                <option>Investment & Advisory</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="location">Project location</label>
+              <input id="location" name="location" type="text" placeholder="City / Area" required />
+            </div>
+            <div class="field">
+              <label for="budget">Budget range</label>
+              <select id="budget" name="budget" required>
+                <option value="" disabled selected>Select range</option>
+                <option>Under LKR 5M</option>
+                <option>LKR 5M – 15M</option>
+                <option>LKR 15M – 35M</option>
+                <option>LKR 35M+</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="message">Project details</label>
+            <textarea id="message" name="message" rows="5"
+              placeholder="Describe your idea, land size, floors, style, timeline..." required></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn primary" type="submit">Send Inquiry</button>
+            <a class="btn ghost" href="/services.html">View Services</a>
+          </div>
+
+          <p class="muted small" style="margin-top:12px;">
+            By submitting, you agree to be contacted about your inquiry. Your info will not be sold.
+          </p>
+        </form>
+      </div>
+
+      <!-- Right: Cards -->
+      <aside class="contact-side">
+        <div class="info-card">
+          <div class="info-title">Email</div>
+          <a class="info-link" href="mailto:info@camholdings.lk">info@camholdings.lk</a>
+          <div class="muted small">Best for documents & proposals</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-title">Phone</div>
+          <a class="info-link" href="tel:+94XXXXXXXXX">+94 XX XXX XXXX</a>
+          <div class="muted small">Mon–Sat • 9:00–18:00</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-title">Office</div>
+          <div class="info-link">Sri Lanka</div>
+          <div class="muted small">Meetings by appointment</div>
+        </div>
+
+        <div class="map-card">
+          <div class="map-top">
+            <div class="info-title">Location</div>
+            <div class="muted small">Embed Google Map here</div>
+          </div>
+
+          <div class="map-embed">
+            <!-- Replace this with Google Maps iframe -->
+            <div class="map-placeholder">MAP</div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-dark">
+    <div class="wrap">
+      <div class="cta-premium">
+        <div>
+          <div class="kicker"><span class="dot"></span> Next step</div>
+          <h2 class="h2" style="margin-top:14px;">Want a quick call first?</h2>
+          <p class="muted" style="margin-top:10px;">Send your scope + location and we’ll propose a suitable package.</p>
+        </div>
+
+        <div class="cta-actions">
+          <a class="btn primary" href="#contactForm">Send details</a>
+          <a class="btn ghost" href="/projects.html">View projects</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Use Adaline Footer (ONE) -->
+  <footer class="adaline-footer">
+    <div class="footer-bg" aria-hidden="true"></div>
+    <div class="footer-overlay" aria-hidden="true"></div>
+
+    <div class="footer-wrap">
+      <div class="footer-brand">
+        <a class="footer-logo" href="/">
+          <span class="logo-mark"></span>
+          <span class="logo-text">CAM HOLDINGS</span>
+        </a>
+        <p class="footer-copy">© 2025 CAM Holdings. All rights reserved.</p>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4 class="footer-title">COMPANY</h4>
+          <a class="footer-link" href="/services.html">Services</a>
+          <a class="footer-link" href="/projects.html">Projects</a>
+          <a class="footer-link" href="/contact.html">Contact</a>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">RESOURCES</h4>
+          <a class="footer-link" href="#privacy">Privacy Policy</a>
+          <a class="footer-link" href="#terms">Terms of Service</a>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">CONNECT</h4>
+          <a class="footer-link" href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+          <a class="footer-link" href="https://linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a class="footer-link" href="https://youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/contact.js"></script>
+</body>
+</html>
