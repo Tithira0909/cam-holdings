@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const HERO_SCROLL_VH = 280;
   const XFADE_SCROLL_VH = 60;
   const ITER_SCROLL_VH = 200;
-  const HERO_FRAME_COUNT = 100;
+  const HERO_FRAME_COUNT = 200;
 
   const ITERATE_SNAP = true;
   const PINNED_SECTIONS_SNAP = true; // mini-stages snap beats
