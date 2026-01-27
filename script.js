@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
       navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === `#${id}`));
     };
 
-    const ids = ["hero", "iterate", "projects", "", "book", "reviews"];
+    const ids = ["hero", "iterate", "projects", "", "book", "testimonials"];
     ids.forEach((id) => {
       const sec = document.getElementById(id);
       if (!sec) return;
@@ -1387,10 +1387,10 @@ function initExclusivePropertiesAnimations() {
 }
 
 // ===============================
-// Reviews Section Animation
+// Testimonials Section Animation
 // ===============================
-function initReviewsAnimations() {
-  const sec = document.getElementById("reviews");
+function initTestimonialsAnimations() {
+  const sec = document.getElementById("testimonials");
   if (!sec || !window.gsap) return;
 
   const tl = gsap.timeline({
@@ -1435,5 +1435,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initServicesAnimations();
   initProjectsTilt();
   initExclusivePropertiesAnimations();
-  initReviewsAnimations();
+  initTestimonialsAnimations();
 });

@@ -5,17 +5,13 @@
 Port 5173 is in use, trying another one...
 Port 5174 is in use, trying another one...
 Port 5175 is in use, trying another one...
+Port 5176 is in use, trying another one...
 
-  VITE v7.3.0  ready in 992 ms
+  VITE v7.3.0  ready in 890 ms
 
-  ➜  Local:   http://localhost:5176/
+  ➜  Local:   http://localhost:5177/
   ➜  Network: use --host to expose
-5:36:22 PM [vite] http proxy error: /api/projects
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-5:40:14 PM [vite] (client) hmr update /styles.css?direct
-5:40:22 PM [vite] http proxy error: /api/projects
+2:49:06 AM [vite] http proxy error: /api/projects
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
