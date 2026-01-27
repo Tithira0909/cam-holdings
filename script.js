@@ -838,7 +838,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       // Exclude elements inside pinned stages (they are handled by initPinnedSectionsSnapped)
       // Also exclude #exclusive-properties as it has a custom stagger sequence
-      if (el.closest("#projects, #packages, #book, #reviews, #exclusive-properties")) return;
+      if (el.closest("#projects, #packages, #book, #testimonials, #exclusive-properties")) return;
 
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
