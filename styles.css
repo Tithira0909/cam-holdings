@@ -1481,11 +1481,11 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 12px; /* Reduced from 20px for balanced spacing */
 }
 
 .rc-avatar {
-  width: 56px; /* Slightly larger avatar */
+  width: 56px;
   height: 56px;
   border-radius: 50%;
   border: 1px solid rgba(214,178,94,0.3); /* Gold border */
@@ -1525,6 +1525,7 @@ canvas{ width:100%; height:100%; object-fit:cover; }
   letter-spacing: 2px;
   margin-bottom: 16px; /* Space before quote */
   opacity: 0.95;
+  display: block; /* Ensure block for row */
 }
 
 /* Body Text */

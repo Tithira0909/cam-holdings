@@ -75,3 +75,5 @@ AggregateError [ECONNREFUSED]:
 6:29:34 AM [vite] (client) hmr update /styles.css?direct
 6:30:24 AM [vite] (client) hmr update /styles.css?direct
 6:52:39 AM [vite] (client) hmr update /styles.css?direct
+8:48:56 AM [vite] (client) page reload index.html
+8:49:25 AM [vite] (client) hmr update /styles.css?direct
