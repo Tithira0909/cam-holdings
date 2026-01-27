@@ -11,7 +11,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { bookSectionConfig, initBookForm } from "./book-appointment-section.js";
-import { initReviewSection } from "./review-section.js";
 
 // Expose for loaders
 window.gsap = gsap;
@@ -119,19 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initPinnedSectionsSnapped();
 
   // -------------------------------------------------------
-  // 10) REVIEWS SLIDER (drag + arrows + dots)
-  // -------------------------------------------------------
-  initReviewsSlider();
-
-  // -------------------------------------------------------
   // 11) BOOK FORM INIT
   // -------------------------------------------------------
   initBookForm();
-
-  // -------------------------------------------------------
-  // 11.5) REVIEW SECTION INIT
-  // -------------------------------------------------------
-  initReviewSection();
 
   // -------------------------------------------------------
   // 12) FOOTER REVEAL (single)
@@ -191,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
       navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === `#${id}`));
     };
 
-    const ids = ["hero", "iterate", "projects", "", "book", "testimonials"];
+    const ids = ["hero", "iterate", "projects", "", "book"];
     ids.forEach((id) => {
       const sec = document.getElementById(id);
       if (!sec) return;
@@ -838,7 +827,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       // Exclude elements inside pinned stages (they are handled by initPinnedSectionsSnapped)
       // Also exclude #exclusive-properties as it has a custom stagger sequence
-      if (el.closest("#projects, #packages, #book, #testimonials, #exclusive-properties")) return;
+      if (el.closest("#projects, #packages, #book, #exclusive-properties")) return;
 
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
@@ -912,7 +901,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function initGlobalHoverTilt() {
     if (reduceMotion() || !isDesktop()) return;
 
-    const cards = gsap.utils.toArray(".project-card, .pkg, .review, .review-card");
+    const cards = gsap.utils.toArray(".project-card, .pkg, .review");
     cards.forEach((card) => {
       const onMove = (e) => {
         const r = card.getBoundingClientRect();
@@ -1069,14 +1058,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------------- Book Appointment (Imported Config)
     makeStepStage(bookSectionConfig);
 
-  }
-
-  // -------------------------
-  // Reviews slider (track + dots + arrows + drag)
-  // [REMOVED for static grid replacement]
-  // -------------------------
-  function initReviewsSlider() {
-    // Deprecated.
   }
 
   // -------------------------
@@ -1386,54 +1367,9 @@ function initExclusivePropertiesAnimations() {
   }
 }
 
-// ===============================
-// Testimonials Section Animation
-// ===============================
-function initTestimonialsAnimations() {
-  const sec = document.getElementById("testimonials");
-  if (!sec || !window.gsap) return;
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: sec,
-      start: "top 75%",
-      toggleActions: "play none none reverse"
-    }
-  });
-
-  const kicker = sec.querySelector(".kicker");
-  const title = sec.querySelector(".h2");
-  const sub = sec.querySelector(".section-head p:not(.kicker)");
-  const cards = sec.querySelectorAll(".review-card");
-
-  // 1. Heading Fade In + Up
-  const headTargets = [kicker, title, sub].filter(Boolean);
-  if (headTargets.length) {
-    tl.from(headTargets, {
-      y: 20,
-      opacity: 0,
-      duration: 0.85,
-      ease: "power3.out",
-      stagger: 0.12
-    });
-  }
-
-  // 2. Cards Fade Up Staggered
-  if (cards.length) {
-    tl.from(cards, {
-      y: 30,
-      opacity: 0,
-      duration: 0.85,
-      ease: "power3.out",
-      stagger: 0.12
-    }, "-=0.4");
-  }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   initProjectsAnimations();
   initServicesAnimations();
   initProjectsTilt();
   initExclusivePropertiesAnimations();
-  initTestimonialsAnimations();
 });

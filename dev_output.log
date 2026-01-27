@@ -10,12 +10,13 @@ Port 5177 is in use, trying another one...
 Port 5178 is in use, trying another one...
 Port 5179 is in use, trying another one...
 Port 5180 is in use, trying another one...
+Port 5181 is in use, trying another one...
 
-  VITE v7.3.0  ready in 622 ms
+  VITE v7.3.0  ready in 993 ms
 
-  ➜  Local:   http://localhost:5181/
+  ➜  Local:   http://localhost:5182/
   ➜  Network: use --host to expose
-10:04:08 AM [vite] http proxy error: /api/projects
+11:05:51 AM [vite] http proxy error: /api/projects
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
