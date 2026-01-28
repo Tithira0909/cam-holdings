@@ -34,6 +34,7 @@
 ================================ */
 :root{
   --footer-bg: url('/footer.jpg');
+  --site-bg: url('/frames/100.png');
   --bg:#0e0e0e;
   --bg2:#121212;
   --fg:#ffffff;
@@ -82,15 +83,16 @@ body{
   position: fixed;
   inset: 0;
   z-index: -99;
-  background: url('/frames/frame_0100.jpg') center center / cover no-repeat;
+  background-color: #0e0e0e; /* Fallback */
+  background: var(--site-bg) center center / cover no-repeat;
 }
 
 #site-fixed-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.7); /* Dark overlay for readability */
-  z-index: -1;
+  background: rgba(0,0,0,0.75); /* Dark overlay for readability */
+  z-index: 1;
 }
 
 img{ width:100%; height:100%; object-fit:cover; display:block; }
