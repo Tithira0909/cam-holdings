@@ -1374,6 +1374,9 @@ function initReviewsAnimations() {
   const sec = document.getElementById("reviews");
   if (!sec || !window.gsap) return;
 
+  const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion()) return;
+
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: sec,
