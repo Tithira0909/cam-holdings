@@ -814,6 +814,34 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------
   // GLOBAL: reveal-on-scroll (ONE system)
   // -------------------------
+  function initStaggerReveals() {
+    if (reduceMotion()) return;
+
+    document.querySelectorAll("[data-stagger]").forEach((container) => {
+      // Exclude pinned stages or hero if they handle their own logic
+      if (container.closest(".pin-stage, .hero")) return;
+
+      const items = container.querySelectorAll("[data-stagger-item]");
+      if (!items.length) return;
+
+      // Ensure initial state
+      gsap.set(items, { autoAlpha: 0, y: 24 });
+
+      gsap.to(items, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.85,
+        ease: "power3.out",
+        stagger: 0.12,
+        scrollTrigger: {
+          trigger: container,
+          start: "top 82%",
+          toggleActions: "play none none reverse",
+        },
+      });
+    });
+  }
+
   function initGlobalReveals() {
     if (reduceMotion()) return;
 
@@ -1367,54 +1395,10 @@ function initExclusivePropertiesAnimations() {
   }
 }
 
-// ===============================
-// Reviews Section Animations
-// ===============================
-function initReviewsAnimations() {
-  const sec = document.getElementById("reviews");
-  if (!sec || !window.gsap) return;
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: sec,
-      start: "top 75%",
-      toggleActions: "play none none reverse"
-    }
-  });
-
-  const kicker = sec.querySelector(".kicker");
-  const title = sec.querySelector(".h2");
-  const sub = sec.querySelector(".section-head p:not(.kicker)");
-  const cards = sec.querySelectorAll(".review-card");
-
-  // 1. Heading Fade In + Up
-  const headTargets = [kicker, title, sub].filter(Boolean);
-  if (headTargets.length) {
-    tl.from(headTargets, {
-      y: 24,
-      opacity: 0,
-      duration: 0.85,
-      ease: "power3.out",
-      stagger: 0.12
-    });
-  }
-
-  // 2. Cards Stagger Reveal (matching other sections)
-  if (cards.length) {
-    tl.from(cards, {
-      y: 24,
-      opacity: 0,
-      duration: 0.85,
-      ease: "power3.out",
-      stagger: 0.12
-    }, "-=0.4");
-  }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   initProjectsAnimations();
   initServicesAnimations();
   initProjectsTilt();
   initExclusivePropertiesAnimations();
-  initReviewsAnimations();
+    initStaggerReveals();
 });
