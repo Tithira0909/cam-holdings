@@ -378,6 +378,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const iterate = document.querySelector("section.iterate#iterate") || document.querySelector("section.iterate");
     if (!hero || !iterate) return;
 
+    if (!isDesktop()) {
+        // Mobile fallback for hero reveal (stagger text)
+        const h1 = hero.querySelector("h1");
+        const sub = hero.querySelector(".hero-sub");
+        const actions = hero.querySelector(".hero-actions");
+        const stats = hero.querySelector(".hero-stats");
+
+        const targets = [h1, sub, actions, stats].filter(Boolean);
+        gsap.set(targets, { autoAlpha: 0, y: 20 });
+
+        ScrollTrigger.create({
+            trigger: hero,
+            start: "top 60%",
+            onEnter: () => {
+                gsap.to(targets, {
+                    autoAlpha: 1,
+                    y: 0,
+                    duration: 0.85,
+                    ease: "power3.out",
+                    stagger: 0.12
+                });
+            }
+        });
+        return; // Don't pin on mobile
+    }
+
     const stage = wrapIntoStage(hero, iterate);
 
     gsap.set(hero, { autoAlpha: 1, pointerEvents: "auto" });
