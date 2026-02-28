@@ -40,6 +40,7 @@ if (!fs.existsSync(uploadDir)){
 }
 
 app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -82,5 +83,5 @@ app.get('/', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Backend running on http://localhost:${PORT}`);
 });

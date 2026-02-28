@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db = require('../db');
+const { authenticateToken } = require('../middleware/auth');
 
 // Login Route
 router.post('/login', async (req, res) => {
@@ -48,6 +49,20 @@ router.post('/login', async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// GET /api/auth/me (returns current user from token)
+router.get('/me', authenticateToken, async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, username, email, role, first_name, last_name, is_active FROM users WHERE id = ?', [req.user.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;
