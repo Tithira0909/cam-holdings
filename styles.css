@@ -667,6 +667,38 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 }
 .idot.active{ background: var(--gold); box-shadow:0 0 0 4px rgba(214,178,94,0.14); }
 
+/* Iterate Tabs */
+.iterate-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.itab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 8px 16px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 999px;
+}
+
+.itab:hover {
+  color: var(--gold2);
+}
+
+.itab.active {
+  color: #fff;
+  border: 1px solid var(--gold);
+  background: transparent;
+  box-shadow: 0 0 12px rgba(214,178,94,0.15);
+}
+
 /* main content layout */
 .iterate-wrap{
   width: min(var(--itMax), calc(100% - (var(--pagePad) * 2)));
@@ -5219,7 +5251,7 @@ select:-webkit-autofill:focus {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2rem;
-    max-width: 1000px;
+    width: 100%;
     margin: 0 auto;
     padding: 2rem;
 
@@ -5232,9 +5264,9 @@ select:-webkit-autofill:focus {
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     .lr-grid {
-        grid-template-columns: 1fr 1.2fr;
+        grid-template-columns: 1fr 1fr;
         gap: 3rem;
         align-items: start;
         padding: 3rem;
@@ -5252,6 +5284,7 @@ select:-webkit-autofill:focus {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    width: 100%;
 
     /* CAM Luxury Style */
     background: rgba(255, 255, 255, 0.03);
@@ -5292,7 +5325,8 @@ select:-webkit-autofill:focus {
     /* Transparent, inside grid */
 }
 .lr-form .form-row {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: block;
 }
 .lr-form label {
     display: block;
@@ -5303,17 +5337,18 @@ select:-webkit-autofill:focus {
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
+/* Ensure inputs are consistent with textarea/select */
 .lr-form input,
 .lr-form textarea,
 .lr-form select {
     width: 100%;
-    padding: 0.85rem 1rem;
+    padding: 1rem;
     border: 1px solid rgba(214,178,94,0.25);
-    border-radius: 12px;
+    border-radius: 16px;
     background: rgba(0,0,0,0.3);
     color: #fff;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1rem;
     outline: none;
     transition: all 0.2s ease;
 }
@@ -5333,6 +5368,7 @@ select:-webkit-autofill:focus {
 .lr-form .star-rating-input {
     display: flex;
     gap: 6px;
+    align-items: center;
 }
 .lr-form .star-rating-input span {
     color: rgba(255,255,255,0.2); /* Muted gray empty */
@@ -5489,11 +5525,41 @@ select:-webkit-autofill:focus {
   overflow: hidden;
 }
 
+/* Header Row Layout */
+.hp-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+.hp-head-left {
+  max-width: 840px;
+}
+/* Ensure section-head margin doesn't conflict */
+.hp-head-left.section-head { margin-bottom: 0; }
+
+.hp-head-right {
+  flex-shrink: 0;
+  margin-bottom: 10px; /* Slight optical alignment */
+}
+
+@media (max-width: 768px) {
+  .hp-head-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hp-head-right {
+    margin-bottom: 0;
+    margin-top: 10px;
+  }
+}
+
 .hp-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  margin-top: 30px;
+  margin-top: 0;
   width: 100%; /* Ensure full width of parent */
 }
 @media (max-width: 980px) {
@@ -5505,8 +5571,8 @@ select:-webkit-autofill:focus {
 
 .glass-project-card {
   position: relative;
-  height: 420px;
-  border-radius: 24px;
+  height: 280px; /* Reduced from 340px */
+  border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
   border: 1px solid rgba(255,255,255,0.15);
