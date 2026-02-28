@@ -41,11 +41,17 @@ async function loadListings() {
             const listings = await fetchPublic(`/public/${apiSegment}`);
 
             if (!listings || listings.length === 0) {
+                // Render a single placeholder card in the style of a project card
                 grid.innerHTML = `
-                    <div class="re-empty">
-                        <h3>No properties available</h3>
-                        <p>Our curated selection of premium properties is currently being updated. Contact us for exclusive off-market opportunities.</p>
-                    </div>
+                    <a href="contact.html" class="glass-project-card">
+                        <div class="gpc-bg" style="background-image: url('/placeholder.svg'); filter: grayscale(1) opacity(0.3);"></div>
+                        <div class="gpc-overlay"></div>
+                        <div class="gpc-content">
+                            <div class="gpc-cat">Coming Soon</div>
+                            <h3 class="gpc-title">No properties available</h3>
+                            <div class="gpc-tags">Our exclusive portfolio is being curated. Contact us for private off-market opportunities.</div>
+                        </div>
+                    </a>
                 `;
                 continue;
             }
@@ -68,29 +74,22 @@ async function loadListings() {
 
 function createCard(item, section) {
     const imgUrl = getImageUrl(item.main_image);
-    const title = item.name || 'Untitled';
-    const cost = item.estimated_cost ? `${item.estimated_cost}` : 'Price on Request';
-    // Shorten description
-    const desc = item.description ? (item.description.substring(0, 120) + (item.description.length > 120 ? '...' : '')) : 'No description available.';
-
     const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
-    return `
-        <div class="re-card">
-            <a href="property.html?section=${section}&id=${item.id}" class="re-card__img-wrap">
-                <img src="${imgUrl}" alt="${safe(title)}" class="re-card__img" loading="lazy" onerror="this.onerror=null;this.src='/placeholder.svg';">
-            </a>
-            <div class="re-card__body">
-                <a href="property.html?section=${section}&id=${item.id}" style="text-decoration:none;">
-                    <h3 class="re-card__title">${safe(title)}</h3>
-                </a>
-                <div class="re-card__cost">${safe(cost)}</div>
-                <p class="re-card__desc">${safe(desc)}</p>
+    const title = safe(item.name || 'Untitled');
+    // For property, we can use cost or status as the "tag" equivalent
+    const tag = item.estimated_cost ? `${item.estimated_cost}` : 'Price on Request';
 
-                <div class="re-card__actions">
-                     <a href="property.html?section=${section}&id=${item.id}" class="re-card__btn">View Details</a>
-                </div>
+    // Consistent glass card structure (glass-project-card)
+    return `
+        <a href="property.html?section=${section}&id=${item.id}" class="glass-project-card">
+            <div class="gpc-bg" style="background-image: url('${imgUrl}');"></div>
+            <div class="gpc-overlay"></div>
+            <div class="gpc-content">
+                <div class="gpc-cat">Premium Property</div>
+                <h3 class="gpc-title">${title}</h3>
+                <div class="gpc-tags">${safe(tag)}</div>
             </div>
-        </div>
+        </a>
     `;
 }
