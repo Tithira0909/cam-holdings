@@ -820,6 +820,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Auto-mark common elements if not already marked
     const autoTargets = gsap.utils.toArray(".section-head, .project-card, .pkg, .review, .book-card, .stat, .plist, .bp");
     autoTargets.forEach((el) => {
+      if (el.closest("#projects, #packages, #book, #reviews, #exclusive-properties")) return;
       if (el.dataset.reveal) return;
       el.dataset.reveal = "up";
     });
@@ -827,7 +828,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       // Exclude elements inside pinned stages (they are handled by initPinnedSectionsSnapped)
       // Also exclude #exclusive-properties as it has a custom stagger sequence
-      if (el.closest("#projects, #packages, #book, #exclusive-properties")) return;
+      if (el.closest("#projects, #packages, #book, #reviews, #exclusive-properties")) return;
 
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
@@ -901,7 +902,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function initGlobalHoverTilt() {
     if (reduceMotion() || !isDesktop()) return;
 
-    const cards = gsap.utils.toArray(".project-card, .pkg, .review");
+    const cards = gsap.utils.toArray(".project-card, .pkg, .review, .review-card");
     cards.forEach((card) => {
       const onMove = (e) => {
         const r = card.getBoundingClientRect();
@@ -1057,6 +1058,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------------- Book Appointment (Imported Config)
     makeStepStage(bookSectionConfig);
+
+    // ---------------- Reviews
+    makeStepStage({
+      id: "reviews",
+      beats: 2,
+      endVh: 80,
+      onBuild: ({ sec, tl }) => {
+        const head = sec.querySelectorAll(".section-head .kicker, .section-head .h2, .section-head p");
+        const cards = sec.querySelectorAll(".review-card");
+
+        scrubReveal(tl, head, { at: 0.02, stagger: 0.06 });
+        scrubReveal(tl, cards, { at: 0.50, stagger: 0.12 });
+      },
+    });
 
   }
 
