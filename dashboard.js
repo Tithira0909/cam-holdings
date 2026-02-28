@@ -296,6 +296,7 @@ window.previewQuotation = async (id) => {
         document.getElementById('qEmail').textContent = data.email;
         document.getElementById('qPhone').textContent = data.contact || '-';
         document.getElementById('qType').textContent = data.type;
+        document.getElementById('qPropertyDesign').textContent = data.property_design_name || '-';
 
         let dateTimeStr = '';
         if (data.date) dateTimeStr += new Date(data.date).toISOString().split('T')[0];
@@ -413,17 +414,18 @@ async function loadProjects(query = '') {
 
 // --- NEW PROJECT PAGE LOGIC ---
 let projectEditorInstance;
+let galleryFiles = []; // Store multiple files
 
 async function loadClientsForProjectForm() {
     try {
         const response = await fetchAuth('/api/admin/clients');
         const clients = await response.json();
         const select = document.getElementById('np_client');
-        select.innerHTML = '<option value="">Select Client</option>';
+        select.innerHTML = '<option value="">---Select Client---</option>';
         clients.forEach(c => {
             const option = document.createElement('option');
             option.value = c.id;
-            option.textContent = `${c.first_name} ${c.last_name}`;
+            option.textContent = `${c.first_name} ${c.last_name} (${c.email})`;
             select.appendChild(option);
         });
     } catch (e) {
@@ -448,6 +450,82 @@ async function loadServicesForProjectForm() {
     }
 }
 
+async function loadQuotationsForProjectForm() {
+    try {
+        const response = await fetchAuth('/api/admin/quotations');
+        const quotes = await response.json();
+        const select = document.getElementById('np_quotation');
+        select.innerHTML = '<option value="">Select Quotation (Optional)</option>';
+        quotes.forEach(q => {
+            const option = document.createElement('option');
+            option.value = q.id;
+            option.textContent = `${q.reference_id} - ${q.first_name} ${q.last_name || ''}`;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Slug Generator
+document.getElementById('np_title')?.addEventListener('input', function(e) {
+    const title = e.target.value;
+    const slug = title.toLowerCase().trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    document.getElementById('np_slug').value = slug;
+});
+
+// Featured Image Preview
+document.getElementById('np_featured_image')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('np_featured_preview');
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '<span style="color: #999; font-size: 0.8rem;">Preview</span>';
+    }
+});
+
+// Gallery Images Logic
+document.getElementById('np_gallery')?.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    files.forEach(file => {
+        galleryFiles.push(file);
+    });
+    renderGalleryPreview();
+    // Clear input so same file can be added again if needed (though unlikely)
+    e.target.value = '';
+});
+
+function renderGalleryPreview() {
+    const container = document.getElementById('np_gallery_preview');
+    container.innerHTML = '';
+    galleryFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 4px; overflow: hidden; border: 1px solid #ccc;';
+            div.innerHTML = `
+                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" onclick="removeGalleryImage(${index})" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; font-size: 10px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            `;
+            container.appendChild(div);
+        }
+        reader.readAsDataURL(file);
+    });
+}
+
+window.removeGalleryImage = (index) => {
+    galleryFiles.splice(index, 1);
+    renderGalleryPreview();
+};
+
 async function initProjectEditor() {
     if (projectEditorInstance) return;
     try {
@@ -462,11 +540,40 @@ async function initProjectEditor() {
 document.getElementById('addProjectForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Clear previous errors
+    document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+    let isValid = true;
+
+    const clientId = document.getElementById('np_client').value;
+    const title = document.getElementById('np_title').value;
+    const featuredImage = document.getElementById('np_featured_image').files[0];
+
+    if (!clientId) {
+        document.getElementById('np_client_error').style.display = 'block';
+        isValid = false;
+    }
+    if (!title) {
+        document.getElementById('np_title_error').style.display = 'block';
+        isValid = false;
+    }
+    // Main image is required for new projects
+    if (!featuredImage) {
+        alert('Featured Image is required');
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
     if (projectEditorInstance) {
         document.getElementById('np_description_hidden').value = projectEditorInstance.getData();
     }
 
     const formData = new FormData(e.target);
+
+    // Append Gallery Files
+    galleryFiles.forEach(file => {
+        formData.append('gallery_images', file);
+    });
 
     try {
         const response = await fetchAuth('/api/admin/projects', {
@@ -477,6 +584,9 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
         if (response.ok) {
             alert('Project created successfully');
             e.target.reset();
+            galleryFiles = [];
+            renderGalleryPreview();
+            document.getElementById('np_featured_preview').innerHTML = '<span style="color: #999; font-size: 0.8rem;">Preview</span>';
             if(projectEditorInstance) projectEditorInstance.setData('');
 
             // Navigate back
@@ -490,6 +600,309 @@ document.getElementById('addProjectForm')?.addEventListener('submit', async (e) 
         console.error(e);
         alert('Error creating project');
     }
+});
+
+// --- EDIT PROJECT LOGIC (FIXED) ---
+let editProjectEditorInstance;
+let editGalleryFiles = []; // For adding new
+let removedGalleryImages = []; // Track removed existing images (paths)
+
+window.editProject = async (id) => {
+    try {
+        const response = await fetchAuth(`/api/admin/projects/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch project details');
+        const project = await response.json();
+
+        editingProjectId = id;
+
+        // Reset State
+        editGalleryFiles = [];
+        removedGalleryImages = [];
+        document.getElementById('editProjectForm').reset();
+
+        // Populate Fields
+        // Need to load dropdowns first (clients, services, quotations)
+        await Promise.all([
+            loadClientsForEdit(project.client_id),
+            loadServicesForEdit(project.service_id),
+            loadQuotationsForEdit(project.quotation_id)
+        ]);
+
+        const form = document.getElementById('editProjectForm');
+        form.querySelector('#ep_title').value = project.title;
+        form.querySelector('#ep_slug').value = project.slug || '';
+        form.querySelector('#ep_location').value = project.location || '';
+        form.querySelector('#ep_budget').value = project.budget || '';
+        form.querySelector('#ep_extensions').value = project.property_extensions || '';
+        form.querySelector('#ep_project_status').value = project.project_status || 'Quotation';
+        form.querySelector('#ep_status').value = project.status || 'Active';
+        form.querySelector('#ep_featured').value = project.is_featured ? 'Yes' : 'No';
+
+        if (project.start_date) form.querySelector('#ep_start_date').value = new Date(project.start_date).toISOString().split('T')[0];
+        if (project.end_date) form.querySelector('#ep_end_date').value = new Date(project.end_date).toISOString().split('T')[0];
+
+        // Editor
+        if (!editProjectEditorInstance) {
+            if (window.ClassicEditor) {
+                editProjectEditorInstance = await ClassicEditor.create(document.querySelector('#editProjectEditor'));
+            }
+        }
+        if (editProjectEditorInstance) editProjectEditorInstance.setData(project.description || '');
+
+        // Images Preview
+        const featPrev = document.getElementById('ep_featured_preview');
+        if (project.main_image) {
+            featPrev.innerHTML = `<img src="${getRelativeImageUrl(project.main_image)}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+            featPrev.innerHTML = 'No Image';
+        }
+
+        const drawPrev = document.getElementById('ep_drawing_preview');
+        if (project.drawing_url) {
+            drawPrev.innerHTML = `<a href="${getRelativeImageUrl(project.drawing_url)}" target="_blank">View Current Drawing</a>`;
+        } else {
+            drawPrev.innerHTML = 'No Drawing';
+        }
+
+        // Gallery
+        currentProjectGallery = project.gallery_images;
+        renderEditGallery(currentProjectGallery);
+
+        // Documents
+        renderProjectDocs(project.documents || []);
+
+        // Switch View
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-edit-project').classList.add('active');
+
+    } catch(e) {
+        console.error(e);
+        alert('Error loading project');
+    }
+};
+
+async function loadClientsForEdit(selectedId) {
+    try {
+        const response = await fetchAuth('/api/admin/clients');
+        const clients = await response.json();
+        const select = document.getElementById('ep_client');
+        select.innerHTML = '<option value="">---Select Client---</option>';
+        clients.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.textContent = `${c.first_name} ${c.last_name}`;
+            if (c.id === selectedId) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (e) {}
+}
+
+async function loadServicesForEdit(selectedId) {
+    try {
+        const response = await fetchAuth('/api/admin/services');
+        const items = await response.json();
+        const select = document.getElementById('ep_service');
+        select.innerHTML = '<option value="">Select Service</option>';
+        items.forEach(i => {
+            const option = document.createElement('option');
+            option.value = i.id;
+            option.textContent = i.name;
+            if (i.id === selectedId) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (e) {}
+}
+
+async function loadQuotationsForEdit(selectedId) {
+    try {
+        const response = await fetchAuth('/api/admin/quotations');
+        const items = await response.json();
+        const select = document.getElementById('ep_quotation');
+        select.innerHTML = '<option value="">Select Quotation</option>';
+        items.forEach(i => {
+            const option = document.createElement('option');
+            option.value = i.id;
+            option.textContent = `${i.reference_id} - ${i.first_name}`;
+            if (i.id === selectedId) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (e) {}
+}
+
+function renderEditGallery(existingJson) {
+    const container = document.getElementById('ep_gallery_preview');
+    container.innerHTML = '';
+
+    // Existing Images
+    let existing = [];
+    try { existing = typeof existingJson === 'string' ? JSON.parse(existingJson) : existingJson; } catch(e){}
+    if(!Array.isArray(existing)) existing = [];
+
+    existing.forEach(path => {
+        if(removedGalleryImages.includes(path)) return; // Skip removed
+
+        const div = document.createElement('div');
+        div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 4px; overflow: hidden; border: 1px solid #ccc;';
+        div.innerHTML = `
+            <img src="${getRelativeImageUrl(path)}" style="width:100%; height:100%; object-fit:cover;">
+            <button type="button" class="btn-remove-img" data-path="${path}" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; font-size: 10px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">&times;</button>
+        `;
+        div.querySelector('button').onclick = () => {
+            removedGalleryImages.push(path);
+            renderEditGallery(existingJson); // Re-render to hide
+        };
+        container.appendChild(div);
+    });
+
+    // New Pending Images
+    editGalleryFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 4px; overflow: hidden; border: 1px solid blue;';
+            div.innerHTML = `
+                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" onclick="removeEditGalleryFile(${index})" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; font-size: 10px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            `;
+            container.appendChild(div);
+        }
+        reader.readAsDataURL(file);
+    });
+}
+
+// Handler for adding new files in Edit
+document.getElementById('ep_gallery')?.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    files.forEach(f => editGalleryFiles.push(f));
+    // Trigger re-render. We need access to 'existingJson' which isn't global.
+    // Simplified: Just re-render new ones? No, mixed list.
+    // Hack: We don't have existing list easily accessible here.
+    // Let's store existing list in a global or data attrib?
+    // We will just fetch project again? No.
+    // Let's stick to the flow. Re-fetching `editProject` logic is easiest but resets changes.
+    // I'll make `renderEditGallery` use a stored global `currentProjectGallery`.
+    renderEditGallery(currentProjectGallery);
+    e.target.value = '';
+});
+let currentProjectGallery = [];
+// Update `editProject` to set `currentProjectGallery = project.gallery_images`
+
+window.removeEditGalleryFile = (index) => {
+    editGalleryFiles.splice(index, 1);
+    renderEditGallery(currentProjectGallery);
+};
+
+// Document Tables
+function renderProjectDocs(docs) {
+    const pBody = document.getElementById('projectDocsBody');
+    const cBody = document.getElementById('customerDocsBody');
+    pBody.innerHTML = '';
+    cBody.innerHTML = '';
+
+    docs.forEach(doc => {
+        const isLocked = doc.is_locked || doc.is_locked === 1 || doc.is_locked === 'true';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${safe(doc.name)}</td>
+            <td><a href="${getRelativeImageUrl(doc.file_path)}" target="_blank">View File</a></td>
+            <td>
+                <label class="switch">
+                    <input type="checkbox" ${isLocked ? 'checked' : ''} onchange="toggleDocLock(${doc.id}, this.checked)">
+                    <span class="slider round"></span>
+                </label>
+                ${isLocked ? 'Locked' : 'Unlocked'}
+            </td>
+            <td>
+                <button type="button" class="btn-sm btn-deactivate" onclick="deleteDoc(${doc.id})">Delete</button>
+            </td>
+        `;
+
+        if (doc.category === 'Customer') cBody.appendChild(tr);
+        else pBody.appendChild(tr);
+    });
+}
+
+window.addDocument = async (category) => {
+    const nameInput = document.getElementById(category === 'Project' ? 'new_pdoc_name' : 'new_cdoc_name');
+    const fileInput = document.getElementById(category === 'Project' ? 'new_pdoc_file' : 'new_cdoc_file');
+
+    if (!nameInput.value || !fileInput.files[0]) {
+        alert('Name and File required');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('project_id', editingProjectId);
+    fd.append('name', nameInput.value);
+    fd.append('category', category);
+    fd.append('file', fileInput.files[0]);
+
+    try {
+        const res = await fetchAuth('/api/admin/project-documents', { method: 'POST', body: fd });
+        if(res.ok) {
+            // Refresh docs
+            const pRes = await fetchAuth(`/api/admin/projects/${editingProjectId}`);
+            const p = await pRes.json();
+            renderProjectDocs(p.documents || []);
+            nameInput.value = '';
+            fileInput.value = '';
+        } else {
+            alert('Failed to upload');
+        }
+    } catch(e) { console.error(e); }
+};
+
+window.deleteDoc = async (id) => {
+    if(!confirm('Delete document?')) return;
+    try {
+        await fetchAuth(`/api/admin/project-documents/${id}`, { method: 'DELETE' });
+        // Refresh
+        const pRes = await fetchAuth(`/api/admin/projects/${editingProjectId}`);
+        const p = await pRes.json();
+        renderProjectDocs(p.documents || []);
+    } catch(e) { console.error(e); }
+};
+
+window.toggleDocLock = async (id, status) => {
+    try {
+        await fetchAuth(`/api/admin/project-documents/${id}/lock`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ is_locked: status })
+        });
+        // Optional: refresh to confirm UI state
+    } catch(e) { console.error(e); }
+};
+
+// Form Update Submission
+document.getElementById('editProjectForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(editProjectEditorInstance) {
+        document.getElementById('ep_description_hidden').value = editProjectEditorInstance.getData();
+    }
+
+    const formData = new FormData(e.target);
+
+    // Add new gallery files
+    editGalleryFiles.forEach(f => formData.append('gallery_images', f));
+
+    // Add removed list
+    formData.append('removed_gallery_images', JSON.stringify(removedGalleryImages));
+
+    try {
+        const response = await fetchAuth(`/api/admin/projects/${editingProjectId}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        if (response.ok) {
+            alert('Project updated!');
+            // Reload to reflect changes
+            editProject(editingProjectId);
+        } else {
+            alert('Failed to update');
+        }
+    } catch(e) { console.error(e); alert('Error'); }
 });
 
 // Project Modal (Used for Edit)
@@ -516,6 +929,7 @@ if(openProjectModalBtn) {
         document.getElementById('view-add-project').classList.add('active');
         loadClientsForProjectForm();
         loadServicesForProjectForm();
+        loadQuotationsForProjectForm();
         initProjectEditor();
     });
 }
@@ -1567,6 +1981,7 @@ function showMessage(element, text, type) {
 // --- BLOGS LOGIC ---
 let blogSearchTimeout;
 let editorInstance;
+let editingBlogId = null;
 
 document.getElementById('blogSearch')?.addEventListener('input', (e) => {
     clearTimeout(blogSearchTimeout);
@@ -1584,27 +1999,31 @@ async function loadBlogs(query = '') {
 
         tbody.innerHTML = '';
         if (blogs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No blogs found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No blogs found</td></tr>';
             return;
         }
 
         blogs.forEach(blog => {
-            const statusClass = blog.published_status === 'Published' ? 'badge-active' : 'badge-inactive';
+            const publishedClass = blog.published_status === 'Published' ? 'badge-active' : 'badge-not-approved';
+            const approvedClass = blog.is_approved ? 'badge-approved' : 'badge-inactive';
+            const approvedText = blog.is_approved ? 'Approved' : 'Pending';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${safe(blog.title)}</td>
-                <td>${safe(blog.type)}</td>
-                <td><span class="badge ${statusClass}">${safe(blog.published_status)}</span></td>
+                <td><span class="badge ${approvedClass}" style="cursor:pointer;" onclick="toggleBlogApproval(${blog.id}, ${blog.is_approved})">${approvedText}</span></td>
+                <td><span class="badge ${publishedClass}" style="cursor:pointer;" onclick="toggleBlogPublish(${blog.id})">${safe(blog.published_status)}</span></td>
+                <td>${safe(blog.type || 'Uncategorized')}</td>
                 <td>
-                    <button class="btn-sm btn-deactivate" onclick="deleteBlog(${blog.id})">Delete</button>
+                    <button class="btn-sm btn-deactivate" onclick="deleteBlog(${blog.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="white" style="vertical-align:middle; margin-right:4px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete</button>
+                    <button class="btn-sm btn-edit" onclick="editBlog(${blog.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="white" style="vertical-align:middle; margin-right:4px;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Edit</button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     } catch (error) {
         console.error('Error loading blogs:', error);
-        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading blogs</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Error loading blogs</td></tr>';
     }
 }
 
@@ -1612,12 +2031,66 @@ async function loadBlogs(query = '') {
 const addBlogNavBtn = document.getElementById('addBlogNavBtn');
 if (addBlogNavBtn) {
     addBlogNavBtn.addEventListener('click', () => {
+        // Reset form state
+        editingBlogId = null;
+        document.getElementById('addBlogForm').reset();
+        if(editorInstance) editorInstance.setData('');
+        document.querySelector('#view-add-blog h2').textContent = 'New Blog';
+        document.querySelector('#addBlogForm button[type="submit"]').textContent = 'Create Blog';
+
         // Switch view manually to Add Blog
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById('view-add-blog').classList.add('active');
         initEditor();
     });
 }
+
+// Edit Blog Logic
+window.editBlog = async (id) => {
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}`);
+        if(!response.ok) throw new Error('Failed to fetch blog');
+        const blog = await response.json();
+
+        editingBlogId = id;
+        document.querySelector('#view-add-blog h2').textContent = 'Edit Blog';
+        document.querySelector('#addBlogForm button[type="submit"]').textContent = 'Update Blog';
+
+        // Populate Form
+        const form = document.getElementById('addBlogForm');
+        form.querySelector('#new_blog_title').value = blog.title;
+        form.querySelector('#new_blog_type').value = blog.type;
+        form.querySelector('#new_blog_status').value = blog.published_status;
+        form.querySelector('#new_blog_is_approved').value = blog.is_approved ? 'true' : 'false';
+        form.querySelector('#new_blog_is_featured').value = blog.is_featured ? 'Yes' : 'No';
+
+        // Initialize editor and set data
+        await initEditor();
+        if(editorInstance) editorInstance.setData(blog.content_html || '');
+
+        // Switch View
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-add-blog').classList.add('active');
+
+    } catch (error) {
+        console.error(error);
+        alert('Error loading blog details');
+    }
+};
+
+window.toggleBlogApproval = async (id, currentStatus) => {
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}/toggle-approve`, { method: 'PATCH' });
+        if(response.ok) loadBlogs();
+    } catch(e) { console.error(e); }
+};
+
+window.toggleBlogPublish = async (id) => {
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}/toggle-publish`, { method: 'PATCH' });
+        if(response.ok) loadBlogs();
+    } catch(e) { console.error(e); }
+};
 
 async function initEditor() {
     if (editorInstance) return;
@@ -1640,26 +2113,35 @@ document.getElementById('addBlogForm')?.addEventListener('submit', async (e) => 
     const formData = new FormData(e.target);
 
     try {
-        const response = await fetchAuth('/api/admin/blogs', {
-            method: 'POST',
+        let url = '/api/admin/blogs';
+        let method = 'POST';
+
+        if (editingBlogId) {
+            url = `/api/admin/blogs/${editingBlogId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetchAuth(url, {
+            method: method,
             body: formData
         });
 
         if (response.ok) {
-            alert('Blog created successfully');
+            alert(editingBlogId ? 'Blog updated successfully' : 'Blog created successfully');
             e.target.reset();
             if(editorInstance) editorInstance.setData('');
+            editingBlogId = null;
 
             // Navigate back to list (Simulate click on sidebar link)
             const blogsLink = document.querySelector('[data-view="blogs"]');
             if (blogsLink) blogsLink.click();
         } else {
             const data = await response.json();
-            alert(data.message || 'Failed to create blog');
+            alert(data.message || 'Failed to save blog');
         }
     } catch (e) {
         console.error(e);
-        alert('Error creating blog');
+        alert('Error saving blog');
     }
 });
 

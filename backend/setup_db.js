@@ -89,7 +89,12 @@ async function setupDatabase() {
         "ALTER TABLE projects ADD COLUMN end_date DATE",
         "ALTER TABLE projects ADD COLUMN is_featured BOOLEAN DEFAULT FALSE",
         "ALTER TABLE projects ADD COLUMN drawing_url VARCHAR(255)",
-        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)"
+        "ALTER TABLE projects ADD COLUMN project_file_url VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN quotation_id INT",
+        "ALTER TABLE projects ADD COLUMN property_extensions TEXT",
+        "ALTER TABLE projects ADD COLUMN thumbnail_image VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN main_image VARCHAR(255)",
+        "ALTER TABLE projects ADD COLUMN gallery_images JSON"
     ];
 
     for (const query of projectMigrationQueries) {
@@ -341,6 +346,22 @@ async function setupDatabase() {
         FOREIGN KEY (service_id) REFERENCES property_services(id) ON DELETE SET NULL
       )
     `);
+
+    // Create Project Documents Table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS project_documents (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        project_id INT,
+        name VARCHAR(255) NOT NULL,
+        file_path VARCHAR(255) NOT NULL,
+        category ENUM('Project', 'Customer') DEFAULT 'Project',
+        is_locked BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('Project Documents table created or already exists.');
+
     console.log('Quotation Settings tables created or already exists.');
 
     // --- New Settings Tables ---

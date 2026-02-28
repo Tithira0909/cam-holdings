@@ -26,9 +26,51 @@ async function initProjectDetails() {
         // Render Data
         document.title = `${project.title} | CAM Holdings`;
 
-        // Image
+        // Priority: Main Image (Featured) > First Gallery > Thumbnail > Legacy Image
+        let mainImg = project.main_image;
+        let gallery = [];
+        try {
+            if (project.gallery_images) {
+                gallery = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+            }
+        } catch(e){}
+
+        if (!mainImg && gallery.length > 0) mainImg = gallery[0];
+        if (!mainImg) mainImg = project.thumbnail_image;
+        if (!mainImg) mainImg = project.image_url;
+
+        // Render Hero Image
         const imgEl = document.getElementById('pdImage');
-        if (imgEl) imgEl.src = getImageUrl(project.image_url);
+        if (imgEl) {
+            if (mainImg) {
+                imgEl.src = getImageUrl(mainImg);
+                imgEl.style.objectFit = 'cover';
+            } else {
+                // Placeholder pattern
+                imgEl.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxMTEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iIzMzMyIgZm9udC1zaXplPSIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q0FNIEhvbGRpbmdzPC90ZXh0Pjwvc3ZnPg==';
+            }
+        }
+
+        // Render Gallery (if multiple images)
+        if (gallery.length > 0) {
+            const galleryContainer = document.createElement('div');
+            galleryContainer.className = 'pd-gallery-grid';
+            galleryContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 1rem;';
+
+            gallery.forEach(img => {
+                const thumb = document.createElement('img');
+                thumb.src = getImageUrl(img);
+                thumb.style.cssText = 'width: 100%; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);';
+                thumb.onclick = () => {
+                    imgEl.src = getImageUrl(img); // Swap hero
+                };
+                galleryContainer.appendChild(thumb);
+            });
+
+            // Append to left column
+            const leftCol = document.querySelector('.pd-left');
+            if (leftCol) leftCol.appendChild(galleryContainer);
+        }
 
         // Text Fields
         setText('pdTitle', project.title);

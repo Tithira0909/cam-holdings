@@ -109,10 +109,50 @@
         </p>
       </div>
 
-      <div class="service-grid">
-        <!-- Services will be loaded here dynamically -->
-        <p>Loading services...</p>
+      <!-- Real Estate Section -->
+      <div class="service-category-section" style="margin-top: 4rem;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+          <h2 class="h3" style="margin:0; color: #fff;">Real Estate</h2>
+          <a href="/real-estate.html" class="btn ghost small" style="color: #d6b25e; border-color: #d6b25e;">View All</a>
+        </div>
+        <div class="re-grid js-listing-grid" data-category="Real Estate" data-limit="3">
+          <p class="muted">Loading properties...</p>
+        </div>
       </div>
+
+      <!-- Design & Architecture Section -->
+      <div class="service-category-section" style="margin-top: 4rem;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+          <h2 class="h3" style="margin:0; color: #fff;">Design & Architecture</h2>
+          <a href="/architecture.html" class="btn ghost small" style="color: #d6b25e; border-color: #d6b25e;">View All</a>
+        </div>
+        <div class="re-grid js-listing-grid" data-category="Design & Architecture" data-limit="3">
+          <p class="muted">Loading properties...</p>
+        </div>
+      </div>
+
+      <!-- Construction Section -->
+      <div class="service-category-section" style="margin-top: 4rem;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+          <h2 class="h3" style="margin:0; color: #fff;">Construction</h2>
+          <a href="/construction.html" class="btn ghost small" style="color: #d6b25e; border-color: #d6b25e;">View All</a>
+        </div>
+        <div class="re-grid js-listing-grid" data-category="Construction & Project Management" data-limit="3">
+          <p class="muted">Loading properties...</p>
+        </div>
+      </div>
+
+      <!-- Interiors Section -->
+      <div class="service-category-section" style="margin-top: 4rem;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+          <h2 class="h3" style="margin:0; color: #fff;">Interiors</h2>
+          <a href="/interiors.html" class="btn ghost small" style="color: #d6b25e; border-color: #d6b25e;">View All</a>
+        </div>
+        <div class="re-grid js-listing-grid" data-category="Interiors & Finishing" data-limit="3">
+          <p class="muted">Loading properties...</p>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -213,6 +253,6 @@
   </footer>
 
   <script type="module" src="/script.js"></script>
-  <script type="module" src="/services-loader.js"></script>
+  <script type="module" src="/listings-loader.js"></script>
 </body>
 </html>

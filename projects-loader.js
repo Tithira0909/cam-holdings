@@ -8,59 +8,63 @@ async function initProjects() {
     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading projects...</p>';
 
     try {
-        // We use the existing /api/projects endpoint which is public
-        // However, api.js fetchPublic uses /api/ prefix.
-        // backend/routes/projects.js is mounted at /api/projects.
-        // So endpoint is /projects.
-        const projects = await fetchPublic('/projects');
+        // Fetch active projects
+        const response = await fetchPublic('/projects?active=true');
+        const projects = response.items || response; // Handle { items: [] } or []
 
-        if (projects.length === 0) {
-            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No projects found.</p>';
+        if (!projects || projects.length === 0) {
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">No projects found.</p>';
             return;
         }
 
         grid.innerHTML = ''; // Clear loading
 
         projects.forEach(project => {
-            if (project.status === 'Inactive') return; // Filter out inactive if needed
-
             const card = document.createElement('article');
             card.className = 'card';
 
-            // Infer tags from title/description for filtering
-            const text = (project.title + ' ' + project.description).toLowerCase();
+            // Priority: Main Image (Featured) > First Gallery > Thumbnail > Legacy Image
+            let img = project.main_image;
+            if (!img && project.gallery_images) {
+                try {
+                    const gallery = typeof project.gallery_images === 'string' ? JSON.parse(project.gallery_images) : project.gallery_images;
+                    if (Array.isArray(gallery) && gallery.length > 0) img = gallery[0];
+                } catch(e){}
+            }
+            if (!img) img = project.thumbnail_image;
+            if (!img) img = project.image_url;
+
+            const imageUrl = getImageUrl(img);
+
+            // Tags Logic
+            const text = (project.title + ' ' + (project.description || '')).toLowerCase();
             const tags = [];
             if (text.includes('interior')) tags.push('interior');
             if (text.includes('architecture')) tags.push('architecture');
             if (text.includes('construction')) tags.push('construction');
             if (text.includes('landscape')) tags.push('landscape');
             if (text.includes('commercial')) tags.push('commercial');
-            // If no tags found, maybe default to 'all' (logic handles 'all' separately)
 
             card.dataset.tags = tags.join(' ');
             card.dataset.title = project.title;
-            card.dataset.date = project.created_at ? project.created_at.split('T')[0] : '';
+            card.dataset.date = project.created_at || '';
 
-            // Meta info: Location • Progress or Budget
-            const metaParts = [];
-            if (project.location) metaParts.push(project.location);
-            if (project.progress_status) metaParts.push(project.progress_status);
-            const metaText = metaParts.join(' • ');
-
-            // Badge: First tag or 'Project'
+            const metaText = project.location || 'Location';
             const badgeText = tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project';
 
-            const imageUrl = getImageUrl(project.image_url);
+            // Truncate description
+            let desc = project.description || '';
+            if(desc.length > 100) desc = desc.substring(0, 100) + '...';
 
             card.innerHTML = `
-                <a class="card-link" href="project-details.html?id=${project.id}">
-                    <div class="media" style="background-image:url('${imageUrl}')"></div>
+                <a class="card-link" href="project-details.html?id=${project.slug || project.id}">
+                    <div class="media" style="background-image:url('${imageUrl}'); background-size: cover; background-position: center;"></div>
                     <div class="glass">
                         <div class="badge">${badgeText}</div>
                         <h3 class="title">${project.title}</h3>
                         <p class="meta">${metaText}</p>
                         <div class="line"></div>
-                        <p class="desc">${project.description || ''}</p>
+                        <p class="desc">${desc}</p>
                         <div class="cta">View Project →</div>
                     </div>
                 </a>
