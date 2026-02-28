@@ -1,0 +1,7 @@
+127.0.0.1 - - [22/Jan/2026 03:21:43] "GET /services/real-estate.html HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 03:21:43] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 03:21:43] "GET /js/service-listings-public.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jan/2026 03:21:43] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 03:21:43] "GET /cam-logo.png HTTP/1.1" 404 -
+127.0.0.1 - - [22/Jan/2026 03:21:43] code 404, message File not found
+127.0.0.1 - - [22/Jan/2026 03:21:43] "GET /api/service-listings?category=real_estate HTTP/1.1" 404 -

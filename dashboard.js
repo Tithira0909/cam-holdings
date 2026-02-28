@@ -2595,10 +2595,10 @@ let currentServiceSection = '';
 let listingSearchTimeout;
 
 const SECTION_MAP = {
-    'real-estate': { title: 'Real Estate', api: 'real-estate-properties' },
-    'design': { title: 'Design & Architecture', api: 'design-architecture-properties' },
-    'construction': { title: 'Construction', api: 'construction-properties' },
-    'interiors': { title: 'Interiors', api: 'interiors-properties' }
+    'real-estate': { title: 'Real Estate', api: 'service-listings', category: 'real_estate' },
+    'design': { title: 'Design & Architecture', api: 'service-listings', category: 'design_architecture' },
+    'construction': { title: 'Construction', api: 'service-listings', category: 'construction' },
+    'interiors': { title: 'Interiors', api: 'service-listings', category: 'interiors' }
 };
 
 document.getElementById('listingSearch')?.addEventListener('input', (e) => {
@@ -2621,8 +2621,8 @@ async function loadServiceProperties(section, query = '') {
     if(breadEl) breadEl.textContent = `Admin / Service Listings / ${config.title}`;
 
     try {
-        let url = `/api/admin/${config.api}`;
-        if (query) url += `?search=${encodeURIComponent(query)}`;
+        let url = `/api/admin/${config.api}?category=${config.category}`;
+        if (query) url += `&search=${encodeURIComponent(query)}`;
 
         const response = await fetchAuth(url);
 
@@ -2644,13 +2644,14 @@ async function loadServiceProperties(section, query = '') {
             const statusClass = (status === 'Active' || status === 'Published') ? 'badge-active' : 'badge-inactive';
             const createdDate = item.created_at ? new Date(item.created_at).toLocaleDateString() : '-';
             // Truncate description
-            let desc = item.description || '-';
+            let desc = item.short_description || item.description || '-';
             if (desc.length > 50) desc = desc.substring(0, 50) + '...';
+            const title = item.title || item.name;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;" onerror="this.onerror=null;this.src='/placeholder.svg';"></td>
-                <td>${safe(item.name)}</td>
+                <td>${safe(title)}</td>
                 <td>${safe(item.estimated_cost || '-')}</td>
                 <td>${safe(desc)}</td>
                 <td>${createdDate}</td>
@@ -2690,7 +2691,7 @@ window.editListing = async (id) => {
     if(!config) return;
 
     try {
-        const response = await fetchAuth(`/api/admin/${config.api}`);
+        const response = await fetchAuth(`/api/admin/${config.api}?category=${config.category}`);
         const items = await response.json();
         const item = items.find(p => p.id === id);
         if(!item) return;
@@ -2699,9 +2700,9 @@ window.editListing = async (id) => {
         liModal.querySelector('h2').textContent = 'Edit Property';
         const form = document.getElementById('listingForm');
 
-        form.querySelector('#li_name').value = item.name;
+        form.querySelector('#li_name').value = item.title;
         form.querySelector('#li_estimated_cost').value = item.estimated_cost;
-        form.querySelector('#li_description').value = item.description;
+        form.querySelector('#li_description').value = item.short_description || item.description; // fallback if mixing fields
         form.querySelector('#li_status').value = item.status || 'Draft';
 
         // Preview
@@ -2761,6 +2762,16 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
     if(!config) return;
 
     const formData = new FormData(e.target);
+    formData.append('category', config.category);
+
+    // Map 'name' input to 'title' field for backend
+    if (formData.has('name') && !formData.has('title')) {
+        formData.append('title', formData.get('name'));
+    }
+    // Map description to short_description
+    if (formData.has('description') && !formData.has('short_description')) {
+        formData.append('short_description', formData.get('description'));
+    }
 
     try {
         let url = `/api/admin/${config.api}`;
