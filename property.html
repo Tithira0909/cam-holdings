@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Details — CAM Holdings</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="cam-body">
+  <header class="cam-nav">
+    <div class="cam-nav__inner">
+      <a class="cam-brand" href="index.html">
+        <img class="brand-mark" src="/cam-logo.png" alt="CAM Holdings Logo" />
+      </a>
+      <nav class="cam-links" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="projects.html">Projects</a>
+        <a href="blogs.html">Blogs</a>
+        <a href="why-cam.html">Why CAM</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <a class="cam-btn cam-btn--gold cam-btn--sm" href="contact.html">Book a Call</a>
+    </div>
+  </header>
+
+  <main id="property-content">
+      <!-- Loaded via JS -->
+      <div style="height: 100vh; display: flex; justify-content: center; align-items: center; color: white;">Loading...</div>
+  </main>
+
+  <footer class="cam-footer">
+    <div class="cam-footer__inner">
+      <p>© <span id="year"></span> CAM Holdings. All rights reserved.</p>
+      <div class="cam-footer__links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script type="module">
+    import { DetailsManager } from './details-manager.js';
+    new DetailsManager();
+  </script>
+</body>
+</html>

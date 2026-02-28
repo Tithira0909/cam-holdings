@@ -51,7 +51,16 @@
 
         <div class="whycam-hero__cta">
           <a class="cam-btn cam-btn--gold" href="contact.html">Request Proposal</a>
-          <a class="cam-btn cam-btn--ghost" href="projects.html?cat=interiors">View Projects</a>
+          <a class="cam-btn cam-btn--ghost" href="#listing-grid">View Interiors</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="re-section">
+      <div class="re-section__inner">
+        <h2 class="re-section__title">Interior Collections</h2>
+        <div class="listing-container">
+            <div id="listing-grid" class="re-grid"></div>
         </div>
       </div>
     </section>
@@ -69,6 +78,14 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+  <script type="module">
+    import { ListingManager } from './listing-manager.js';
+    new ListingManager({
+        containerId: 'listing-grid',
+        apiEndpoint: '/interiors-properties',
+        sectionName: 'interiors-properties'
+    });
   </script>
 </body>
 </html>

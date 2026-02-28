@@ -14,8 +14,8 @@ router.get('/stats', authenticateToken, async (req, res) => {
     const [reviewResult] = await db.query('SELECT COUNT(*) as count FROM reviews');
     const totalPosts = reviewResult[0].count;
 
-    // Not Approved Posts: Count of reviews where is_approved is false
-    const [unapprovedResult] = await db.query('SELECT COUNT(*) as count FROM reviews WHERE is_approved = 0 OR is_approved IS NULL');
+    // Not Approved Posts: Count of reviews where is_published is false
+    const [unapprovedResult] = await db.query('SELECT COUNT(*) as count FROM reviews WHERE is_published = 0 OR is_published IS NULL');
     const notApprovedPosts = unapprovedResult[0].count;
 
     res.json({

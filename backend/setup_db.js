@@ -409,6 +409,75 @@ async function setupDatabase() {
     `);
     console.log('Email Settings table created or already exists.');
 
+    // 1. Real Estate Properties
+    // Dropping to ensure schema update
+    await db.query('DROP TABLE IF EXISTS real_estate_properties');
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS real_estate_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('real_estate_properties table created.');
+
+    // 2. Design & Architecture Properties
+    await db.query('DROP TABLE IF EXISTS design_architecture_properties');
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS design_architecture_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('design_architecture_properties table created.');
+
+    // 3. Construction Properties
+    await db.query('DROP TABLE IF EXISTS construction_properties');
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS construction_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('construction_properties table created.');
+
+    // 4. Interiors Properties
+    await db.query('DROP TABLE IF EXISTS interiors_properties');
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS interiors_properties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        estimated_cost VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        main_image VARCHAR(255) NOT NULL,
+        sub_images JSON,
+        status VARCHAR(50) DEFAULT 'Draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('interiors_properties table created.');
+
 
     // Add initial admin user if not exists
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', ['admin']);
@@ -425,6 +494,13 @@ async function setupDatabase() {
     process.exit(0);
   } catch (error) {
     console.error('Error setting up database:', error);
+    if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+        console.error('\n*** DATABASE CONNECTION ERROR ***');
+        console.error('Access was denied for user "' + process.env.DB_USER + '"@"' + process.env.DB_HOST + '".');
+        console.error('Please check your backend/.env file and ensure DB_PASSWORD is set correctly.');
+        console.error('If you have not set a password for MySQL, try setting DB_PASSWORD to an empty string in .env');
+        console.error('*********************************\n');
+    }
     if (connection) await connection.end();
     process.exit(1);
   }

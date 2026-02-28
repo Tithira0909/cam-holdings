@@ -469,6 +469,21 @@
                 </div>
             </li>
 
+            <!-- Service Listings -->
+            <li class="menu-item collapsible">
+                <div class="menu-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2zm1 14h-2v-4h2v4z"/></svg>
+                    <span class="menu-text">Service Listings</span>
+                    <svg class="chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </div>
+                <div class="submenu">
+                    <a class="submenu-link nav-btn" data-view="listings-real-estate">Real Estate</a>
+                    <a class="submenu-link nav-btn" data-view="listings-design">Design & Architecture</a>
+                    <a class="submenu-link nav-btn" data-view="listings-construction">Construction</a>
+                    <a class="submenu-link nav-btn" data-view="listings-interiors">Interiors</a>
+                </div>
+            </li>
+
             <!-- Customer Reviews -->
             <li class="menu-item collapsible">
                 <div class="menu-link">
@@ -591,6 +606,37 @@
                     </thead>
                     <tbody id="inquiriesTableBody">
                         <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Listings View -->
+            <div id="view-listings" class="view-section light-view-container">
+                <div class="page-header">
+                    <h2 id="listingViewTitle">Service Listings</h2>
+                    <span class="breadcrumb" id="listingViewBreadcrumb">Admin / Listings</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <button id="openListingModalBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Item</button>
+                    <input type="text" id="listingSearch" class="search-input" placeholder="Search..." style="width: 300px;">
+                </div>
+
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Property Name</th>
+                            <th>Estimated Cost</th>
+                            <th>Short Description</th>
+                            <th>Created Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listingsTableBody">
+                        <!-- Rows loaded via JS -->
+                        <tr><td colspan="6">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1425,6 +1471,64 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="cancelServiceTypeBtn">Close</button>
                     <button type="submit" class="btn-primary">Create Service Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listing Modal -->
+    <div id="listingModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Item</h2>
+                <button class="close-modal-btn" id="closeListingModal">&times;</button>
+            </div>
+
+            <form id="listingForm" enctype="multipart/form-data">
+                <input type="hidden" id="li_service_category" name="service_category">
+                <div class="client-form-grid">
+                    <div class="form-group">
+                        <label for="li_name">Property Name *</label>
+                        <input type="text" id="li_name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="li_estimated_cost">Estimated Cost *</label>
+                        <input type="text" id="li_estimated_cost" name="estimated_cost" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="li_description">Description *</label>
+                        <textarea id="li_description" name="description" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="li_status">Status</label>
+                        <select id="li_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Draft">Draft</option>
+                            <option value="Published">Published</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="li_main_image">Main Image *</label>
+                        <div class="file-input-group">
+                            <input type="file" id="li_main_image" name="main_image" accept="image/*">
+                        </div>
+                        <div id="mainImagePreviewContainer" style="margin-top: 10px; display: none;">
+                            <img id="mainImagePreview" src="" alt="Preview" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px;">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="li_sub_images">Sub Images (Max 3)</label>
+                        <div class="file-input-group">
+                            <input type="file" id="li_sub_images" name="sub_images" accept="image/*" multiple>
+                        </div>
+                        <div id="subImagesPreviewContainer" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelListingBtn">Close</button>
+                    <button type="submit" class="btn-primary">Save Item</button>
                 </div>
             </form>
         </div>

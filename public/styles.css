@@ -1,0 +1,331 @@
+
+/* --- Service Listing Grid & Filters --- */
+.listing-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.listing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.8rem 1rem;
+    border-radius: 4px;
+    width: 300px;
+    font-family: inherit;
+}
+
+.sort-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.8rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.re-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.listing-card {
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.listing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-color: #d6b25e;
+}
+
+.lc-media {
+    position: relative;
+    height: 220px;
+    width: 100%;
+    background-color: #222;
+}
+
+.lc-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lc-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-active {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.badge-draft {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.lc-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.lc-title {
+    font-size: 1.25rem;
+    color: white;
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+}
+
+.lc-cost {
+    color: #d6b25e;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.lc-desc {
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    flex: 1;
+    margin-bottom: 1.5rem;
+}
+
+.lc-btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: transparent;
+    border: 1px solid #d6b25e;
+    color: #d6b25e;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.lc-btn:hover {
+    background: #d6b25e;
+    color: #000;
+}
+
+/* --- Property Details Page --- */
+.pd-hero {
+    position: relative;
+    height: 60vh;
+    min-height: 400px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+}
+
+.pd-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, #0a0a0a, transparent);
+}
+
+.pd-hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.pd-badge {
+    display: inline-block;
+    background: #d6b25e;
+    color: black;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.pd-title {
+    font-size: 3.5rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+}
+
+.pd-meta {
+    font-size: 1.2rem;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pd-dot {
+    width: 4px;
+    height: 4px;
+    background: #d6b25e;
+    border-radius: 50%;
+}
+
+.pd-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 4rem;
+}
+
+.pd-main h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 0.5rem;
+}
+
+.pd-desc {
+    color: #ccc;
+    line-height: 1.8;
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+}
+
+.pd-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.pd-gallery-item {
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: opacity 0.2s;
+}
+
+.pd-gallery-item:hover {
+    opacity: 0.8;
+}
+
+.pd-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pd-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.pd-card {
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.pd-card h3 {
+    color: white;
+    margin-top: 0;
+}
+
+.pd-card p {
+    color: #888;
+    margin-bottom: 1.5rem;
+}
+
+.pd-form input, .pd-form textarea {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: white;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.pd-form input:focus, .pd-form textarea:focus {
+    outline: none;
+    border-color: #d6b25e;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.form-msg {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.form-msg.success { color: #2ecc71; }
+.form-msg.error { color: #e74c3c; }
+
+@media (max-width: 900px) {
+    .pd-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .pd-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 600px) {
+    .pd-title { font-size: 2.5rem; }
+    .listing-header { flex-direction: column; align-items: stretch; }
+    .search-input { width: 100%; }
+}
+.lc-category-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(214, 178, 94, 0.9);
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
