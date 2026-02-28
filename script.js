@@ -827,7 +827,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       // Exclude elements inside pinned stages (they are handled by initPinnedSectionsSnapped)
       // Also exclude #exclusive-properties as it has a custom stagger sequence
-      if (el.closest("#projects, #packages, #book, #exclusive-properties")) return;
+      if (el.closest("#projects, #packages, #book, #exclusive-properties, #reviews")) return;
 
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
@@ -901,7 +901,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function initGlobalHoverTilt() {
     if (reduceMotion() || !isDesktop()) return;
 
-    const cards = gsap.utils.toArray(".project-card, .pkg, .review");
+    const cards = gsap.utils.toArray(".project-card, .pkg, .review, .review-card");
     cards.forEach((card) => {
       const onMove = (e) => {
         const r = card.getBoundingClientRect();
@@ -1367,9 +1367,57 @@ function initExclusivePropertiesAnimations() {
   }
 }
 
+// ===============================
+// Reviews Section Animation
+// ===============================
+function initReviewsAnimations() {
+  const sec = document.getElementById("reviews");
+  if (!sec || !window.gsap) return;
+
+  const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion()) return;
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: sec,
+      start: "top 75%",
+      toggleActions: "play none none reverse"
+    }
+  });
+
+  const kicker = sec.querySelector(".kicker");
+  const title = sec.querySelector(".h2");
+  const sub = sec.querySelector(".section-head p:not(.kicker)");
+  const cards = sec.querySelectorAll(".review-card");
+
+  // 1. Heading Fade In + Up
+  const headTargets = [kicker, title, sub].filter(Boolean);
+  if (headTargets.length) {
+    tl.from(headTargets, {
+      y: 20,
+      opacity: 0,
+      duration: 0.85,
+      ease: "power3.out",
+      stagger: 0.12
+    });
+  }
+
+  // 2. Cards Stagger
+  if (cards.length) {
+    tl.from(cards, {
+      y: 22,
+      opacity: 0,
+      duration: 0.85,
+      ease: "power3.out",
+      stagger: 0.10
+    }, "-=0.4");
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initProjectsAnimations();
   initServicesAnimations();
   initProjectsTilt();
   initExclusivePropertiesAnimations();
+  initReviewsAnimations();
 });
