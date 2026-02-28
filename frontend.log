@@ -1,0 +1,21 @@
+
+> cg-adaline-scroll-animation@1.0.0 dev
+> vite
+
+Port 5173 is in use, trying another one...
+
+  VITE v7.3.0  ready in 1059 ms
+
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: use --host to expose
+5:23:28 PM [vite] (client) page reload blog-details.html
+6:22:15 PM [vite] (client) page reload blog.html
+6:22:15 PM [vite] (client) page reload blog-details.html
+6:22:20 PM [vite] (client) page reload blog.html
+4:56:58 AM [vite] (client) page reload service-details.html
+4:57:25 AM [vite] (client) page reload project-details.html
+7:22:25 AM [vite] .env changed, restarting server...
+7:22:26 AM [vite] .env changed, restarting server...
+7:22:26 AM [vite] server restarted.
+7:33:45 AM [vite] .env changed, restarting server...
+7:33:45 AM [vite] server restarted.

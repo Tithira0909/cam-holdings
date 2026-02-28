@@ -25,6 +25,15 @@ function renderProperty(prop) {
     const heroBg = getImageUrl(prop.main_image);
     const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
 
+    // Derive Category Label from URL
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') || '';
+    let categoryLabel = '';
+    if (section.includes('real-estate')) categoryLabel = 'Real Estate';
+    else if (section.includes('design-architecture')) categoryLabel = 'Design & Architecture';
+    else if (section.includes('construction')) categoryLabel = 'Construction';
+    else if (section.includes('interiors')) categoryLabel = 'Interiors';
+
     // Build gallery html
     let galleryHtml = '';
     let images = [];
@@ -51,10 +60,14 @@ function renderProperty(prop) {
         `;
     }
 
+    const dateStr = prop.created_at ? new Date(prop.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+
     const html = `
         <section class="prop-hero" style="background-image: url('${heroBg}');">
             <div class="prop-hero__content">
+                ${categoryLabel ? `<div style="display:inline-block; padding:6px 12px; background:rgba(214,178,94,0.9); color:#000; font-weight:bold; font-size:0.8rem; border-radius:4px; margin-bottom:1rem; text-transform:uppercase;">${categoryLabel}</div>` : ''}
                 <h1 class="prop-title">${safe(prop.name)}</h1>
+                ${dateStr ? `<div style="color:#ccc; font-size:0.9rem; margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:1px;">Listed: ${dateStr}</div>` : ''}
                 <div class="prop-price">${safe(prop.estimated_cost || 'Price on Request')}</div>
             </div>
         </section>

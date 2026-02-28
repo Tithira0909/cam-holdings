@@ -67,7 +67,7 @@ app.use('/api/admin/projects', adminProjectRoutes);
 app.use('/api/admin/clients', clientRoutes);
 app.use('/api/admin/admins', adminRoutes);
 app.use('/api/admin/service-types', serviceTypeRoutes);
-app.use('/api/admin/services', serviceRoutes);
+app.use('/api', serviceRoutes);
 app.use('/api/admin/reviews', reviewRoutes);
 app.use('/api/admin/dashboard', dashboardRoutes);
 app.use('/api/admin/inquiries', inquiryRoutes);

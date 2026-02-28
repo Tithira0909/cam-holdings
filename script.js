@@ -67,10 +67,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // 4) LENIS (stable integration)
   // -------------------------------------------------------
   const lenis = new Lenis({
-    smooth: true,
-    lerp: 0.085,
-    wheelMultiplier: 0.9,
-    touchMultiplier: 1.1,
+    smooth: !reduceMotion(),
+    lerp: 0.1,
+    wheelMultiplier: 1.3,
+    smoothTouch: false, // Explicit disable
+    touchMultiplier: 0, // Fallback safety
   });
 
   // Expose Lenis
@@ -749,7 +750,6 @@ document.addEventListener("DOMContentLoaded", () => {
       gsap.to(targets, {
         autoAlpha: 0,
         y: 10,
-        filter: "blur(0px)",
         duration: 0.18,
         ease: "power2.out",
         onComplete: () => {
@@ -764,8 +764,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           gsap.fromTo(
             targets,
-            { autoAlpha: 0, y: 12, filter: "blur(0px)" },
-            { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.36, ease: "power3.out", stagger: 0.03 }
+            { autoAlpha: 0, y: 12 },
+            { autoAlpha: 1, y: 0, duration: 0.36, ease: "power3.out", stagger: 0.03 }
           );
         },
       });
@@ -816,8 +816,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
 
-      const from = { autoAlpha: 0 };
-      if (mode === "up") Object.assign(from, { y: 24 });
+      const from = { autoAlpha: 0, scale: 1.02 };
+      if (mode === "up") Object.assign(from, { y: 20 });
       if (mode === "fade") Object.assign(from, { y: 0 });
       if (mode === "left") Object.assign(from, { x: -24 });
       if (mode === "right") Object.assign(from, { x: 24 });
@@ -826,14 +826,14 @@ document.addEventListener("DOMContentLoaded", () => {
         autoAlpha: 1,
         x: 0,
         y: 0,
-        duration: 0.85,
-        ease: "power3.out",
+        scale: 1,
+        duration: 1.4,
+        ease: "power2.out",
         scrollTrigger: {
           trigger: el,
-          // Header triggers earlier (top 92%) than content (top 82%)
-          start: isHead ? "top 92%" : "top 82%",
+          start: isHead ? "top 92%" : "top 85%",
           end: "top 55%",
-          toggleActions: "play none none reverse",
+          toggleActions: "play none none none",
         },
       });
     });
@@ -975,7 +975,7 @@ document.addEventListener("DOMContentLoaded", () => {
         end: `+=${makeEndPx(endVh)}`,
         pin: true,
         pinSpacing: true,
-        scrub: 1,
+        scrub: 0.5,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         animation: tl,
@@ -1000,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "projects",
       beats: 3,
-      endVh: 140,
+      endVh: 110,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const lines = sec.querySelectorAll("[data-project-lines] .plist, .projects-list .plist");
@@ -1022,7 +1022,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "packages",
       beats: 3,
-      endVh: 130,
+      endVh: 100,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const pkgs = sec.querySelectorAll(".pkg");
@@ -1043,7 +1043,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "book",
       beats: 3,
-      endVh: 130,
+      endVh: 100,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const card = sec.querySelector(".book-form");
@@ -1069,7 +1069,7 @@ document.addEventListener("DOMContentLoaded", () => {
     makeStepStage({
       id: "reviews",
       beats: 3,
-      endVh: 130,
+      endVh: 100,
       onBuild: ({ sec, tl }) => {
         const head = sec.querySelectorAll(".kicker, .h2, .section-head p, [data-reveal]");
         const reviews = sec.querySelectorAll(".review");
@@ -1284,7 +1284,7 @@ function initProjectsAnimations() {
       scrollTrigger: {
         trigger: strip,
         start: "top 85%",
-        toggleActions: "play none none reverse",
+        toggleActions: "play none none none",
       },
     });
   }
@@ -1301,7 +1301,7 @@ function initProjectsAnimations() {
       scrollTrigger: {
         trigger: grid,
         start: "top 75%", // Delayed to allow head to load first
-        toggleActions: "play none none reverse",
+        toggleActions: "play none none none",
       },
     });
   });
@@ -1319,7 +1319,7 @@ function initProjectsAnimations() {
       scrollTrigger: {
         trigger: rvGrid,
         start: "top 82%",
-        toggleActions: "play none none reverse",
+        toggleActions: "play none none none",
       },
     });
   }
@@ -1425,7 +1425,7 @@ function initServicesAnimations() {
       scrollTrigger: {
         trigger: strip,
         start: "top 80%",
-        toggleActions: "play none none reverse",
+        toggleActions: "play none none none",
       },
     });
   }

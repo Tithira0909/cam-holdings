@@ -4,57 +4,69 @@ async function initProjects() {
     const grid = document.getElementById('gridCards');
     if (!grid) return;
 
-    // Show loading state or clear
     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading projects...</p>';
 
+    // Read category from URL if present
+    const params = new URLSearchParams(window.location.search);
+    const categoryFilter = params.get('category'); // e.g. 'Real Estate'
+
     try {
-        // We use the existing /api/projects endpoint which is public
-        // However, api.js fetchPublic uses /api/ prefix.
-        // backend/routes/projects.js is mounted at /api/projects.
-        // So endpoint is /projects.
-        const projects = await fetchPublic('/projects');
+        let endpoint = '/projects?active=true';
+        if (categoryFilter) {
+            endpoint += `&category=${encodeURIComponent(categoryFilter)}`;
+        }
+
+        const projects = await fetchPublic(endpoint);
 
         if (projects.length === 0) {
             grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No projects found.</p>';
             return;
         }
 
-        grid.innerHTML = ''; // Clear loading
+        grid.innerHTML = '';
 
         projects.forEach(project => {
-            if (project.status === 'Inactive') return; // Filter out inactive if needed
-
             const card = document.createElement('article');
             card.className = 'card';
 
-            // Infer tags from title/description for filtering
-            const text = (project.title + ' ' + project.description).toLowerCase();
+            const text = (project.title + ' ' + (project.description || '')).toLowerCase();
+            // Tags logic can remain client side or rely on backend category
             const tags = [];
-            if (text.includes('interior')) tags.push('interior');
-            if (text.includes('architecture')) tags.push('architecture');
-            if (text.includes('construction')) tags.push('construction');
-            if (text.includes('landscape')) tags.push('landscape');
-            if (text.includes('commercial')) tags.push('commercial');
-            // If no tags found, maybe default to 'all' (logic handles 'all' separately)
+            if (project.category) tags.push(project.category.toLowerCase());
 
             card.dataset.tags = tags.join(' ');
             card.dataset.title = project.title;
             card.dataset.date = project.created_at ? project.created_at.split('T')[0] : '';
 
-            // Meta info: Location • Progress or Budget
             const metaParts = [];
             if (project.location) metaParts.push(project.location);
             if (project.progress_status) metaParts.push(project.progress_status);
             const metaText = metaParts.join(' • ');
 
-            // Badge: First tag or 'Project'
-            const badgeText = tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project';
+            const badgeText = project.category || 'Project';
 
-            const imageUrl = getImageUrl(project.image_url);
+            const rawImage = project.image_url || project.cover_image;
+            const imageUrl = getImageUrl(rawImage);
+
+            // Link to project details
+            const link = project.slug ? `project-details.html?slug=${project.slug}` : `project-details.html?id=${project.id}`;
 
             card.innerHTML = `
-                <a class="card-link" href="project-details.html?id=${project.id}">
-                    <div class="media" style="background-image:url('${imageUrl}')"></div>
+                <a class="card-link" href="${link}">
+                    <div class="media-wrapper">
+                        <img
+                            src="${imageUrl}"
+                            alt="${project.title}"
+                            loading="lazy"
+                            decoding="async"
+                            class="card-img"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <div class="fallback-placeholder" style="display: none;">
+                            <div class="fallback-icon-box"></div>
+                            <span>No Image Available</span>
+                        </div>
+                    </div>
                     <div class="glass">
                         <div class="badge">${badgeText}</div>
                         <h3 class="title">${project.title}</h3>
@@ -69,17 +81,8 @@ async function initProjects() {
             grid.appendChild(card);
         });
 
-        // Initialize filtering logic after cards are added
         initFiltering();
-
-        // Initialize animations if needed (from script.js?)
-        // script.js uses ScrollTrigger on elements. If we add them late, we might need refresh.
-        if (window.ScrollTrigger) {
-            window.ScrollTrigger.refresh();
-        }
-        // Also if script.js has specific project card animations, they might need re-init.
-        // But script.js runs on DOMContentLoaded. If we run async, we are later.
-        // We might need to manually trigger things or just let it be if it's scroll based and refresh handles it.
+        if (window.ScrollTrigger) window.ScrollTrigger.refresh();
 
     } catch (error) {
         console.error('Error loading projects:', error);
@@ -88,6 +91,7 @@ async function initProjects() {
 }
 
 function initFiltering() {
+    // Keep existing client-side filtering logic if chips are used
     const q = document.getElementById("q");
     const chips = document.getElementById("chips");
     const sort = document.getElementById("sort");
@@ -102,10 +106,9 @@ function initFiltering() {
     }
 
     function apply(){
-      const term = (q.value || "").trim().toLowerCase();
+      const term = (q?.value || "").trim().toLowerCase();
       const cards = getCards();
 
-      // filter
       let filtered = cards.filter(c => {
         const tags = (c.dataset.tags || "").toLowerCase();
         const title = (c.dataset.title || "").toLowerCase();
@@ -114,8 +117,7 @@ function initFiltering() {
         return tagOk && termOk;
       });
 
-      // sort
-      const mode = sort.value;
+      const mode = sort ? sort.value : "featured";
       filtered.sort((a,b) => {
         const ta = (a.dataset.title || "");
         const tb = (b.dataset.title || "");
@@ -124,10 +126,9 @@ function initFiltering() {
         if(mode === "newest") return db - da;
         if(mode === "oldest") return da - db;
         if(mode === "az") return ta.localeCompare(tb);
-        return 0; // featured (keep HTML order)
+        return 0;
       });
 
-      // render: hide all then append filtered in order
       cards.forEach(c => c.style.display = "none");
       filtered.forEach(c => {
         c.style.display = "";
@@ -155,12 +156,14 @@ function initFiltering() {
 
     if(resetBtn){
       resetBtn.addEventListener("click", () => {
-        q.value = "";
+        if(q) q.value = "";
         activeTag = "all";
-        chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-        const allChip = chips.querySelector('[data-tag="all"]');
-        if (allChip) allChip.classList.add("active");
-        sort.value = "featured";
+        if(chips) {
+            chips.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+            const allChip = chips.querySelector('[data-tag="all"]');
+            if (allChip) allChip.classList.add("active");
+        }
+        if (sort) sort.value = "featured";
         apply();
       });
     }

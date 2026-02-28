@@ -1,68 +1,84 @@
-import { fetchPublic, getImageUrl } from './client-api.js';
+import { fetchPublic } from './client-api.js';
+import { ServiceCard } from './service-card.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadListings();
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            filterListings(e.target.value);
+        });
+    }
 });
+
+let allItems = [];
 
 async function loadListings() {
     const grid = document.getElementById('listing-grid');
     if (!grid) return;
 
-    // Map the HTML data-category to the API route segment
-    const category = grid.dataset.category || '';
-    const sectionMap = {
-        'Real Estate': 'real-estate-properties',
-        'Design & Architecture': 'design-architecture-properties',
-        'Construction & Project Management': 'construction-properties',
-        'Interiors & Finishing': 'interiors-properties'
-    };
+    renderSkeleton(grid);
 
-    const apiSegment = sectionMap[category];
-    if (!apiSegment) {
-        console.error('Unknown category:', category);
-        return;
-    }
+    const category = grid.dataset.category || '';
+
+    // API Call to unified services endpoint
+    // Filter by active=true and category
+    // Note: client-api.js fetchPublic prepends /api/ if needed.
+    // If endpoint starts with /, it appends to BASE_URL/api.
+    // So /services -> BASE_URL/api/services.
+    const endpoint = `/services?active=true&category=${encodeURIComponent(category)}`;
 
     try {
-        const listings = await fetchPublic(`/${apiSegment}`);
+        const items = await fetchPublic(endpoint);
+        allItems = Array.isArray(items) ? items : [];
 
-        if (!listings || listings.length === 0) {
-            grid.innerHTML = '<p style="color:#aaa; text-align:center;">No active properties found.</p>';
+        if (allItems.length === 0) {
+            grid.innerHTML = '<p style="color:#aaa; text-align:center; grid-column:1/-1;">No items found.</p>';
             return;
         }
 
-        grid.innerHTML = listings.map(item => createCard(item, apiSegment)).join('');
+        renderItems(grid, allItems);
 
     } catch (error) {
         console.error('Error loading properties:', error);
-        grid.innerHTML = '<p style="color:red; text-align:center;">Failed to load properties.</p>';
+        grid.innerHTML = '<p style="color:red; text-align:center;">Failed to load items.</p>';
     }
 }
 
-function createCard(item, section) {
-    const imgUrl = getImageUrl(item.main_image);
-    const title = item.name || 'Untitled';
-    const cost = item.estimated_cost || '';
-    // Shorten description
-    const desc = item.description ? (item.description.substring(0, 100) + '...') : '';
-
-    const safe = (str) => str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
-
-    return `
-        <div class="re-card">
-            <a href="property.html?section=${section}&id=${item.id}" style="text-decoration:none; color:inherit;">
-                <img src="${imgUrl}" alt="${safe(title)}" class="re-card__img" loading="lazy" onerror="this.onerror=null;this.src='/placeholder.svg';">
-                <div class="re-card__body">
-                    <h3 class="re-card__title">${safe(title)}</h3>
-                    <div class="re-card__loc" style="font-weight:bold; color:#d6b25e;">
-                        ${safe(cost)}
-                    </div>
-                    <p style="font-size:0.9rem; color:#aaa; margin-top:0.5rem;">${safe(desc)}</p>
-                </div>
-            </a>
-            <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
-                <a href="property.html?section=${section}&id=${item.id}" class="re-card__btn">View Details</a>
+function renderSkeleton(container) {
+    const skeletonHTML = `
+        <div class="service-card-item skeleton-card">
+            <div class="card-img-wrapper skeleton-box"></div>
+            <div class="card-content">
+                <div class="skeleton-line" style="width: 70%;"></div>
+                <div class="skeleton-line" style="width: 40%;"></div>
+                <div class="skeleton-line"></div>
             </div>
         </div>
     `;
+    container.innerHTML = skeletonHTML.repeat(3);
+}
+
+function renderItems(container, items) {
+    if (items.length === 0) {
+        container.innerHTML = '<p style="color:#aaa; text-align:center; grid-column:1/-1;">No items found matching your search.</p>';
+        return;
+    }
+    // We pass 'services' as sectionEndpoint so card links to service-details
+    container.innerHTML = items.map(item => ServiceCard(item, 'services', false)).join('');
+}
+
+function filterListings(query) {
+    const grid = document.getElementById('listing-grid');
+    if (!grid) return;
+
+    const lowerQuery = query.toLowerCase();
+    const filtered = allItems.filter(item => {
+        const title = (item.title || item.name || '').toLowerCase();
+        const desc = (item.description || '').toLowerCase();
+        return title.includes(lowerQuery) || desc.includes(lowerQuery);
+    });
+
+    renderItems(grid, filtered);
 }

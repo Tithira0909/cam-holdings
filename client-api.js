@@ -1,5 +1,5 @@
-// Use relative path to leverage Vite proxy
-const API_BASE = '/api';
+const BASE_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE = `${BASE_URL}/api`;
 
 export async function fetchPublic(endpoint) {
     try {
@@ -41,9 +41,10 @@ export function getImageUrl(path) {
     if (!path) return '/placeholder.svg';
     if (path.startsWith('http')) return path;
     let cleanPath = path.replace(/\\/g, '/');
-    // Remove 'uploads/' prefix if present to avoid duplication
     if (cleanPath.startsWith('uploads/')) {
         cleanPath = cleanPath.substring(8);
     }
-    return `/uploads/${cleanPath}`;
+    // Ensure we don't have double slashes if BASE_URL ends with /
+    const base = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+    return `${base}/uploads/${cleanPath}`;
 }

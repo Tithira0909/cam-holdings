@@ -14,6 +14,37 @@ router.get('/services', async (req, res) => {
     }
 });
 
+router.get('/blogs/slug/:slug', async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const [rows] = await db.query("SELECT * FROM blogs WHERE slug = ? AND published_status = 'Published'", [slug]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Blog not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.get('/blogs/:slug', async (req, res) => {
+    try {
+        const { slug } = req.params;
+        let query = "SELECT * FROM blogs WHERE (slug = ? OR id = ?) AND published_status = 'Published'";
+
+        // Basic check if slug acts as ID (fallback)
+        const [rows] = await db.query(query, [slug, slug]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Blog not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // GET /service-types
 router.get('/service-types', async (req, res) => {
     try {

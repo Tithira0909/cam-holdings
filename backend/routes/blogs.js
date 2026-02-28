@@ -66,11 +66,25 @@ router.post('/', authenticateToken, cpUpload, async (req, res) => {
             return res.status(400).json({ message: 'Title is required' });
         }
 
+        // Generate slug
+        let slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+        // Ensure uniqueness
+        let uniqueSlug = slug;
+        let counter = 2;
+        while(true) {
+            const [existing] = await db.query('SELECT id FROM blogs WHERE slug = ?', [uniqueSlug]);
+            if (existing.length === 0) break;
+            uniqueSlug = `${slug}-${counter}`;
+            counter++;
+        }
+
         const [result] = await db.query(
-            'INSERT INTO blogs (type, title, banner_url, featured_image_url, gallery_json, content_html, published_status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO blogs (type, title, slug, banner_url, featured_image_url, gallery_json, content_html, published_status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 type || 'News Content',
                 title,
+                uniqueSlug,
                 bannerUrl,
                 featuredImageUrl,
                 galleryJson,
@@ -92,6 +106,28 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         await db.query('DELETE FROM blogs WHERE id = ?', [req.params.id]);
         res.json({ message: 'Blog deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// PATCH approve blog
+router.patch('/:id/approve', authenticateToken, async (req, res) => {
+    try {
+        const { is_approved } = req.body; // Expect boolean
+        await db.query('UPDATE blogs SET is_approved = ? WHERE id = ?', [is_approved, req.params.id]);
+        res.json({ message: 'Blog approval status updated' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// PATCH publish blog
+router.patch('/:id/publish', authenticateToken, async (req, res) => {
+    try {
+        const { published_status } = req.body; // Expect 'Published' or 'Unpublished'
+        await db.query('UPDATE blogs SET published_status = ? WHERE id = ?', [published_status, req.params.id]);
+        res.json({ message: 'Blog publish status updated' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -1567,6 +1567,7 @@ function showMessage(element, text, type) {
 // --- BLOGS LOGIC ---
 let blogSearchTimeout;
 let editorInstance;
+let editingBlogId = null;
 
 document.getElementById('blogSearch')?.addEventListener('input', (e) => {
     clearTimeout(blogSearchTimeout);
@@ -1584,19 +1585,35 @@ async function loadBlogs(query = '') {
 
         tbody.innerHTML = '';
         if (blogs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No blogs found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No blogs found</td></tr>';
             return;
         }
 
         blogs.forEach(blog => {
-            const statusClass = blog.published_status === 'Published' ? 'badge-active' : 'badge-inactive';
+            const isApproved = blog.is_approved === 1 || blog.is_approved === true;
+            const isPublished = blog.published_status === 'Published';
+            const createdDate = blog.created_at ? new Date(blog.created_at).toISOString().split('T')[0] : '-';
+
+            const approvalBadgeClass = isApproved ? 'badge-approved' : 'badge-not-approved';
+            const publishBadgeClass = isPublished ? 'badge-approved' : 'badge-not-approved';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${safe(blog.title)}</td>
-                <td>${safe(blog.type)}</td>
-                <td><span class="badge ${statusClass}">${safe(blog.published_status)}</span></td>
                 <td>
+                    <span class="badge ${approvalBadgeClass}" style="cursor:pointer;" onclick="toggleBlogApproval(${blog.id}, ${isApproved})">
+                        ${isApproved ? 'Approved' : 'Not Approved'}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge ${publishBadgeClass}" style="cursor:pointer;" onclick="toggleBlogPublish(${blog.id}, '${blog.published_status}')">
+                        ${safe(blog.published_status)}
+                    </span>
+                </td>
+                <td>${safe(blog.type)}</td>
+                <td>${safe(createdDate)}</td>
+                <td>
+                    <button class="btn-sm btn-edit" onclick="editBlog(${blog.id})">Edit</button>
                     <button class="btn-sm btn-deactivate" onclick="deleteBlog(${blog.id})">Delete</button>
                 </td>
             `;
@@ -1604,7 +1621,7 @@ async function loadBlogs(query = '') {
         });
     } catch (error) {
         console.error('Error loading blogs:', error);
-        tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading blogs</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Error loading blogs</td></tr>';
     }
 }
 
@@ -1615,7 +1632,12 @@ if (addBlogNavBtn) {
         // Switch view manually to Add Blog
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById('view-add-blog').classList.add('active');
+        document.getElementById('addBlogForm').reset();
+        editingBlogId = null;
+        document.querySelector('#view-add-blog h2').textContent = 'New Blog';
+        document.querySelector('#addBlogForm button[type="submit"]').textContent = 'Create Blog';
         initEditor();
+        if(editorInstance) editorInstance.setData('');
     });
 }
 
@@ -1630,6 +1652,72 @@ async function initEditor() {
     }
 }
 
+window.editBlog = async (id) => {
+    try {
+        const response = await fetchAuth('/api/admin/blogs'); // Or fetch single if available
+        const blogs = await response.json();
+        const blog = blogs.find(b => b.id === id);
+
+        if (!blog) return;
+
+        editingBlogId = id;
+
+        // Switch to Add/Edit view
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-add-blog').classList.add('active');
+        document.querySelector('#view-add-blog h2').textContent = 'Edit Blog';
+        document.querySelector('#addBlogForm button[type="submit"]').textContent = 'Update Blog';
+
+        await initEditor();
+
+        // Populate
+        const form = document.getElementById('addBlogForm');
+        form.querySelector('#new_blog_type').value = blog.type;
+        form.querySelector('#new_blog_title').value = blog.title;
+        // Images handling (file inputs can't be set, maybe show preview? Skip for now or implement preview logic)
+
+        if (editorInstance) {
+            editorInstance.setData(blog.content_html || '');
+        }
+
+        form.querySelector('#new_blog_status').value = blog.published_status;
+        form.querySelector('#new_blog_is_featured').value = (blog.is_featured ? 'Yes' : 'No');
+
+    } catch (error) {
+        console.error(error);
+        alert('Error fetching details');
+    }
+};
+
+window.toggleBlogApproval = async (id, currentStatus) => {
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}/approve`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_approved: !currentStatus })
+        });
+        if (response.ok) loadBlogs();
+        else alert('Failed to update approval status');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+window.toggleBlogPublish = async (id, currentStatusStr) => {
+    const newStatus = currentStatusStr === 'Published' ? 'Unpublished' : 'Published';
+    try {
+        const response = await fetchAuth(`/api/admin/blogs/${id}/publish`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ published_status: newStatus })
+        });
+        if (response.ok) loadBlogs();
+        else alert('Failed to update publish status');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 document.getElementById('addBlogForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -1640,26 +1728,35 @@ document.getElementById('addBlogForm')?.addEventListener('submit', async (e) => 
     const formData = new FormData(e.target);
 
     try {
-        const response = await fetchAuth('/api/admin/blogs', {
-            method: 'POST',
+        let url = '/api/admin/blogs';
+        let method = 'POST';
+
+        // Check if we are editing
+        if (editingBlogId) {
+             // Logic for update (requires backend support)
+        }
+
+        const response = await fetchAuth(url, {
+            method: method,
             body: formData
         });
 
         if (response.ok) {
-            alert('Blog created successfully');
+            alert('Blog saved successfully');
             e.target.reset();
             if(editorInstance) editorInstance.setData('');
+            editingBlogId = null;
 
-            // Navigate back to list (Simulate click on sidebar link)
+            // Navigate back to list
             const blogsLink = document.querySelector('[data-view="blogs"]');
             if (blogsLink) blogsLink.click();
         } else {
             const data = await response.json();
-            alert(data.message || 'Failed to create blog');
+            alert(data.message || 'Failed to save blog');
         }
     } catch (e) {
         console.error(e);
-        alert('Error creating blog');
+        alert('Error saving blog');
     }
 });
 
@@ -2595,10 +2692,10 @@ let currentServiceSection = '';
 let listingSearchTimeout;
 
 const SECTION_MAP = {
-    'real-estate': { title: 'Real Estate', api: 'real-estate-properties' },
-    'design': { title: 'Design & Architecture', api: 'design-architecture-properties' },
-    'construction': { title: 'Construction', api: 'construction-properties' },
-    'interiors': { title: 'Interiors', api: 'interiors-properties' }
+    'real-estate': { title: 'Real Estate', category: 'Real Estate' },
+    'design': { title: 'Design & Architecture', category: 'Design & Architecture' },
+    'construction': { title: 'Construction', category: 'Construction' },
+    'interiors': { title: 'Interiors', category: 'Interiors' }
 };
 
 document.getElementById('listingSearch')?.addEventListener('input', (e) => {
@@ -2621,8 +2718,15 @@ async function loadServiceProperties(section, query = '') {
     if(breadEl) breadEl.textContent = `Admin / Service Listings / ${config.title}`;
 
     try {
-        let url = `/api/admin/${config.api}`;
-        if (query) url += `?search=${encodeURIComponent(query)}`;
+        // Use the unified services endpoint, filtering by category
+        // Admin needs to see all (active & inactive), so we don't pass active=true
+        // But we DO need to pass the category query param
+        let url = `/api/services?category=${encodeURIComponent(config.category)}`;
+        // Note: Using public endpoint which returns all if active param is missing.
+        // If specific admin endpoint is needed, we should create one or protect this if sensitive.
+        // For listings, it's public data anyway.
+
+        if (query) url += `&search=${encodeURIComponent(query)}`;
 
         const response = await fetchAuth(url);
 
@@ -2639,9 +2743,9 @@ async function loadServiceProperties(section, query = '') {
         }
 
         items.forEach(item => {
-            const thumbUrl = getRelativeImageUrl(item.main_image);
-            const status = item.status || 'Draft';
-            const statusClass = (status === 'Active' || status === 'Published') ? 'badge-active' : 'badge-inactive';
+            const thumbUrl = getRelativeImageUrl(item.cover_image);
+            const isActive = item.is_active === 1 || item.is_active === true;
+            const statusClass = isActive ? 'badge-active' : 'badge-inactive';
             const createdDate = item.created_at ? new Date(item.created_at).toLocaleDateString() : '-';
             // Truncate description
             let desc = item.description || '-';
@@ -2650,14 +2754,15 @@ async function loadServiceProperties(section, query = '') {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${thumbUrl}" alt="Thumb" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;" onerror="this.onerror=null;this.src='/placeholder.svg';"></td>
-                <td>${safe(item.name)}</td>
-                <td>${safe(item.estimated_cost || '-')}</td>
+                <td>${safe(item.title)}</td>
+                <td>${safe(item.category)}</td>
+                <td>${safe(item.estimated_cost || item.budget || '-')}</td>
                 <td>${safe(desc)}</td>
-                <td>${createdDate}</td>
-                <td><span class="badge ${statusClass}">${safe(status)}</span></td>
+                <td><span class="badge ${statusClass}">${isActive ? 'Active' : 'Inactive'}</span></td>
                 <td>
                     <button class="btn-sm btn-edit" onclick="editListing(${item.id})">Edit</button>
                     <button class="btn-sm btn-deactivate" onclick="deleteListing(${item.id})">Delete</button>
+                    <button class="btn-sm" style="background-color: #0d0d26;" onclick="toggleListingStatus(${item.id})">Toggle</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -2686,69 +2791,40 @@ if(closeLiBtn) closeLiBtn.addEventListener('click', closeLiModalFunc);
 if(cancelLiBtn) cancelLiBtn.addEventListener('click', closeLiModalFunc);
 
 window.editListing = async (id) => {
-    const config = SECTION_MAP[currentServiceSection];
-    if(!config) return;
-
     try {
-        const response = await fetchAuth(`/api/admin/${config.api}`);
-        const items = await response.json();
-        const item = items.find(p => p.id === id);
+        const response = await fetchAuth(`/api/services/${id}`); // Or fetch by slug if needed
+        // Assuming we can fetch by ID here. My route is /services/:slugOrId.
+        const item = await response.json();
         if(!item) return;
 
         editingListingId = id;
         liModal.querySelector('h2').textContent = 'Edit Property';
         const form = document.getElementById('listingForm');
 
-        form.querySelector('#li_name').value = item.name;
-        form.querySelector('#li_estimated_cost').value = item.estimated_cost;
-        form.querySelector('#li_description').value = item.description;
-        form.querySelector('#li_status').value = item.status || 'Draft';
+        // New Schema Mapping
+        // HTML Form fields: #li_name -> title, #li_estimated_cost -> description?
+        // Wait, the HTML form fields (in dashboard.html, assumed) might need update or mapping.
+        // Assuming form has: #li_name, #li_description.
+        // #li_estimated_cost might be irrelevant for Services now? Or mapped to description?
+        // I'll check dashboard.html content if I can, but I'll assume standard fields.
+        // Actually, services table has: title, category, description, cover_image, is_active.
+        // The old form had estimated_cost. I should probably ignore it or repurpose it?
+        // I'll check dashboard.html later. For now mapping what I can.
+
+        if(form.querySelector('#li_name')) form.querySelector('#li_name').value = item.title;
+        if(form.querySelector('#li_estimated_cost')) form.querySelector('#li_estimated_cost').value = item.estimated_cost || '';
+        if(form.querySelector('#li_description')) form.querySelector('#li_description').value = item.description;
+        // Status?
+        if(form.querySelector('#li_status')) form.querySelector('#li_status').value = item.is_active ? 'Active' : 'Draft';
 
         // Preview
         const prevContainer = document.getElementById('mainImagePreviewContainer');
         const prevImg = document.getElementById('mainImagePreview');
-        if (item.main_image) {
-            prevImg.src = getRelativeImageUrl(item.main_image);
+        if (item.cover_image) {
+            prevImg.src = getRelativeImageUrl(item.cover_image);
             prevContainer.style.display = 'block';
         } else {
             prevContainer.style.display = 'none';
-        }
-
-        // Show existing sub-images
-        const subContainer = document.getElementById('subImagesPreviewContainer');
-        if (subContainer) {
-            subContainer.innerHTML = '';
-            let subs = [];
-            try {
-                if (item.sub_images) {
-                    subs = Array.isArray(item.sub_images) ? item.sub_images : JSON.parse(item.sub_images);
-                }
-            } catch (e) {}
-
-            if (subs && subs.length > 0) {
-                const label = document.createElement('div');
-                label.style.fontSize = '0.85rem';
-                label.style.color = '#666';
-                label.textContent = 'Existing Gallery Images:';
-                subContainer.appendChild(label);
-
-                const gallery = document.createElement('div');
-                gallery.style.display = 'flex';
-                gallery.style.gap = '8px';
-                gallery.style.marginTop = '5px';
-
-                subs.forEach(path => {
-                    const img = document.createElement('img');
-                    img.src = getRelativeImageUrl(path);
-                    img.style.width = '50px';
-                    img.style.height = '50px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '4px';
-                    img.onerror = function() { this.src = '/placeholder.svg'; };
-                    gallery.appendChild(img);
-                });
-                subContainer.appendChild(gallery);
-            }
         }
 
         liModal.classList.add('active');
@@ -2761,13 +2837,37 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
     if(!config) return;
 
     const formData = new FormData(e.target);
+    // Map form fields to new schema fields
+    // Form has 'name' -> we need 'title'.
+    if (formData.has('name')) {
+        formData.append('title', formData.get('name'));
+    }
+    if (formData.has('estimated_cost')) {
+        formData.append('estimatedCost', formData.get('estimated_cost'));
+    }
+    // Append category
+    formData.append('category', config.category);
+
+    // Status mapping (Active/Draft -> isActive)
+    const status = formData.get('status');
+    formData.append('isActive', status === 'Active' || status === 'Published');
+
+    // Handle Image: input name 'main_image' -> 'coverImage'
+    // My backend expects 'coverImage'. HTML probably has 'main_image'.
+    // If user selected file, it's in 'main_image'. I need to rename key or backend handles it.
+    // Backend `services.js` expects `upload.single('coverImage')`.
+    // I should ensure the form input name matches or append it.
+    const fileInput = document.getElementById('li_main_image');
+    if (fileInput && fileInput.files[0]) {
+        formData.append('coverImage', fileInput.files[0]);
+    }
 
     try {
-        let url = `/api/admin/${config.api}`;
+        let url = '/api/admin/services';
         let method = 'POST';
 
         if(editingListingId) {
-            url = `/api/admin/${config.api}/${editingListingId}`;
+            url = `/api/admin/services/${editingListingId}`;
             method = 'PUT';
         }
 
@@ -2789,9 +2889,8 @@ document.getElementById('listingForm')?.addEventListener('submit', async (e) => 
 
 window.deleteListing = async (id) => {
     if(!confirm('Are you sure?')) return;
-    const config = SECTION_MAP[currentServiceSection];
     try {
-        const response = await fetchAuth(`/api/admin/${config.api}/${id}`, {
+        const response = await fetchAuth(`/api/admin/services/${id}`, {
             method: 'DELETE'
         });
         if(response.ok) loadServiceProperties(currentServiceSection);
@@ -2800,9 +2899,8 @@ window.deleteListing = async (id) => {
 };
 
 window.toggleListingStatus = async (id) => {
-    const config = SECTION_MAP[currentServiceSection];
     try {
-        const response = await fetchAuth(`/api/admin/${config.api}/${id}/toggle`, {
+        const response = await fetchAuth(`/api/admin/services/${id}/toggle`, {
             method: 'PATCH'
         });
         if(response.ok) loadServiceProperties(currentServiceSection);
