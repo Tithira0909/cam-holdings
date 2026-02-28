@@ -442,26 +442,16 @@
         </section>
 
         <!-- BOOK -->
-        <section class="section" id="book">
+        <section id="book" class="section book-section">
+          <div class="book-bg"></div>
           <div class="wrap">
-            <div class="book-cta-banner">
-              <div class="book-content-group">
-                <div class="book-icon-circle">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.03 12.03 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                  </svg>
-                </div>
-                <div class="book-text-wrap">
-                  <h2 class="h2">Book a Free Consultation with an Expert</h2>
-                  <p class="book-text">
-                    Discuss your vision with our specialists. We’ll help align scope, timeline, and budget for a seamless delivery.
-                  </p>
-                </div>
-              </div>
-
-              <div class="book-action">
-                <a class="btn primary" href="get-a-quote.html">BOOK AN APPOINTMENT</a>
-              </div>
+            <div class="book-card" data-reveal="up">
+              <span class="kicker"><span class="dot"></span> BOOK A FREE CONSULTATION</span>
+              <h2 class="h2">Book a Free Consultation</h2>
+              <p class="book-desc">
+                Discuss your vision with our specialists. We’ll help align scope, timeline, and budget for a seamless delivery.
+              </p>
+              <a href="get-a-quote.html" class="btn primary">Book an Appointment</a>
             </div>
           </div>
         </section>
@@ -470,88 +460,34 @@
         <!-- REVIEWS -->
         
       <section id="reviews" class="section section-dark">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="kicker"><span class="dot"></span> CLIENT REVIEWS</span>
-      <h2 class="h2">Confidence built on delivery.</h2>
-      <p>Clients trust our process — from planning clarity to premium finishing.</p>
-    </div>
-
-    <div class="reviews-grid">
-      <!-- Reviews will be loaded here dynamically -->
-      <p>Loading reviews...</p>
-    </div>
-  </div>
-</section>
-
-<!-- LEAVE A REVIEW SECTION -->
-<section class="section" id="leave-review">
-  <!-- Wrapper ensures global alignment and centering -->
-  <div class="wrap">
-    <h2 class="h2 center" style="margin-bottom: 2rem; text-align: center;">LEAVE US A REVIEW!</h2>
-    <div class="lr-grid">
-      <!-- Left: Buttons -->
-      <div class="lr-buttons">
-        <a href="https://google.com" target="_blank" class="btn-review btn-google">
-          <span class="icon">G</span> Review us on Google
-        </a>
-        <a href="https://facebook.com" target="_blank" class="btn-review btn-facebook">
-          <span class="icon">f</span> Review us on Facebook
-        </a>
-        <a href="https://twitter.com" target="_blank" class="btn-review btn-twitter">
-          <span class="icon">𝕏</span> Review us on Twitter
-        </a>
-        <a href="https://trustpilot.com" target="_blank" class="btn-review btn-trustpilot">
-          <span class="icon">★</span> Review us on Trustpilot
-        </a>
-      </div>
-
-      <!-- Right: Form -->
-      <div class="lr-form-wrap">
-        <form id="leaveReviewForm" class="lr-form">
-          <div class="form-row">
-            <label>Name</label>
-            <input type="text" name="name" required>
-          </div>
-          <div class="form-row">
-            <label>Email</label>
-            <input type="email" name="email">
-          </div>
-          <div class="form-row">
-            <label>Message</label>
-            <textarea name="message" rows="4" required></textarea>
-          </div>
-          <div class="form-row">
-             <label>Rating</label>
-             <div class="star-rating-input" id="starRatingInput">
-                <span data-val="1">★</span>
-                <span data-val="2">★</span>
-                <span data-val="3">★</span>
-                <span data-val="4">★</span>
-                <span data-val="5" class="selected">★</span>
-             </div>
-             <input type="hidden" name="rating" id="ratingInput" value="5">
-          </div>
-          <div class="form-row">
-             <label>Source (Optional)</label>
-             <select name="source">
-                <option value="Website">Website (Direct)</option>
-                <option value="Google">Google</option>
-                <option value="Facebook">Facebook</option>
-                <option value="Twitter">Twitter</option>
-                <option value="Trustpilot">Trustpilot</option>
-             </select>
+        <div class="wrap reviews-layout">
+          <!-- Left Info Panel -->
+          <div class="reviews-info" data-reveal="up">
+            <div class="quote-icon-large">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
+            </div>
+            <h2 class="h2">What Our Customers Say</h2>
+            <p class="reviews-desc">
+              We take pride in our process and delivery. Hear from clients who have built their vision with CAM Holdings.
+            </p>
           </div>
 
-          <div class="form-actions">
-            <button type="submit" class="btn primary">Submit Review</button>
+          <!-- Right Slider -->
+          <div class="reviews-slider-wrap" data-reveal="left">
+            <div class="rv-nav-row">
+              <button class="rv-nav rv-prev" aria-label="Previous review">←</button>
+              <button class="rv-nav rv-next" aria-label="Next review">→</button>
+            </div>
+
+            <div id="reviewsTrack" class="reviews-track">
+              <!-- Loaded via JS -->
+            </div>
+
+            <div id="reviewsDots" class="reviews-dots"></div>
           </div>
-          <p class="form-msg" id="reviewMsg"></p>
-        </form>
-      </div>
-    </div>
-  </div>
-</section>
+        </div>
+      </section>
+
 
 
         <!-- FOOTER -->
