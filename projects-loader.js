@@ -50,7 +50,17 @@ async function initProjects() {
             // Badge: First tag or 'Project'
             const badgeText = tags.length > 0 ? tags[0].charAt(0).toUpperCase() + tags[0].slice(1) : 'Project';
 
-            const imageUrl = getImageUrl(project.image_url);
+            // Image Priority: Main > Image > First Gallery
+            let imgPath = project.main_image || project.image_url;
+            // Check project_images first, then gallery_images
+            const galleryField = project.project_images || project.gallery_images;
+            if (!imgPath && galleryField) {
+                try {
+                    const gal = typeof galleryField === 'string' ? JSON.parse(galleryField) : galleryField;
+                    if (Array.isArray(gal) && gal.length > 0) imgPath = gal[0];
+                } catch(e){}
+            }
+            const imageUrl = getImageUrl(imgPath);
 
             card.innerHTML = `
                 <a class="card-link" href="project-details.html?id=${project.id}">

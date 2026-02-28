@@ -703,27 +703,30 @@
 
             <!-- Blogs View -->
             <div id="view-blogs" class="view-section light-view-container">
-                <div class="page-header">
-                    <h2>All Blogs</h2>
-                    <span class="breadcrumb">Admin / All Blogs</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
+                    <button id="addBlogNavBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc; font-weight: bold;">
+                        <span style="margin-right: 5px; font-size: 1.1em;">⊕</span> Add New Resource
+                    </button>
+                    <div style="position: relative;">
+                        <input type="text" id="blogSearch" class="search-input" placeholder="Resource Title" style="width: 400px; padding-right: 35px;">
+                        <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #666;">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        </span>
+                    </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <button id="addBlogNavBtn" class="btn-primary" style="font-size: 0.9rem; background-color: #0066cc;">&plus; Add New Blog</button>
-                    <input type="text" id="blogSearch" class="search-input" placeholder="Blog Title" style="width: 300px;">
-                </div>
-
-                <table class="clients-table">
+                <table class="clients-table" style="margin-top: 0;">
                     <thead>
                         <tr>
-                            <th>Blog Title</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th style="width: 40%;">RESOURCES TITLE</th>
+                            <th style="width: 15%;">APPROVAL STATUS</th>
+                            <th style="width: 15%;">PUBLISHED STATUS</th>
+                            <th style="width: 15%;">CATEGORY</th>
+                            <th style="width: 15%;">ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody id="blogsTableBody">
-                        <tr><td colspan="4">Loading...</td></tr>
+                        <tr><td colspan="5">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -772,6 +775,13 @@
                                 <select id="new_blog_status" name="publishedStatus" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
                                     <option value="Published">Published</option>
                                     <option value="Unpublished">Unpublished</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_blog_approval">Approval Status</label>
+                                <select id="new_blog_approval" name="approvalStatus" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Approved">Approved</option>
+                                    <option value="Pending">Pending</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -922,56 +932,22 @@
                 <div class="admin-form-light" style="max-width: 800px;">
                     <form id="addProjectForm" enctype="multipart/form-data">
                         <div class="client-form-grid">
+                            <!-- 1. Title / Name -->
                             <div class="form-group">
-                                <label for="np_client">Select Client *</label>
-                                <select id="np_client" name="client_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="">Loading...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="np_title">Title *</label>
+                                <label for="np_title">Title / Name *</label>
                                 <input type="text" id="np_title" name="title" required>
                             </div>
+                            <!-- 2. Slug -->
                             <div class="form-group">
-                                <label for="np_slug">Slug</label>
+                                <label for="np_slug">Slug (Auto-generated) *</label>
                                 <input type="text" id="np_slug" name="slug">
                             </div>
+                            <!-- 3. Location -->
                             <div class="form-group">
                                 <label for="np_location">Location</label>
                                 <input type="text" id="np_location" name="location">
                             </div>
-                            <div class="form-group">
-                                <label for="np_budget">Budget</label>
-                                <input type="text" id="np_budget" name="budget">
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="np_description">Description</label>
-                                <div id="projectEditor" style="color: black;"></div>
-                                <input type="hidden" name="description" id="np_description_hidden">
-                            </div>
-                            <div class="form-group">
-                                <label for="np_service">Service</label>
-                                <select id="np_service" name="service_id" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="">Loading...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="np_project_status">Project Status</label>
-                                <select id="np_project_status" name="project_status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="Quotation">Quotation</option>
-                                    <option value="Booking">Booking</option>
-                                    <option value="In Progress">In Progress</option>
-                                    <option value="Completed">Completed</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="np_start_date">Project Start Date</label>
-                                <input type="date" id="np_start_date" name="start_date">
-                            </div>
-                            <div class="form-group">
-                                <label for="np_end_date">Estimated End Date</label>
-                                <input type="date" id="np_end_date" name="end_date">
-                            </div>
+                            <!-- 4. Status -->
                             <div class="form-group">
                                 <label for="np_status">Status</label>
                                 <select id="np_status" name="status" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
@@ -979,25 +955,50 @@
                                     <option value="Inactive">Inactive</option>
                                 </select>
                             </div>
+                            <!-- 5. Start Date -->
                             <div class="form-group">
-                                <label for="np_featured">Featured</label>
-                                <select id="np_featured" name="is_featured" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="No">No</option>
-                                    <option value="Yes">Yes</option>
-                                </select>
+                                <label for="np_start_date">Project Start Date</label>
+                                <input type="date" id="np_start_date" name="start_date">
                             </div>
+                            <!-- 6. End Date -->
                             <div class="form-group">
-                                <label for="np_drawing">Drawing *</label>
-                                <input type="file" id="np_drawing" name="drawing" required>
+                                <label for="np_end_date">Estimated End Date</label>
+                                <input type="date" id="np_end_date" name="end_date">
                             </div>
-                            <div class="form-group">
-                                <label for="np_project_file">Project *</label>
-                                <input type="file" id="np_project_file" name="project" required>
+                            <!-- 7. Main Image -->
+                            <div class="form-group full-width">
+                                <label for="np_main_image">Main Image * (Required)</label>
+                                <div class="file-input-group">
+                                    <input type="file" id="np_main_image" name="main_image" accept="image/*">
+                                </div>
+                                <div id="mainImagePreviewContainer" style="margin-top: 10px;"></div>
                             </div>
+                            <!-- 8. Project Images -->
+                            <div class="form-group full-width">
+                                <label for="np_project_images">Project Images (Multiple)</label>
+                                <div class="file-input-group">
+                                    <input type="file" id="np_project_images" name="project_images" accept="image/*" multiple>
+                                </div>
+                                <div id="projectImagesPreviewContainer" style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
+                            </div>
+                            <!-- 9. Description -->
+                            <div class="form-group full-width">
+                                <label for="np_description">Description</label>
+                                <div id="projectEditor" style="color: black;"></div>
+                                <input type="hidden" name="description" id="np_description_hidden">
+                            </div>
+
+                            <!-- Hidden/Optional Legacy Fields (kept for data integrity if needed, or hidden) -->
+                            <input type="hidden" name="client_id" id="np_client" value="">
+                            <input type="hidden" name="service_id" id="np_service" value="">
+                            <input type="hidden" name="quotation_id" id="np_quotation" value="">
+                            <input type="hidden" name="project_status" id="np_project_status" value="">
+                            <input type="hidden" name="budget" id="np_budget" value="">
+                            <input type="hidden" name="is_featured" id="np_featured" value="No">
                         </div>
 
                         <div class="full-width" style="margin-top: 1rem;">
-                            <button type="submit" class="btn-primary">Create Project</button>
+                            <button type="submit" class="btn-primary">Save Project</button>
                         </div>
                     </form>
                 </div>

@@ -340,50 +340,31 @@
           </div>
         </section>
 
-        <!-- PROJECTS -->
-        <section class="section section-dark" id="projects">
+        <!-- REAL ESTATE PROJECTS -->
+        <section class="home-projects-section" id="projects">
           <div class="wrap">
-            <div class="section-head" data-stagger>
-              <p class="kicker" data-stagger-item><span class="dot"></span> Selected Work</p>
-              <h2 class="h2" data-stagger-item>Projects that reflect luxury, precision, and trust.</h2>
-              <p data-stagger-item>
-                From signature residences to interior transformations — each project is managed end-to-end with clear milestones
-                and premium finishing.
+            <!-- Left Side: Headline -->
+            <div class="section-head">
+              <p class="kicker"><span class="dot"></span> Real Estate Projects</p>
+              <h2 class="h2">Signature Developments</h2>
+              <p>
+                From concept to key handover. Explore our latest portfolio of high-value residential and commercial developments.
               </p>
             </div>
 
-            
-
-            <div class="projects-grid" data-stagger>
-              <a class="project-card" href="/projects.html" data-stagger-item>
-                <div class="pc-media" style="background-image:url('/assets/projects/p1.jpg')" data-parallax="0.06"></div>
-                <div class="pc-body">
-                  <div class="pc-k">Signature Residence</div>
-                  <div class="pc-t">Modern Luxury Villa</div>
-                  <div class="pc-m">Architecture + build management + interiors.</div>
-                </div>
-              </a>
-
-              <a class="project-card" href="/projects.html" data-stagger-item>
-                <div class="pc-media" style="background-image:url('/assets/projects/p2.jpg')" data-parallax="0.06"></div>
-                <div class="pc-body">
-                  <div class="pc-k">Interiors</div>
-                  <div class="pc-t">Premium Finishing Suite</div>
-                  <div class="pc-m">Materials, lighting, custom detailing.</div>
-                </div>
-              </a>
-
-              <a class="project-card" href="/projects.html" data-stagger-item>
-                <div class="pc-media" style="background-image:url('/assets/projects/p3.jpg')" data-parallax="0.06"></div>
-                <div class="pc-body">
-                  <div class="pc-k">Development</div>
-                  <div class="pc-t">Gated Community Plot</div>
-                  <div class="pc-m">Planning, approvals, investor-friendly delivery.</div>
-                </div>
-              </a>
+            <!-- Right/Below: 3 Large Cards Grid -->
+            <div id="home-projects-grid" class="hp-grid">
+               <!-- Loading State -->
+               <div style="height:420px; background:rgba(255,255,255,0.05); border-radius:24px;"></div>
+               <div style="height:420px; background:rgba(255,255,255,0.05); border-radius:24px;"></div>
+               <div style="height:420px; background:rgba(255,255,255,0.05); border-radius:24px;"></div>
             </div>
 
-           
+            <!-- View All Button -->
+            <div style="margin-top: 40px; text-align: center;">
+               <a href="/projects.html" class="btn ghost">View All Projects</a>
+            </div>
+          </div>
         </section>
 
         <!-- PACKAGES -->
@@ -678,6 +659,7 @@
     <script type="module" src="/script.js"></script>
     <script type="module" src="/reviews-loader.js"></script>
     <script type="module" src="/listings-loader.js"></script>
+    <script type="module" src="/home-projects-loader.js"></script>
 
     <!-- =========================
          Loader animation script

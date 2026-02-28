@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const query = `
-      SELECT p.*, s.name as service_name, st.name as category_name, c.name as client_name
+      SELECT p.*, s.name as service_name, st.name as category_name, CONCAT(c.first_name, ' ', c.last_name) as client_name
       FROM projects p
       LEFT JOIN services s ON p.service_id = s.id
       LEFT JOIN service_types st ON s.service_type_id = st.id

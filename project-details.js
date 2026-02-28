@@ -26,14 +26,25 @@ async function initProjectDetails() {
         // Render Data
         document.title = `${project.title} | CAM Holdings`;
 
-        // Image
+        // Image Priority: Main > Image > First Gallery
+        let imgPath = project.main_image || project.image_url;
+        // Check project_images first, then gallery_images
+        const galleryRaw = project.project_images || project.gallery_images;
+
+        if (!imgPath && galleryRaw) {
+            try {
+                const gal = typeof galleryRaw === 'string' ? JSON.parse(galleryRaw) : galleryRaw;
+                if (Array.isArray(gal) && gal.length > 0) imgPath = gal[0];
+            } catch(e){}
+        }
+
         const imgEl = document.getElementById('pdImage');
-        if (imgEl) imgEl.src = getImageUrl(project.image_url);
+        if (imgEl) imgEl.src = getImageUrl(imgPath);
 
         // Text Fields
         setText('pdTitle', project.title);
         setText('pdBadge', project.status || 'Active');
-        setText('pdLocation', project.location || 'N/A');
+        setText('pdLocation', project.location || 'Not provided');
         setText('pdService', project.service_name || 'General');
 
         // Category inference or from DB
@@ -51,8 +62,8 @@ async function initProjectDetails() {
         setText('pdCategory', category);
 
         // Formatting Budget
-        let budgetDisplay = 'TBD';
-        if (project.budget) {
+        let budgetDisplay = 'Not provided';
+        if (project.budget && project.budget !== '0' && project.budget !== '') {
             // Check if it's a number-like string
             const budgetNum = parseFloat(project.budget);
             if (!isNaN(budgetNum)) {
@@ -64,16 +75,10 @@ async function initProjectDetails() {
         setText('pdBudget', budgetDisplay);
 
         // Client
-        // Note: The API returns client_id. To show client name, we might need to fetch client details
-        // or check if the backend joins it. The current backend `GET /:id` (read previously)
-        // just does `SELECT * FROM projects`. So we might just show ID or generic info.
-        // If the project object has client_name (joined), use it. Else hide or show ID.
-        // Looking at memory/file reads, backend is simple select *.
-        // We will just show "Private Client" if not available, or the ID.
         setText('pdClient', project.client_name || 'Private Client');
 
         // Dates
-        const formatDate = (d) => d ? new Date(d).toLocaleDateString() : '-';
+        const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not provided';
         setText('pdStartDate', formatDate(project.start_date));
         setText('pdEndDate', formatDate(project.end_date));
 
@@ -99,6 +104,35 @@ async function initProjectDetails() {
             }
         }
 
+        // Gallery
+        const gallerySection = document.getElementById('pdGallerySection');
+        const galleryGrid = document.getElementById('pdGallery');
+
+        if (gallerySection && galleryGrid) {
+            let galleryImages = [];
+            try {
+                const raw = project.project_images || project.gallery_images;
+                if (raw) {
+                    galleryImages = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                }
+            } catch (e) { console.error('Error parsing gallery images', e); }
+
+            if (Array.isArray(galleryImages) && galleryImages.length > 0) {
+                gallerySection.style.display = 'block';
+                galleryGrid.innerHTML = '';
+                galleryImages.forEach(img => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    const src = getImageUrl(img);
+                    item.innerHTML = `<img src="${src}" class="gallery-img" alt="Gallery Image">`;
+                    item.onclick = () => openLightbox(src);
+                    galleryGrid.appendChild(item);
+                });
+            } else {
+                gallerySection.style.display = 'none';
+            }
+        }
+
         // Show Content
         if(loadingEl) loadingEl.style.display = 'none';
         if(contentEl) contentEl.style.display = 'block';
@@ -116,14 +150,50 @@ function setText(id, text) {
 }
 
 function createDocLink(label, url) {
-    const a = document.createElement('a');
-    a.href = getImageUrl(url);
-    a.target = '_blank';
-    a.className = 'btn ghost';
-    a.style.fontSize = '0.8rem';
-    a.style.padding = '0.6rem 1rem';
-    a.innerHTML = `<span>📄</span> ${label}`;
-    return a;
+    const fullUrl = getImageUrl(url);
+    const ext = fullUrl.split('.').pop().toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+
+    if (isImage) {
+        const div = document.createElement('a');
+        div.href = fullUrl;
+        div.target = '_blank';
+        div.className = 'doc-thumb-link';
+        div.innerHTML = `
+            <img src="${fullUrl}" class="doc-thumb" alt="${label}">
+            <span style="font-size:0.8rem;">${label}</span>
+        `;
+        return div;
+    } else {
+        const a = document.createElement('a');
+        a.href = fullUrl;
+        a.target = '_blank';
+        a.className = 'btn ghost';
+        a.style.fontSize = '0.8rem';
+        a.style.padding = '0.6rem 1rem';
+        a.innerHTML = `<span>📄</span> ${label}`;
+        return a;
+    }
 }
+
+// Lightbox Logic
+function openLightbox(src) {
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightboxImage');
+    if (lb && lbImg) {
+        lbImg.src = src;
+        lb.classList.add('active');
+    }
+}
+
+document.querySelector('.lightbox-close')?.addEventListener('click', () => {
+    document.getElementById('lightbox').classList.remove('active');
+});
+
+document.getElementById('lightbox')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+        document.getElementById('lightbox').classList.remove('active');
+    }
+});
 
 document.addEventListener('DOMContentLoaded', initProjectDetails);
