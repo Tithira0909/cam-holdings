@@ -1446,24 +1446,42 @@ function initExclusivePropertiesAnimations() {
     }
   });
 
-  // Stagger sequence: Kicker -> Title -> Subtitle -> Grid (Card) -> Button
-  // We select the specific elements to ensure correct order
   const kicker = sec.querySelector(".kicker");
   const title = sec.querySelector(".h2");
-  const sub = sec.querySelector(".section-head p");
-  const grid = sec.querySelector(".re-grid"); // This acts as the container/card
-  const btn = sec.querySelector(".btn");
+  const sub = sec.querySelector(".section-head p:not(.kicker)");
+  const grid = sec.querySelector(".re-grid");
+  const buttons = sec.querySelectorAll(".re-actions .btn");
 
-  const targets = [kicker, title, sub, grid, btn].filter(Boolean);
-
-  if (targets.length) {
-    tl.from(targets, {
+  // 1. Heading Fade In + Up
+  const headTargets = [kicker, title, sub].filter(Boolean);
+  if (headTargets.length) {
+    tl.from(headTargets, {
       y: 20,
       opacity: 0,
       duration: 0.85,
       ease: "power3.out",
       stagger: 0.12
     });
+  }
+
+  // 2. Card/Grid Scale (0.98 -> 1)
+  if (grid) {
+    tl.fromTo(grid,
+      { opacity: 0, scale: 0.98 },
+      { opacity: 1, scale: 1, duration: 0.85, ease: "power3.out" },
+      "-=0.4"
+    );
+  }
+
+  // 3. Buttons animate after card
+  if (buttons.length) {
+    tl.from(buttons, {
+      y: 15,
+      opacity: 0,
+      duration: 0.6,
+      ease: "power3.out",
+      stagger: 0.08
+    }, "-=0.2");
   }
 }
 

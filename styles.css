@@ -511,8 +511,79 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 .hero-header{
   width:min(980px, calc(100% - 2.5rem));
   text-align:center;
+  position: relative;
 }
+/* Soft dark overlay behind text */
+.hero-header::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140%;
+  height: 200%;
+  background: radial-gradient(closest-side, rgba(0,0,0,0.8), transparent);
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(40px);
+  opacity: 0.8;
+}
+
 .hero-header.hero-contrast{ transform: translateY(-2vh); }
+
+/* Hero Typography Updates */
+.hero-h {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-line {
+  display: block;
+}
+
+/* "Build premium spaces with" */
+.hero-line:first-child {
+  font-size: 1.1rem;
+  color: var(--muted);
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+/* "CAM Holdings (PVT) LTD" */
+.hero-line em {
+  display: block;
+  font-family: "Josefin Sans", sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 5vw, 4.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+
+  /* Champagne Gold Gradient using existing vars */
+  background: linear-gradient(135deg, var(--gold2) 10%, var(--gold) 60%, #b88d38 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  /* Subtle Glow */
+  filter: drop-shadow(0 0 25px rgba(214, 178, 94, 0.3));
+
+  margin-top: 6px;
+}
+
+@media (max-width: 860px) {
+  .hero-line em {
+    white-space: normal; /* Ensure wrapping */
+    font-size: 2.2rem;
+  }
+  /* Ensure header remains centered or wraps nicely */
+  .hero-h {
+    align-items: center;
+  }
+}
 .hero-sub{
   margin-top:0.85rem;
   color: rgba(255,255,255,0.70);
@@ -965,8 +1036,8 @@ canvas{ width:100%; height:100%; object-fit:cover; }
 }
 
 #packages .section-head{
-  text-align: center;
-  margin-inline: auto;
+  text-align: left;
+  margin-inline: 0;
 }
 
 #packages .packages-grid{
@@ -5666,4 +5737,45 @@ select:-webkit-autofill:focus {
   background: rgba(255,255,255,0.03);
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ===============================
+   Real Estate Actions
+================================ */
+.re-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .re-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .re-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Real Estate Mobile & Hover */
+.re-empty {
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.re-empty:hover {
+  transform: translateY(-4px);
+  border-color: rgba(214,178,94,0.35);
+  box-shadow: 0 22px 70px rgba(0,0,0,0.60);
+}
+
+@media (max-width: 768px) {
+  #exclusive-properties .section-head {
+    text-align: center;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
