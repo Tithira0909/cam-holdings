@@ -10,6 +10,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { bookSectionConfig, initBookForm } from "./book-appointment-section.js";
 
 // Expose for loaders
 window.gsap = gsap;
@@ -117,17 +118,17 @@ document.addEventListener("DOMContentLoaded", () => {
   initPinnedSectionsSnapped();
 
   // -------------------------------------------------------
-  // 10) REVIEWS SLIDER (drag + arrows + dots)
+  // 11) BOOK FORM INIT
   // -------------------------------------------------------
-  initReviewsSlider();
+  initBookForm();
 
   // -------------------------------------------------------
-  // 11) FOOTER REVEAL (single)
+  // 12) FOOTER REVEAL (single)
   // -------------------------------------------------------
   initFooterReveal();
 
   // -------------------------------------------------------
-  // 12) REFRESH ONCE (and on resize)
+  // 13) REFRESH ONCE (and on resize)
   // -------------------------------------------------------
   requestAnimationFrame(() => ScrollTrigger.refresh());
   window.addEventListener("resize", () => requestAnimationFrame(() => ScrollTrigger.refresh()));
@@ -179,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
       navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === `#${id}`));
     };
 
-    const ids = ["hero", "iterate", "projects", "", "book", "reviews"];
+    const ids = ["hero", "iterate", "projects", "", "book"];
     ids.forEach((id) => {
       const sec = document.getElementById(id);
       if (!sec) return;
@@ -826,7 +827,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       // Exclude elements inside pinned stages (they are handled by initPinnedSectionsSnapped)
       // Also exclude #exclusive-properties as it has a custom stagger sequence
-      if (el.closest("#projects, #packages, #book, #reviews, #exclusive-properties")) return;
+      if (el.closest("#projects, #packages, #book, #exclusive-properties")) return;
 
       const mode = el.getAttribute("data-reveal") || "up";
       const isHead = el.matches(".section-head") || el.querySelector(".h2, .kicker");
@@ -1054,101 +1055,9 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
 
-  }
+    // ---------------- Book Appointment (Imported Config)
+    makeStepStage(bookSectionConfig);
 
-  // -------------------------
-  // Reviews slider (track + dots + arrows + drag)
-  // -------------------------
-  function initReviewsSlider() {
-    const root = document.getElementById("reviews");
-    const track = document.getElementById("reviewsTrack");
-    const dotsWrap = document.getElementById("reviewsDots");
-    const prev = root?.querySelector(".rv-prev");
-    const next = root?.querySelector(".rv-next");
-    if (!root || !track) return;
-
-    let cards = [];
-    let dots = [];
-
-    const setup = () => {
-      cards = Array.from(track.querySelectorAll(".review"));
-      if (!cards.length) return;
-
-      // Build dots
-      if (dotsWrap) {
-        dotsWrap.innerHTML = "";
-        cards.forEach((_, i) => {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = "rv-dot" + (i === 0 ? " active" : "");
-          b.setAttribute("aria-label", `Go to review ${i + 1}`);
-          b.addEventListener("click", () => scrollToIndex(i));
-          dotsWrap.appendChild(b);
-        });
-        dots = Array.from(dotsWrap.querySelectorAll(".rv-dot"));
-      }
-    };
-
-    const cardStep = () => {
-      if (cards.length < 2) return cards[0]?.offsetWidth + 16 || 300;
-      const a = cards[0].offsetLeft;
-      const b = cards[1].offsetLeft;
-      return Math.max(1, b - a);
-    };
-
-    const activeIndex = () => Math.round(track.scrollLeft / cardStep());
-
-    const setActiveDot = (i) => dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
-
-    const scrollToIndex = (i) => {
-      const step = cardStep();
-      track.scrollTo({ left: i * step, behavior: "smooth" });
-    };
-
-    prev?.addEventListener("click", () => scrollToIndex(Math.max(0, activeIndex() - 1)));
-    next?.addEventListener("click", () => scrollToIndex(Math.min(cards.length - 1, activeIndex() + 1)));
-
-    // Drag
-    let isDown = false;
-    let startX = 0;
-    let startLeft = 0;
-
-    track.addEventListener("pointerdown", (e) => {
-      isDown = true;
-      track.classList.add("is-dragging");
-      track.setPointerCapture(e.pointerId);
-      startX = e.clientX;
-      startLeft = track.scrollLeft;
-    });
-
-    track.addEventListener("pointermove", (e) => {
-      if (!isDown) return;
-      const dx = e.clientX - startX;
-      track.scrollLeft = startLeft - dx;
-    });
-
-    const endDrag = () => {
-      if (!isDown) return;
-      isDown = false;
-      track.classList.remove("is-dragging");
-      const i = Math.max(0, Math.min(cards.length - 1, activeIndex()));
-      setActiveDot(i);
-      scrollToIndex(i);
-    };
-
-    track.addEventListener("pointerup", endDrag);
-    track.addEventListener("pointercancel", endDrag);
-    track.addEventListener("pointerleave", endDrag);
-
-    let rafId = null;
-    track.addEventListener("scroll", () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => setActiveDot(activeIndex()));
-    });
-
-    // Initial setup + Listen for dynamic load
-    setup();
-    window.addEventListener('reviews-loaded', setup);
   }
 
   // -------------------------

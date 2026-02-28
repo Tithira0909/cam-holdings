@@ -424,36 +424,68 @@
        
 
 
-        <!-- REVIEWS -->
-        
-      <section id="reviews" class="section section-dark">
-        <div class="wrap reviews-layout">
-          <!-- Left Info Panel -->
-          <div class="reviews-info" data-reveal="up">
-            <div class="quote-icon-large">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></svg>
+        <!-- BOOK APPOINTMENT -->
+        <section class="section section-dark" id="book">
+          <div class="wrap book-split" data-stagger>
+            <!-- Left: Text + CTA -->
+            <div class="book-text" data-stagger-item>
+              <div class="section-head">
+                <p class="kicker"><span class="dot"></span> Consultation</p>
+                <h2 class="h2">Book a Free Consultation</h2>
+                <p>Discuss your vision with our experts and get a clear roadmap for your project.</p>
+              </div>
+              <a href="#bookFormCard" class="btn primary">Book an Appointment</a>
             </div>
-            <h2 class="h2">What Our Customers Say</h2>
-            <p class="reviews-desc">
-              We take pride in our process and delivery. Hear from clients who have built their vision with CAM Holdings.
-            </p>
+
+            <!-- Right: Form Card -->
+            <div class="book-form-card" id="bookFormCard" data-stagger-item>
+              <form id="bookForm" class="contact-form">
+                <div class="field">
+                  <label for="bf-name">Full Name</label>
+                  <input type="text" id="bf-name" name="name" placeholder="Enter your name" required>
+                </div>
+
+                <div class="field">
+                  <label for="bf-email">Email Address</label>
+                  <input type="email" id="bf-email" name="email" placeholder="name@example.com" required>
+                </div>
+
+                <div class="form-row">
+                  <div class="field">
+                    <label for="bf-phone">Phone Number</label>
+                    <input type="tel" id="bf-phone" name="phone" placeholder="+94 ..." required>
+                  </div>
+                  <div class="field">
+                    <label for="bf-date">Preferred Date</label>
+                    <input type="date" id="bf-date" name="date">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="bf-service">Service Type</label>
+                  <select id="bf-service" name="service" required>
+                    <option value="" disabled selected>Select a service</option>
+                    <option value="Real Estate">Real Estate & Development</option>
+                    <option value="Architecture">Architecture & Design</option>
+                    <option value="Construction">Construction & Management</option>
+                    <option value="Interiors">Interiors & Finishing</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="bf-message">Message (Optional)</label>
+                  <textarea id="bf-message" name="message" rows="3" placeholder="Any specific requirements?"></textarea>
+                </div>
+
+                <div class="form-actions" style="margin-top: 20px;">
+                  <button type="submit" class="btn primary" style="width:100%;">Submit Request</button>
+                </div>
+                <div id="bookSuccess" class="form-msg success" style="display:none;">Request submitted successfully!</div>
+              </form>
+            </div>
           </div>
+        </section>
 
-          <!-- Right Slider -->
-          <div class="reviews-slider-wrap" data-reveal="left">
-            <div class="rv-nav-row">
-              <button class="rv-nav rv-prev" aria-label="Previous review">←</button>
-              <button class="rv-nav rv-next" aria-label="Next review">→</button>
-            </div>
-
-            <div id="reviewsTrack" class="reviews-track">
-              <!-- Loaded via JS -->
-            </div>
-
-            <div id="reviewsDots" class="reviews-dots"></div>
-          </div>
-        </div>
-      </section>
 
 
 
@@ -518,7 +550,6 @@
          Main site script (GSAP/Lenis)
     ========================== -->
     <script type="module" src="/script.js"></script>
-    <script type="module" src="/reviews-loader.js"></script>
     <script type="module" src="/listings-loader.js"></script>
     <script type="module" src="/home-projects-loader.js"></script>
 

@@ -2,70 +2,69 @@
 > cg-adaline-scroll-animation@1.0.0 dev
 > vite
 
-Port 5173 is in use, trying another one...
 
-  VITE v7.3.0  ready in 693 ms
+  VITE v7.3.0  ready in 357 ms
 
-  ➜  Local:   http://localhost:5174/
+  ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
-1:30:02 PM [vite] http proxy error: /api/public/reviews
+9:03:29 AM [vite] http proxy error: /api/public/reviews
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
-1:30:03 PM [vite] http proxy error: /api/projects
+9:03:29 AM [vite] http proxy error: /api/projects
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
-1:30:11 PM [vite] http proxy error: /api/public/reviews
+9:04:17 AM [vite] http proxy error: /api/public/reviews
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
-1:30:11 PM [vite] http proxy error: /api/projects
+9:04:17 AM [vite] http proxy error: /api/projects
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+12:21:35 PM [vite] (client) page reload index.html
+12:22:02 PM [vite] (client) hmr update /styles.css?direct
+12:22:29 PM [vite] (client) page reload book-appointment-section.js
+12:22:45 PM [vite] (client) page reload script.js
+12:23:25 PM [vite] http proxy error: /api/public/reviews
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:23:25 PM [vite] http proxy error: /api/projects
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:26:24 PM [vite] (client) page reload index.html
+12:26:41 PM [vite] (client) hmr update /styles.css?direct
+12:27:06 PM [vite] http proxy error: /api/public/reviews
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:27:06 PM [vite] http proxy error: /api/projects
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:29:19 PM [vite] (client) page reload book-appointment-section.js
+12:29:34 PM [vite] http proxy error: /api/public/reviews
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:29:34 PM [vite] http proxy error: /api/projects
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+1:26:04 PM [vite] (client) hmr update /styles.css?direct
+1:27:53 PM [vite] (client) page reload index.html
+1:28:16 PM [vite] (client) page reload script.js
 1:45:50 PM [vite] (client) page reload index.html
 1:46:30 PM [vite] (client) hmr update /styles.css?direct
-1:47:06 PM [vite] http proxy error: /api/public/reviews
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-1:47:06 PM [vite] http proxy error: /api/projects
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-1:47:15 PM [vite] http proxy error: /api/public/reviews
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-1:47:15 PM [vite] http proxy error: /api/projects
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-2:08:01 PM [vite] (client) page reload index.html
 2:08:01 PM [vite] (client) page reload index.html
 2:08:10 PM [vite] (client) page reload index.html
 2:08:53 PM [vite] (client) hmr update /styles.css?direct
 2:09:32 PM [vite] (client) page reload script.js
-2:10:06 PM [vite] (client) page reload testimonials-section.js
-2:10:59 PM [vite] http proxy error: /api/projects
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-2:11:39 PM [vite] http proxy error: /api/projects
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
-2:11:45 PM [vite] http proxy error: /api/projects
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
 2:33:25 PM [vite] (client) page reload index.html
 2:34:08 PM [vite] (client) page reload script.js
-2:36:07 PM [vite] http proxy error: /api/projects
-AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7)
 5:34:23 PM [vite] (client) hmr update /styles.css?direct
 5:40:14 PM [vite] (client) hmr update /styles.css?direct
 2:47:22 AM [vite] (client) hmr update /styles.css?direct
@@ -82,6 +81,5 @@ AggregateError [ECONNREFUSED]:
 10:53:52 AM [vite] (client) page reload index.html
 10:57:32 AM [vite] (client) page reload script.js
 10:57:47 AM [vite] (client) page reload script.js
-10:58:13 AM [vite] (client) page reload review-section.js
 10:58:48 AM [vite] (client) hmr update /styles.css?direct
 11:02:03 AM [vite] (client) hmr update /styles.css?direct
