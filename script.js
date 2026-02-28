@@ -122,6 +122,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initReviewsSlider();
 
   // -------------------------------------------------------
+  // 10.5) BOOK CTA ANIMATION (Standard Reveal)
+  // -------------------------------------------------------
+  initBookCTAAnimation();
+
+  // -------------------------------------------------------
   // 11) FOOTER REVEAL (single)
   // -------------------------------------------------------
   initFooterReveal();
@@ -1040,30 +1045,6 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
 
-    // ---------------- Book (Banner Fade -> Inner Stagger)
-    makeStepStage({
-      id: "book",
-      beats: 2, /* fewer beats needed for a single banner */
-      endVh: 80, /* shorter scroll distance */
-      onBuild: ({ sec, tl }) => {
-        // Main banner container
-        const banner = sec.querySelector(".book-cta-banner");
-
-        // Inner elements for stagger
-        const icon = sec.querySelector(".book-icon-circle");
-        const title = sec.querySelector(".book-cta-title");
-        const sub = sec.querySelector(".book-cta-sub");
-        const btn = sec.querySelector(".book-cta-right .btn");
-
-        // 1. Reveal Banner Card first (fade up)
-        scrubReveal(tl, [banner], { at: 0.02, fromY: 24 });
-
-        // 2. Stagger inner content (Icon -> Title -> Sub -> Button)
-        const innerItems = [icon, title, sub, btn].filter(Boolean);
-        scrubReveal(tl, innerItems, { at: 0.35, stagger: 0.12, fromY: 14 });
-      },
-    });
-
     // ---------------- Reviews (Intro -> Cards -> Nav/Dots)
     makeStepStage({
       id: "reviews",
@@ -1086,6 +1067,60 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       },
     });
+  }
+
+  // -------------------------
+  // Book CTA Animation (Standard ScrollTrigger)
+  // -------------------------
+  function initBookCTAAnimation() {
+    if (reduceMotion()) return;
+    const banner = document.querySelector(".book-cta-banner");
+    if (!banner) return;
+
+    // Use new selectors based on refactor
+    const icon = banner.querySelector(".book-icon-circle");
+    const title = banner.querySelector("h2");
+    const text = banner.querySelector(".book-text");
+    const btn = banner.querySelector(".book-action .btn");
+
+    // Banner card itself - matching "Recent Projects" fade in
+    gsap.fromTo(
+      banner,
+      { y: 24, autoAlpha: 0 },
+      {
+        y: 0,
+        autoAlpha: 1,
+        duration: 0.85,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: banner,
+          start: "top 82%",
+          toggleActions: "play none none reverse"
+        }
+      }
+    );
+
+    // Inner items Stagger: Icon -> Title -> Text -> Button
+    const items = [icon, title, text, btn].filter(Boolean);
+    if (items.length) {
+      gsap.fromTo(
+        items,
+        { y: 14, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.08,
+          delay: 0.1, // Slight delay after banner starts
+          scrollTrigger: {
+            trigger: banner,
+            start: "top 82%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
+    }
   }
 
   // -------------------------
